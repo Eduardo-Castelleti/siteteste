@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adicionar/Editar Parceiro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana; background:#f4f4f4; padding:20px; }
+h1 { text-align:center; margin-bottom:20px; color:#2c3e50; }
+.form-container { max-width:600px; margin:0 auto; background:#fff; padding:20px; box-shadow:0 0 10px rgba(0,0,0,0.1); border-radius:6px;}
+.form-container h2 { margin-bottom:15px; text-align:center; }
+input, textarea { width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:4px; }
+button { background:#2980b9; color:#fff; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; }
+.checkbox-group { display:flex; flex-wrap:wrap; margin-bottom:10px; }
+.checkbox-group label { margin-right:15px; }
+</style>
+</head>
+<body>
+
+<div class="form-container">
+  <h2 id="form-title">Adicionar Parceiro</h2>
+  <input type="hidden" id="partnerId">
+
+  <label>Nome do Parceiro</label>
+  <input type="text" id="nome" placeholder="Nome da empresa">
+
+  <label>Tipo de Parceiro</label>
+  <div class="checkbox-group">
+    <label><input type="checkbox" name="tipo" value="Banho e Tosa"> Banho e Tosa</label>
+    <label><input type="checkbox" name="tipo" value="Creche"> Creche</label>
+    <label><input type="checkbox" name="tipo" value="Hospedagem"> Hospedagem</label>
+    <label><input type="checkbox" name="tipo" value="Outros"> Outros serviços</label>
+  </div>
+
+  <label>Responsável</label>
+  <input type="text" id="responsavel" placeholder="Nome do responsável">
+
+  <label>Telefone</label>
+  <input type="text" id="telefone" placeholder="(XX) XXXXX-XXXX">
+
+  <label>E-mail</label>
+  <input type="email" id="email" placeholder="email@exemplo.com">
+
+  <label>Endereço</label>
+  <input type="text" id="endereco" placeholder="Rua, Número, Bairro">
+
+  <label>Cidade / Bairro</label>
+  <input type="text" id="cidade" placeholder="Cidade / Bairro">
+
+  <label>Status</label>
+  <select id="status">
+    <option value="Ativo">Ativo</option>
+    <option value="Inativo">Inativo</option>
+  </select>
+
+  <label>Observações</label>
+  <textarea id="observacoes" placeholder="Informações adicionais..."></textarea>
+
+  <button id="saveBtn">Salvar Parceiro</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+// ===== FIREBASE =====
+const firebaseConfig = {
+  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
+  authDomain: "site-f6495.firebaseapp.com",
+  projectId: "site-f6495",
+  storageBucket: "site-f6495.firebasestorage.app",
+  messagingSenderId: "230161402024",
+  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
+  measurementId: "G-51G8XF6JH0"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const urlParams = new URLSearchParams(window.location.search);
+const partnerId = urlParams.get('id');
+
+if(partnerId){
+  document.getElementById('form-title').innerText = 'Editar Parceiro';
+  db.collection('parceiros').doc(partnerId).get().then(doc=>{
+    const p = doc.data();
+    document.getElementById('nome').value = p.nome;
+    document.getElementById('responsavel').value = p.responsavel;
+    document.getElementById('telefone').value = p.telefone;
+    document.getElementById('email').value = p.email;
+    document.getElementById('endereco').value = p.endereco;
+    document.getElementById('cidade').value = p.cidade;
+    document.getElementById('status').value = p.status;
+    document.getElementById('observacoes').value = p.observacoes;
+    // Marcar checkboxes
+    const checkboxes = document.querySelectorAll('input[name="tipo"]');
+    checkboxes.forEach(cb => { if(p.tipo.includes(cb.value)) cb.checked = true; });
+  });
+}
+
+document.getElementById('saveBtn').addEventListener('click', ()=>{
+  const tipos = [];
+  document.querySelectorAll('input[name="tipo"]:checked').forEach(cb => tipos.push(cb.value));
+
+  const data = {
+    nome: document.getElementById('nome').value,
+    tipo: tipos,
+    responsavel: document.getElementById('responsavel').value,
+    telefone: document.getElementById('telefone').value,
+    email: document.getElementById('email').value,
+    endereco: document.getElementById('endereco').value,
+    cidade: document.getElementById('cidade').value,
+    status: document.getElementById('status').value,
+    observacoes: document.getElementById('observacoes').value
+  };
+
+  if(partnerId){
+    db.collection('parceiros').doc(partnerId).set(data).then(()=>{
+      alert('Parceiro atualizado com sucesso!');
+      window.location.href = 'parceiros.html';
+    });
+  } else {
+    db.collection('parceiros').add(data).then(()=>{
+      alert('Parceiro adicionado com sucesso!');
+      window.location.href = 'parceiros.html';
+    });
+  }
+});
+</script>
+</body>
+</html>
