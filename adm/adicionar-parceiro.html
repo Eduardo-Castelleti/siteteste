@@ -65,28 +65,31 @@ button { background:#2980b9; color:#fff; border:none; padding:10px 20px; border-
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
 // ===== FIREBASE =====
 const firebaseConfig = {
-  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
-  authDomain: "site-f6495.firebaseapp.com",
-  projectId: "site-f6495",
-  storageBucket: "site-f6495.firebasestorage.app",
-  messagingSenderId: "230161402024",
-  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
-  measurementId: "G-51G8XF6JH0"
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_STORAGE_BUCKET",
+  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+  appId: "SEU_APP_ID"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 const urlParams = new URLSearchParams(window.location.search);
 const partnerId = urlParams.get('id');
 
+// ===== PREENCHE FORMULÁRIO SE FOR EDIÇÃO =====
 if(partnerId){
   document.getElementById('form-title').innerText = 'Editar Parceiro';
   db.collection('parceiros').doc(partnerId).get().then(doc=>{
     const p = doc.data();
     document.getElementById('nome').value = p.nome;
+    document.getElementById('cnpjcpf').value = p.cnpjcpf;
     document.getElementById('responsavel').value = p.responsavel;
     document.getElementById('telefone').value = p.telefone;
     document.getElementById('email').value = p.email;
@@ -94,18 +97,19 @@ if(partnerId){
     document.getElementById('cidade').value = p.cidade;
     document.getElementById('status').value = p.status;
     document.getElementById('observacoes').value = p.observacoes;
-    // Marcar checkboxes
     const checkboxes = document.querySelectorAll('input[name="tipo"]');
-    checkboxes.forEach(cb => { if(p.tipo.includes(cb.value)) cb.checked = true; });
+    checkboxes.forEach(cb => { if(p.tipo && p.tipo.includes(cb.value)) cb.checked = true; });
   });
 }
 
+// ===== SALVAR OU ATUALIZAR PARCEIRO =====
 document.getElementById('saveBtn').addEventListener('click', ()=>{
   const tipos = [];
   document.querySelectorAll('input[name="tipo"]:checked').forEach(cb => tipos.push(cb.value));
 
   const data = {
     nome: document.getElementById('nome').value,
+    cnpjcpf: document.getElementById('cnpjcpf').value,
     tipo: tipos,
     responsavel: document.getElementById('responsavel').value,
     telefone: document.getElementById('telefone').value,
@@ -116,16 +120,35 @@ document.getElementById('saveBtn').addEventListener('click', ()=>{
     observacoes: document.getElementById('observacoes').value
   };
 
-  if(partnerId){
-    db.collection('parceiros').doc(partnerId).set(data).then(()=>{
-      alert('Parceiro atualizado com sucesso!');
-      window.location.href = 'parceiros.html';
-    });
+  function savePartner(uid=null){
+    if(partnerId){
+      db.collection('parceiros').doc(partnerId).set({...data, uid}).then(()=>{
+        alert('Parceiro atualizado com sucesso!');
+        window.location.href = 'parceiros.html';
+      });
+    } else {
+      db.collection('parceiros').add({...data, uid}).then(()=>{
+        alert('Parceiro adicionado com sucesso!');
+        window.location.href = 'parceiros.html';
+      });
+    }
+  }
+
+  // ===== CRIAR LOGIN AUTOMÁTICO =====
+  if(!partnerId){ // somente criar login se for novo parceiro
+    const email = data.email;
+    const senha = 'Senha123'; // pode gerar aleatória depois
+    auth.createUserWithEmailAndPassword(email, senha)
+      .then(userCredential => {
+        const uid = userCredential.user.uid;
+        savePartner(uid);
+      })
+      .catch(error => {
+        console.error('Erro ao criar login:', error);
+        alert('Erro ao criar login do parceiro. Verifique o e-mail.');
+      });
   } else {
-    db.collection('parceiros').add(data).then(()=>{
-      alert('Parceiro adicionado com sucesso!');
-      window.location.href = 'parceiros.html';
-    });
+    savePartner(); // atualização não cria login
   }
 });
 </script>
