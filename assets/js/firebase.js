@@ -37,3 +37,8 @@ const data = {
   status: document.getElementById('status').value,
   observacoes: document.getElementById('observacoes').value
 };
+
+const backBtn = document.getElementById('backBtn');
+backBtn.addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
