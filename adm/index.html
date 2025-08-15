@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ADM - Dashboard Petshop</title>
+<title>Admin - Dashboard</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 /* ===== RESET ===== */
-* { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, sans-serif; }
-body { background-color:#f4f6f9; color:#333; }
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, sans-serif; }
+body { background:#f4f6f9; color:#333; }
 a { text-decoration:none; color:inherit; }
 
 /* ===== MENU LATERAL ===== */
-.sidebar { position:fixed; left:0; top:0; bottom:0; width:250px; background-color:#2c3e50; color:#ecf0f1; padding-top:20px; }
+.sidebar { position:fixed; left:0; top:0; bottom:0; width:250px; background:#2c3e50; color:#ecf0f1; padding-top:20px; }
 .sidebar h2 { text-align:center; margin-bottom:20px; font-size:1.5em; }
 .sidebar ul { list-style:none; }
-.sidebar ul li { padding:15px 20px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
-.sidebar ul li:hover { background-color:#34495e; }
+.sidebar ul li { padding:15px 20px; cursor:pointer; display:flex; align-items:center; }
+.sidebar ul li:hover { background:#34495e; }
 .sidebar ul li i { margin-right:10px; }
 
 /* ===== CONTEÚDO ===== */
@@ -25,48 +25,129 @@ a { text-decoration:none; color:inherit; }
 
 /* ===== CARDS ===== */
 .cards { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:30px; }
-.card { background:#fff; flex:1; min-width:200px; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); cursor:pointer; transition:0.2s; }
-.card:hover { box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+.card { background:#fff; flex:1; min-width:200px; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
 .card h3 { margin-bottom:10px; font-size:1.1em; color:#555; }
 .card p { font-size:1.5em; font-weight:bold; color:#2c3e50; }
 
-/* ===== GRAFICOS ===== */
+/* ===== GRÁFICOS ===== */
 .chart-container { background:#fff; padding:20px; border-radius:8px; margin-bottom:30px; }
 
-/* ===== RESPONSIVO ===== */
 @media(max-width:768px){ .sidebar{ width:200px; } .main-content{ margin-left:200px; } .cards{ flex-direction:column; } }
 </style>
 </head>
 <body>
 
-<!-- MENU LATERAL -->
 <div class="sidebar">
   <h2>Admin Petshop</h2>
   <ul>
-    <li onclick="location.href='index.html'"><i class="fas fa-tachometer-alt"></i> Dashboard</li>
-    <li onclick="location.href='clientes.html'"><i class="fas fa-user"></i> Clientes</li>
-    <li onclick="location.href='parceiros.html'"><i class="fas fa-handshake"></i> Parceiros</li>
-    <li onclick="location.href='funcionarios.html'"><i class="fas fa-users"></i> Funcionários</li>
-    <li onclick="location.href='produtos.html'"><i class="fas fa-box"></i> Produtos</li>
-    <li onclick="location.href='relatorios.html'"><i class="fas fa-chart-line"></i> Relatórios</li>
-    <li onclick="location.href='config.html'"><i class="fas fa-cog"></i> Configurações</li>
+    <li><i class="fas fa-tachometer-alt"></i> Dashboard</li>
+    <li><i class="fas fa-user"></i> Clientes</li>
+    <li><i class="fas fa-handshake"></i> Parceiros</li>
+    <li><i class="fas fa-users"></i> Funcionários</li>
+    <li><i class="fas fa-box"></i> Produtos</li>
   </ul>
 </div>
 
-<!-- CONTEÚDO PRINCIPAL -->
 <div class="main-content">
-  <h1>Dashboard Geral</h1>
-
-  <!-- CARDS RESUMIDOS -->
+  <h1>Dashboard</h1>
   <div class="cards">
-    <div class="card">
-      <h3>Faturamento Total</h3>
-      <p id="faturamentoTotal">R$ 45.230</p>
-    </div>
-    <div class="card">
-      <h3>Lucro Líquido</h3>
-      <p id="lucroLiquido">R$ 12.400</p>
-    </div>
-    <div class="card">
-      <h3>Clientes Ativos</h3>
-      <p id="clientesAtivos">130</p>
+    <div class="card"><h3>Faturamento Total</h3><p id="faturamentoTotal">R$ 0</p></div>
+    <div class="card"><h3>Lucro Líquido</h3><p id="lucroLiquido">R$ 0</p></div>
+    <div class="card"><h3>Clientes Ativos</h3><p id="clientesAtivos">0</p></div>
+    <div class="card"><h3>Produto Mais Vendido</h3><p id="produtoMaisVendido">--</p></div>
+  </div>
+
+  <div class="chart-container">
+    <h3>Vendas por Categoria</h3>
+    <canvas id="vendasCategoriaChart"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <h3>Faturamento Mensal</h3>
+    <canvas id="faturamentoChart"></canvas>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
+
+// CONFIG FIREBASE
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  databaseURL: "SUA_DATABASE_URL",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_STORAGE_BUCKET",
+  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+  appId: "SEU_APP_ID"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// GRÁFICOS
+const ctxCat = document.getElementById('vendasCategoriaChart').getContext('2d');
+const vendasCategoriaChart = new Chart(ctxCat, { type:'bar', data:{labels:[], datasets:[{label:'Vendas', data:[], backgroundColor:[]}]} });
+
+const ctxFat = document.getElementById('faturamentoChart').getContext('2d');
+const faturamentoChart = new Chart(ctxFat, { type:'line', data:{labels:[], datasets:[{label:'Faturamento', data:[], borderColor:'#2980b9', fill:false}]} });
+
+// FUNÇÃO ATUALIZAR DASHBOARD
+function atualizarDashboard(){
+  const clientesRef = ref(db, 'clientes');
+  const pedidosRef = ref(db, 'pedidos');
+
+  // Clientes Ativos
+  onValue(clientesRef, snapshot => {
+    const clientesData = snapshot.exists() ? Object.values(snapshot.val()) : [];
+    document.getElementById('clientesAtivos').innerText = clientesData.length;
+  });
+
+  // Pedidos e KPIs
+  onValue(pedidosRef, snapshot => {
+    const pedidosData = snapshot.exists() ? Object.values(snapshot.val()) : [];
+    let faturamento = 0;
+    let lucro = 0;
+    const catCount = {};
+
+    let produtoMaisVendido = {};
+    
+    pedidosData.forEach(p => {
+      faturamento += p.valorTotal || 0;
+      lucro += (p.valorTotal * 0.3); // margem 30%
+      if(p.categoria) catCount[p.categoria] = (catCount[p.categoria] || 0) + 1;
+      if(p.produto) produtoMaisVendido[p.produto] = (produtoMaisVendido[p.produto] || 0) + 1;
+    });
+
+    document.getElementById('faturamentoTotal').innerText = 'R$ ' + faturamento.toFixed(2);
+    document.getElementById('lucroLiquido').innerText = 'R$ ' + lucro.toFixed(2);
+
+    // Produto mais vendido
+    let maisVendido = Object.keys(produtoMaisVendido).reduce((a,b)=>produtoMaisVendido[a]>produtoMaisVendido[b]?a:b,'--');
+    document.getElementById('produtoMaisVendido').innerText = maisVendido;
+
+    // Atualizar gráfico por categoria
+    vendasCategoriaChart.data.labels = Object.keys(catCount);
+    vendasCategoriaChart.data.datasets[0].data = Object.values(catCount);
+    vendasCategoriaChart.data.datasets[0].backgroundColor = Object.keys(catCount).map(()=>'#2980b9');
+    vendasCategoriaChart.update();
+
+    // Faturamento mensal (exemplo simplificado)
+    const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const fatMensal = Array(12).fill(0);
+    pedidosData.forEach(p=>{
+      if(p.data){
+        const m = new Date(p.data).getMonth();
+        fatMensal[m] += p.valorTotal || 0;
+      }
+    });
+    faturamentoChart.data.labels = meses;
+    faturamentoChart.data.datasets[0].data = fatMensal;
+    faturamentoChart.update();
+  });
+}
+
+atualizarDashboard();
+</script>
+</body>
+</html>
