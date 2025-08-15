@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adicionar Cliente - Admin Petshop</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, sans-serif; }
+body { background:#f4f6f9; color:#333; display:flex; justify-content:center; align-items:center; height:100vh; }
+.container { background:#fff; padding:30px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); width:100%; max-width:400px; }
+h1 { text-align:center; margin-bottom:20px; color:#2c3e50; }
+label { display:block; margin-bottom:5px; color:#555; }
+input { width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px; }
+button { width:100%; padding:10px; background:#2980b9; color:#fff; border:none; border-radius:5px; cursor:pointer; font-size:1em; }
+button:hover { background:#1f6391; }
+.message { margin-top:15px; text-align:center; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Adicionar Cliente</h1>
+  <form id="formAdicionarCliente">
+    <label>Nome:</label>
+    <input type="text" id="nomeCliente" required>
+
+    <label>Telefone:</label>
+    <input type="text" id="telefoneCliente" required>
+
+    <label>Email:</label>
+    <input type="email" id="emailCliente" required>
+
+    <label>Senha:</label>
+    <input type="password" id="senhaCliente" required>
+
+    <button type="submit">Adicionar Cliente</button>
+  </form>
+  <div class="message" id="mensagem"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
+  authDomain: "site-f6495.firebaseapp.com",
+  projectId: "site-f6495",
+  storageBucket: "site-f6495.firebasestorage.app",
+  messagingSenderId: "230161402024",
+  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
+  measurementId: "G-51G8XF6JH0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const form = document.getElementById('formAdicionarCliente');
+const mensagem = document.getElementById('mensagem');
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const nome = document.getElementById('nomeCliente').value;
+  const telefone = document.getElementById('telefoneCliente').value;
+  const email = document.getElementById('emailCliente').value;
+  const senha = document.getElementById('senhaCliente').value;
+
+  // Criar cliente no Firebase
+  push(ref(db, 'clientes'), {
+    nome,
+    telefone,
+    email,
+    senha,
+    pets: []
+  })
+  .then(() => {
+    mensagem.innerText = "Cliente adicionado com sucesso!";
+    mensagem.style.color = "green";
+    form.reset();
+  })
+  .catch(err => {
+    mensagem.innerText = "Erro ao adicionar cliente: " + err;
+    mensagem.style.color = "red";
+  });
+});
+</script>
+
+</body>
+</html>
