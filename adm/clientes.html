@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - ADM</title>
+    <link rel="stylesheet" href="/assets/css/menu.css">
+    <link rel="stylesheet" href="/assets/css/global.css">
+</head>
+<body>
+    <!-- Menu lateral carregado dinamicamente -->
+    <div id="menuContainer"></div>
+
+    <main class="content">
+        <h1>Cadastro de Clientes</h1>
+
+        <!-- Formulário -->
+        <form id="formCliente">
+            <label>Nome:</label>
+            <input type="text" id="nome" required>
+
+            <label>Telefone:</label>
+            <input type="tel" id="telefone" required>
+
+            <label>Email:</label>
+            <input type="email" id="email" required>
+
+            <label>Senha:</label>
+            <input type="password" id="senha" required>
+
+            <button type="submit">Cadastrar</button>
+        </form>
+
+        <!-- Lista de clientes -->
+        <h2>Lista de Clientes</h2>
+        <table id="tabelaClientes" border="1">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Telefone</th>
+                    <th>Email</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </main>
+
+    <script type="module">
+        import { db } from "/assets/js/firebase.js";
+        import { ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
+
+        // Carregar menu
+        fetch("/adm/menu.html")
+            .then(resp => resp.text())
+            .then(html => {
+                document.getElementById("menuContainer").innerHTML = html;
+            });
+
+        const formCliente = document.getElementById("formCliente");
+        const tabelaClientes = document.querySelector("#tabelaClientes tbody");
+
+        formCliente.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const cliente = {
+                nome: document.getElementById("nome").value,
+                telefone: document.getElementById("telefone").value,
+                email: document.getElementById("email").value,
+                senha: document.getElementById("senha").value
+            };
+
+            push(ref(db, "clientes"), cliente)
+                .then(() => {
+                    alert("Cliente cadastrado!");
+                    formCliente.reset();
+                })
+                .catch(err => alert("Erro: " + err.message));
+        });
+
+        // Carregar lista
+        onValue(ref(db, "clientes"), (snapshot) => {
+            tabelaClientes.innerHTML = "";
+            snapshot.forEach(child => {
+                const cliente = child.val();
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${cliente.nome}</td>
+                    <td>${cliente.telefone}</td>
+                    <td>${cliente.email}</td>
+                    <td>
+                        <button onclick="removerCliente('${child.key}')">Excluir</button>
+                    </td>
+                `;
+                tabelaClientes.appendChild(tr);
+            });
+        });
+
+        // Função global para excluir
+        window.removerCliente = (id) => {
+            remove(ref(db, "clientes/" + id))
+                .then(() => alert("Cliente removido!"))
+                .catch(err => alert("Erro: " + err.message));
+        };
+    </script>
+
+    <style>
+        /* Estilos básicos de layout */
+        body {
+            display: flex;
+            margin: 0;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 240px; /* largura do menu */
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            max-width: 400px;
+        }
+        form input, form button {
+            margin-bottom: 10px;
+            padding: 8px;
+        }
+    </style>
+</body>
+</html>
