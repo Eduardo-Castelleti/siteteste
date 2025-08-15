@@ -70,8 +70,8 @@ button.add { background-color:#2980b9; color:#fff; margin-bottom:10px; }
 
   <div style="margin-bottom:20px;">
     <input type="text" id="buscaCliente" placeholder="Pesquisar cliente..." style="padding:8px;width:60%;">
-    <button onclick="buscarClientes(document.getElementById('buscaCliente').value)" style="padding:8px 12px;margin-left:5px;">Buscar</button>
-    <button onclick="abrirAdicionarCliente()" class="add">Adicionar Cliente</button>
+    <button id="btnBuscar" style="padding:8px 12px;margin-left:5px;">Buscar</button>
+    <button id="btnAddCliente" class="add">Adicionar Cliente</button>
   </div>
 
   <table id="tabelaClientes" style="display:none;">
@@ -96,9 +96,9 @@ button.add { background-color:#2980b9; color:#fff; margin-bottom:10px; }
       <label>Senha:</label><br>
       <input type="password" id="senhaCliente" required style="width:100%;padding:8px;margin-bottom:10px;"><br>
       <button type="submit" class="add">Salvar</button>
-      <button type="button" onclick="fecharModal()" style="margin-left:5px;">Cancelar</button>
+      <button type="button" id="btnCancelar" style="margin-left:5px;">Cancelar</button>
     </form>
-    <button onclick="fecharModal()" style="position:absolute; top:10px; right:10px;">&times;</button>
+    <button id="btnFecharModal" style="position:absolute; top:10px; right:10px;">&times;</button>
   </div>
 </div>
 
@@ -106,6 +106,7 @@ button.add { background-color:#2980b9; color:#fff; margin-bottom:10px; }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
 
+// CONFIG FIREBASE
 const firebaseConfig = {
   apiKey: "SUA_API_KEY",
   authDomain: "SEU_AUTH_DOMAIN",
@@ -115,27 +116,37 @@ const firebaseConfig = {
   messagingSenderId: "SEU_MESSAGING_SENDER_ID",
   appId: "SEU_APP_ID"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 let editId = null;
 
-// Abrir modal
-window.abrirAdicionarCliente = function(){
+// Elementos
+const modal = document.getElementById('modalCliente');
+const formCliente = document.getElementById('formCliente');
+const btnAddCliente = document.getElementById('btnAddCliente');
+const btnCancelar = document.getElementById('btnCancelar');
+const btnFecharModal = document.getElementById('btnFecharModal');
+const btnBuscar = document.getElementById('btnBuscar');
+
+// Funções abrir/fechar modal
+function abrirAdicionarCliente(){
   editId = null;
-  document.getElementById('formCliente').reset();
+  formCliente.reset();
   document.getElementById('tituloModal').innerText = "Adicionar Cliente";
-  document.getElementById('modalCliente').style.display='flex';
+  modal.style.display='flex';
+}
+function fecharModal(){
+  modal.style.display='none';
 }
 
-// Fechar modal
-window.fecharModal = function(){
-  document.getElementById('modalCliente').style.display='none';
-}
+// Event listeners
+btnAddCliente.addEventListener('click', abrirAdicionarCliente);
+btnCancelar.addEventListener('click', fecharModal);
+btnFecharModal.addEventListener('click', fecharModal);
 
 // Salvar cliente
-document.getElementById('formCliente').onsubmit = function(e){
+formCliente.onsubmit = function(e){
   e.preventDefault();
   const nome = document.getElementById('nomeCliente').value;
   const telefone = document.getElementById('telefoneCliente').value;
@@ -143,18 +154,16 @@ document.getElementById('formCliente').onsubmit = function(e){
   const senha = document.getElementById('senhaCliente').value;
 
   if(editId){
-    update(ref(db, 'clientes/' + editId), {nome, telefone, email, senha})
-      .then(()=>{ fecharModal(); })
-      .catch(err=>alert(err));
+    update(ref(db,'clientes/' + editId), {nome, telefone, email, senha})
+      .then(()=>{ fecharModal(); });
   } else {
     push(ref(db,'clientes'), {nome, telefone, email, senha, pets: []})
-      .then(()=>{ fecharModal(); })
-      .catch(err=>alert(err));
+      .then(()=>{ fecharModal(); });
   }
-}
+};
 
-// Buscar clientes
-window.buscarClientes = function(filtro=''){
+// Buscar clientes e atualizar KPIs
+function buscarClientes(filtro=''){
   const clientesRef = ref(db,'clientes');
   onValue(clientesRef, snapshot=>{
     const tbody = document.getElementById('clientesTable');
@@ -192,7 +201,7 @@ window.editarCliente = function(id){
       document.getElementById('senhaCliente').value = c.senha;
       editId = id;
       document.getElementById('tituloModal').innerText = "Editar Cliente";
-      document.getElementById('modalCliente').style.display='flex';
+      modal.style.display='flex';
     }
   }, {onlyOnce:true});
 }
@@ -204,8 +213,10 @@ window.excluirCliente = function(id){
   }
 }
 
-// Inicial
+// Buscar clientes ao carregar página
+btnBuscar.addEventListener('click', ()=>buscarClientes(document.getElementById('buscaCliente').value));
 buscarClientes();
 </script>
+
 </body>
 </html>
