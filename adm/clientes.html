@@ -71,7 +71,7 @@ button.add { background-color:#2980b9; color:#fff; margin-bottom:10px; }
   <div style="margin-bottom:20px;">
     <input type="text" id="buscaCliente" placeholder="Pesquisar cliente..." style="padding:8px;width:60%;">
     <button id="btnBuscar" style="padding:8px 12px;margin-left:5px;">Buscar</button>
-    <button id="btnAddCliente" class="add">Adicionar Cliente</button>
+    <button id="btnAdicionarCliente" class="add">Adicionar Cliente</button>
   </div>
 
   <table id="tabelaClientes" style="display:none;">
@@ -116,112 +116,107 @@ const firebaseConfig = {
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-document.addEventListener('DOMContentLoaded', ()=>{
-  const btnAddCliente = document.getElementById('btnAddCliente');
-  const modal = document.getElementById('modalCliente');
-  const formCliente = document.getElementById('formCliente');
-  const btnCancelar = document.getElementById('btnCancelar');
-  const btnFecharModal = document.getElementById('btnFecharModal');
-  const btnBuscar = document.getElementById('btnBuscar');
+let editId = null;
 
-  let editId = null;
+// ELEMENTOS
+const btnAdicionar = document.getElementById('btnAdicionarCliente');
+const btnCancelar = document.getElementById('btnCancelar');
+const btnFechar = document.getElementById('btnFecharModal');
+const formCliente = document.getElementById('formCliente');
+const tabelaClientes = document.getElementById('clientesTable');
 
-  function abrirModal(){
-    editId = null;
-    formCliente.reset();
-    document.getElementById('tituloModal').innerText = "Adicionar Cliente";
-    modal.style.display='flex';
-  }
-
-  function fecharModal(){
-    modal.style.display='none';
-  }
-
-  btnAddCliente.addEventListener('click', abrirModal);
-  btnCancelar.addEventListener('click', fecharModal);
-  btnFecharModal.addEventListener('click', fecharModal);
-
-  // Salvar cliente
-  formCliente.onsubmit = function(e){
-    e.preventDefault();
-    const nome = document.getElementById('nomeCliente').value;
-    const telefone = document.getElementById('telefoneCliente').value;
-    const email = document.getElementById('emailCliente').value;
-    const senha = document.getElementById('senhaCliente').value;
-
-    if(editId){
-      update(ref(db, 'clientes/' + editId), {nome, telefone, email, senha})
-        .then(()=>{ fecharModal(); })
-        .catch(err=>alert(err));
-    } else {
-      push(ref(db,'clientes'), {nome, telefone, email, senha, pets: []})
-        .then(()=>{ fecharModal(); })
-        .catch(err=>alert(err));
-    }
-  }
-
-  // Buscar clientes
-  function buscarClientes(filtro=''){
-    const clientesRef = ref(db,'clientes');
-    onValue(clientesRef, snapshot=>{
-      const tbody = document.getElementById('clientesTable');
-      tbody.innerHTML='';
-      const clientes = snapshot.exists() ? Object.entries(snapshot.val()) : [];
-      let count = 0;
-      clientes.forEach(([id,c])=>{
-        if(filtro && !c.nome.toLowerCase().includes(filtro.toLowerCase()) &&
-                  !c.email.toLowerCase().includes(filtro.toLowerCase()) &&
-                  !c.telefone.includes(filtro)) return;
-        count++;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${c.nome}</td>
-                        <td>${c.telefone}</td>
-                        <td>${c.email}</td>
-                        <td>${c.pets ? c.pets.join(', ') : ''}</td>
-                        <td>
-                          <button class="edit" onclick="editarCliente('${id}')">Editar</button>
-                          <button class="delete" onclick="excluirCliente('${id}')">Excluir</button>
-                        </td>`;
-        tbody.appendChild(tr);
-      });
-      document.getElementById('tabelaClientes').style.display = count ? 'table' : 'none';
-      document.getElementById('clientesAtivos').innerText = count;
-    });
-  }
-
-  btnBuscar.addEventListener('click', ()=>buscarClientes(document.getElementById('buscaCliente').value));
-
-  // Funções globais para edição/exclusão
-  window.editarCliente = function(id){
-    const clienteRef = ref(db,'clientes/' + id);
-    onValue(clienteRef, snapshot=>{
-      if(snapshot.exists()){
-        const c = snapshot.val();
-        document.getElementById('nomeCliente').value = c.nome;
-        document.getElementById('telefoneCliente').value = c.telefone;
-        document.getElementById('emailCliente').value = c.email;
-        document.getElementById('senhaCliente').value = c.senha;
-        editId = id;
-        document.getElementById('tituloModal').innerText = "Editar Cliente";
-        modal.style.display='flex';
-      }
-    }, {onlyOnce:true});
-  }
-
-  window.excluirCliente = function(id){
-    if(confirm("Tem certeza que deseja excluir este cliente?")){
-      remove(ref(db,'clientes/'+id));
-    }
-  }
-
-  // Inicial
-  buscarClientes();
+// ABRIR MODAL
+btnAdicionar.addEventListener('click', ()=>{
+  editId = null;
+  formCliente.reset();
+  document.getElementById('tituloModal').innerText = "Adicionar Cliente";
+  document.getElementById('modalCliente').style.display='flex';
 });
-</script>
 
+// FECHAR MODAL
+btnCancelar.addEventListener('click', ()=>document.getElementById('modalCliente').style.display='none');
+btnFechar.addEventListener('click', ()=>document.getElementById('modalCliente').style.display='none');
+
+// SALVAR CLIENTE
+formCliente.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const nome = document.getElementById('nomeCliente').value;
+  const telefone = document.getElementById('telefoneCliente').value;
+  const email = document.getElementById('emailCliente').value;
+  const senha = document.getElementById('senhaCliente').value;
+
+  if(editId){
+    update(ref(db,'clientes/'+editId), {nome, telefone, email, senha})
+      .then(()=>document.getElementById('modalCliente').style.display='none')
+      .catch(err=>alert(err));
+  } else {
+    push(ref(db,'clientes'), {nome, telefone, email, senha, pets: []})
+      .then(()=>document.getElementById('modalCliente').style.display='none')
+      .catch(err=>alert(err));
+  }
+});
+
+// BUSCAR CLIENTES
+const buscarClientes = (filtro='')=>{
+  onValue(ref(db,'clientes'), snapshot=>{
+    tabelaClientes.innerHTML='';
+    const clientes = snapshot.exists() ? Object.entries(snapshot.val()) : [];
+    let count=0;
+    clientes.forEach(([id,c])=>{
+      if(filtro && !c.nome.toLowerCase().includes(filtro.toLowerCase()) &&
+         !c.email.toLowerCase().includes(filtro.toLowerCase()) &&
+         !c.telefone.includes(filtro)) return;
+      count++;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${c.nome}</td>
+        <td>${c.telefone}</td>
+        <td>${c.email}</td>
+        <td>${c.pets ? c.pets.join(', ') : ''}</td>
+        <td>
+          <button class="edit" onclick="editarCliente('${id}')">Editar</button>
+          <button class="delete" onclick="excluirCliente('${id}')">Excluir</button>
+        </td>`;
+      tabelaClientes.appendChild(tr);
+    });
+    document.getElementById('tabelaClientes').style.display = count ? 'table' : 'none';
+    document.getElementById('clientesAtivos').innerText = count;
+  });
+};
+
+// FUNÇÕES EDITAR/EXCLUIR
+window.editarCliente = (id)=>{
+  onValue(ref(db,'clientes/'+id), snapshot=>{
+    if(snapshot.exists()){
+      const c = snapshot.val();
+      document.getElementById('nomeCliente').value = c.nome;
+      document.getElementById('telefoneCliente').value = c.telefone;
+      document.getElementById('emailCliente').value = c.email;
+      document.getElementById('senhaCliente').value = c.senha;
+      editId = id;
+      document.getElementById('tituloModal').innerText = "Editar Cliente";
+      document.getElementById('modalCliente').style.display='flex';
+    }
+  }, {onlyOnce:true});
+};
+
+window.excluirCliente = (id)=>{
+  if(confirm("Tem certeza que deseja excluir este cliente?")){
+    remove(ref(db,'clientes/'+id));
+  }
+};
+
+// BUSCA POR NOME/EMAIL/TELEFONE
+document.getElementById('btnBuscar').addEventListener('click', ()=>{
+  const filtro = document.getElementById('buscaCliente').value;
+  buscarClientes(filtro);
+});
+
+// INICIAL
+buscarClientes();
+</script>
 </body>
 </html>
