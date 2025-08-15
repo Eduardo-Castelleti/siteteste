@@ -24,3 +24,16 @@ const auth = getAuth(app);
 
 // Exporta para uso em outros scripts
 export { db, auth };
+
+const data = {
+  nome: document.getElementById('nome').value,
+  cnpjcpf: document.getElementById('cnpjcpf').value,
+  tipo: tipos,
+  responsavel: document.getElementById('responsavel').value,
+  telefone: document.getElementById('telefone').value,
+  email: document.getElementById('email').value,
+  endereco: document.getElementById('endereco').value,
+  cidade: document.getElementById('cidade').value,
+  status: document.getElementById('status').value,
+  observacoes: document.getElementById('observacoes').value
+};
