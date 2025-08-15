@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funcionários - Petshop</title>
+<style>
+  body { font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 20px; color: #333; }
+  table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+  th { background-color: #4CAF50; color: white; }
+  tr:hover { background-color: #f1f1f1; }
+  #addBtn { margin-bottom: 15px; padding: 10px 20px; background-color: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; }
+  #addBtn:hover { background-color: #1976D2; }
+  .container { max-width: 900px; margin: 0 auto; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Funcionários</h1>
+  <button id="addBtn">Adicionar Funcionário</button>
+  <table id="funcionariosTable">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>E-mail</th>
+        <th>CPF</th>
+        <th>Telefone</th>
+        <th>Cargo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Funcionários aparecerão aqui -->
+    </tbody>
+  </table>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
+  authDomain: "site-f6495.firebaseapp.com",
+  projectId: "site-f6495",
+  storageBucket: "site-f6495.firebasestorage.app",
+  messagingSenderId: "230161402024",
+  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
+  measurementId: "G-51G8XF6JH0"
+};
+  firebase.initializeApp(firebaseConfig);
+
+  const dbRef = firebase.database().ref('funcionarios');
+  const tableBody = document.querySelector('#funcionariosTable tbody');
+  const addBtn = document.getElementById('addBtn');
+
+  addBtn.addEventListener('click', () => {
+    window.location.href = 'adicionar-funcionario.html';
+  });
+
+  // Atualiza a tabela em tempo real
+  dbRef.on('value', (snapshot) => {
+    tableBody.innerHTML = '';
+    snapshot.forEach((childSnapshot) => {
+      const data = childSnapshot.val();
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${data.nome}</td>
+        <td>${data.email}</td>
+        <td>${data.cpf}</td>
+        <td>${data.telefone || '-'}</td>
+        <td>${data.cargo}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  });
+</script>
+
+</body>
+</html>
