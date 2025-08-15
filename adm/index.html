@@ -16,8 +16,15 @@ a { text-decoration:none; color:inherit; }
 .sidebar { position:fixed; left:0; top:0; bottom:0; width:250px; background:#2c3e50; color:#ecf0f1; padding-top:20px; }
 .sidebar h2 { text-align:center; margin-bottom:20px; font-size:1.5em; }
 .sidebar ul { list-style:none; }
-.sidebar ul li { padding:15px 20px; cursor:pointer; display:flex; align-items:center; }
-.sidebar ul li:hover { background:#34495e; }
+.sidebar ul li a {
+  display:flex;
+  align-items:center;
+  padding:15px 20px;
+  color:inherit;
+  width:100%;
+}
+.sidebar ul li a:hover { background:#34495e; }
+.sidebar ul li a.active { background:#1abc9c; }
 .sidebar ul li i { margin-right:10px; }
 
 /* ===== CONTEÚDO ===== */
@@ -32,7 +39,11 @@ a { text-decoration:none; color:inherit; }
 /* ===== GRÁFICOS ===== */
 .chart-container { background:#fff; padding:20px; border-radius:8px; margin-bottom:30px; }
 
-@media(max-width:768px){ .sidebar{ width:200px; } .main-content{ margin-left:200px; } .cards{ flex-direction:column; } }
+@media(max-width:768px){
+  .sidebar{ width:200px; }
+  .main-content{ margin-left:200px; }
+  .cards{ flex-direction:column; }
+}
 </style>
 </head>
 <body>
@@ -40,11 +51,11 @@ a { text-decoration:none; color:inherit; }
 <div class="sidebar">
   <h2>Admin Petshop</h2>
   <ul>
-    <li><i class="fas fa-tachometer-alt"></i> Dashboard</li>
-    <li><i class="fas fa-user"></i> Clientes</li>
-    <li><i class="fas fa-handshake"></i> Parceiros</li>
-    <li><i class="fas fa-users"></i> Funcionários</li>
-    <li><i class="fas fa-box"></i> Produtos</li>
+    <li><a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+    <li><a href="clientes.html"><i class="fas fa-user"></i> Clientes</a></li>
+    <li><a href="parceiros.html"><i class="fas fa-handshake"></i> Parceiros</a></li>
+    <li><a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a></li>
+    <li><a href="produtos.html"><i class="fas fa-box"></i> Produtos</a></li>
   </ul>
 </div>
 
@@ -74,23 +85,29 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 
 // CONFIG FIREBASE
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_AUTH_DOMAIN",
-  databaseURL: "SUA_DATABASE_URL",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_STORAGE_BUCKET",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
+  authDomain: "site-f6495.firebaseapp.com",
+  projectId: "site-f6495",
+  storageBucket: "site-f6495.firebasestorage.app",
+  messagingSenderId: "230161402024",
+  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
+  measurementId: "G-51G8XF6JH0"
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // GRÁFICOS
 const ctxCat = document.getElementById('vendasCategoriaChart').getContext('2d');
-const vendasCategoriaChart = new Chart(ctxCat, { type:'bar', data:{labels:[], datasets:[{label:'Vendas', data:[], backgroundColor:[]}]} });
+const vendasCategoriaChart = new Chart(ctxCat, { 
+  type:'bar', 
+  data:{labels:[], datasets:[{label:'Vendas', data:[], backgroundColor:[]}]} 
+});
 
 const ctxFat = document.getElementById('faturamentoChart').getContext('2d');
-const faturamentoChart = new Chart(ctxFat, { type:'line', data:{labels:[], datasets:[{label:'Faturamento', data:[], borderColor:'#2980b9', fill:false}]} });
+const faturamentoChart = new Chart(ctxFat, { 
+  type:'line', 
+  data:{labels:[], datasets:[{label:'Faturamento', data:[], borderColor:'#2980b9', fill:false}]} 
+});
 
 // FUNÇÃO ATUALIZAR DASHBOARD
 function atualizarDashboard(){
@@ -109,7 +126,6 @@ function atualizarDashboard(){
     let faturamento = 0;
     let lucro = 0;
     const catCount = {};
-
     let produtoMaisVendido = {};
     
     pedidosData.forEach(p => {
@@ -132,7 +148,7 @@ function atualizarDashboard(){
     vendasCategoriaChart.data.datasets[0].backgroundColor = Object.keys(catCount).map(()=>'#2980b9');
     vendasCategoriaChart.update();
 
-    // Faturamento mensal (exemplo simplificado)
+    // Faturamento mensal
     const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     const fatMensal = Array(12).fill(0);
     pedidosData.forEach(p=>{
@@ -148,6 +164,13 @@ function atualizarDashboard(){
 }
 
 atualizarDashboard();
+
+// MARCAR MENU ATIVO AUTOMATICAMENTE
+document.querySelectorAll(".sidebar ul li a").forEach(link => {
+  if (link.href === window.location.href) {
+    link.classList.add("active");
+  }
+});
 </script>
 </body>
 </html>
