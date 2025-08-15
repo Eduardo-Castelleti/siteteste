@@ -108,114 +108,119 @@ import { getDatabase, ref, push, onValue, update, remove } from "https://www.gst
 
 // CONFIG FIREBASE
 const firebaseConfig = {
-  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
-  authDomain: "site-f6495.firebaseapp.com",
-  projectId: "site-f6495",
-  storageBucket: "site-f6495.firebasestorage.app",
-  messagingSenderId: "230161402024",
-  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
-  measurementId: "G-51G8XF6JH0"
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  databaseURL: "SUA_DATABASE_URL",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_STORAGE_BUCKET",
+  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+  appId: "SEU_APP_ID"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-let editId = null;
+document.addEventListener('DOMContentLoaded', ()=>{
+  const btnAddCliente = document.getElementById('btnAddCliente');
+  const modal = document.getElementById('modalCliente');
+  const formCliente = document.getElementById('formCliente');
+  const btnCancelar = document.getElementById('btnCancelar');
+  const btnFecharModal = document.getElementById('btnFecharModal');
+  const btnBuscar = document.getElementById('btnBuscar');
 
-// Elementos
-const modal = document.getElementById('modalCliente');
-const formCliente = document.getElementById('formCliente');
-const btnAddCliente = document.getElementById('btnAddCliente');
-const btnCancelar = document.getElementById('btnCancelar');
-const btnFecharModal = document.getElementById('btnFecharModal');
-const btnBuscar = document.getElementById('btnBuscar');
+  let editId = null;
 
-// Funções abrir/fechar modal
-function abrirAdicionarCliente(){
-  editId = null;
-  formCliente.reset();
-  document.getElementById('tituloModal').innerText = "Adicionar Cliente";
-  modal.style.display='flex';
-}
-function fecharModal(){
-  modal.style.display='none';
-}
-
-// Event listeners
-btnAddCliente.addEventListener('click', abrirAdicionarCliente);
-btnCancelar.addEventListener('click', fecharModal);
-btnFecharModal.addEventListener('click', fecharModal);
-
-// Salvar cliente
-formCliente.onsubmit = function(e){
-  e.preventDefault();
-  const nome = document.getElementById('nomeCliente').value;
-  const telefone = document.getElementById('telefoneCliente').value;
-  const email = document.getElementById('emailCliente').value;
-  const senha = document.getElementById('senhaCliente').value;
-
-  if(editId){
-    update(ref(db,'clientes/' + editId), {nome, telefone, email, senha})
-      .then(()=>{ fecharModal(); });
-  } else {
-    push(ref(db,'clientes'), {nome, telefone, email, senha, pets: []})
-      .then(()=>{ fecharModal(); });
+  function abrirModal(){
+    editId = null;
+    formCliente.reset();
+    document.getElementById('tituloModal').innerText = "Adicionar Cliente";
+    modal.style.display='flex';
   }
-};
 
-// Buscar clientes e atualizar KPIs
-function buscarClientes(filtro=''){
-  const clientesRef = ref(db,'clientes');
-  onValue(clientesRef, snapshot=>{
-    const tbody = document.getElementById('clientesTable');
-    tbody.innerHTML='';
-    const clientes = snapshot.exists() ? Object.entries(snapshot.val()) : [];
-    let count = 0;
-    clientes.forEach(([id,c])=>{
-      if(filtro && !c.nome.toLowerCase().includes(filtro.toLowerCase()) && !c.email.toLowerCase().includes(filtro.toLowerCase()) && !c.telefone.includes(filtro)) return;
-      count++;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${c.nome}</td>
-                      <td>${c.telefone}</td>
-                      <td>${c.email}</td>
-                      <td>${c.pets ? c.pets.join(', ') : ''}</td>
-                      <td>
-                        <button class="edit" onclick="editarCliente('${id}')">Editar</button>
-                        <button class="delete" onclick="excluirCliente('${id}')">Excluir</button>
-                      </td>`;
-      tbody.appendChild(tr);
-    });
-    document.getElementById('tabelaClientes').style.display = count ? 'table' : 'none';
-    document.getElementById('clientesAtivos').innerText = count;
-  });
-}
+  function fecharModal(){
+    modal.style.display='none';
+  }
 
-// Editar cliente
-window.editarCliente = function(id){
-  const clienteRef = ref(db,'clientes/' + id);
-  onValue(clienteRef, snapshot=>{
-    if(snapshot.exists()){
-      const c = snapshot.val();
-      document.getElementById('nomeCliente').value = c.nome;
-      document.getElementById('telefoneCliente').value = c.telefone;
-      document.getElementById('emailCliente').value = c.email;
-      document.getElementById('senhaCliente').value = c.senha;
-      editId = id;
-      document.getElementById('tituloModal').innerText = "Editar Cliente";
-      modal.style.display='flex';
+  btnAddCliente.addEventListener('click', abrirModal);
+  btnCancelar.addEventListener('click', fecharModal);
+  btnFecharModal.addEventListener('click', fecharModal);
+
+  // Salvar cliente
+  formCliente.onsubmit = function(e){
+    e.preventDefault();
+    const nome = document.getElementById('nomeCliente').value;
+    const telefone = document.getElementById('telefoneCliente').value;
+    const email = document.getElementById('emailCliente').value;
+    const senha = document.getElementById('senhaCliente').value;
+
+    if(editId){
+      update(ref(db, 'clientes/' + editId), {nome, telefone, email, senha})
+        .then(()=>{ fecharModal(); })
+        .catch(err=>alert(err));
+    } else {
+      push(ref(db,'clientes'), {nome, telefone, email, senha, pets: []})
+        .then(()=>{ fecharModal(); })
+        .catch(err=>alert(err));
     }
-  }, {onlyOnce:true});
-}
-
-// Excluir cliente
-window.excluirCliente = function(id){
-  if(confirm("Tem certeza que deseja excluir este cliente?")){
-    remove(ref(db,'clientes/'+id));
   }
-}
 
-// Buscar clientes ao carregar página
-btnBuscar.addEventListener('click', ()=>buscarClientes(document.getElementById('buscaCliente').value));
-buscarClientes();
+  // Buscar clientes
+  function buscarClientes(filtro=''){
+    const clientesRef = ref(db,'clientes');
+    onValue(clientesRef, snapshot=>{
+      const tbody = document.getElementById('clientesTable');
+      tbody.innerHTML='';
+      const clientes = snapshot.exists() ? Object.entries(snapshot.val()) : [];
+      let count = 0;
+      clientes.forEach(([id,c])=>{
+        if(filtro && !c.nome.toLowerCase().includes(filtro.toLowerCase()) &&
+                  !c.email.toLowerCase().includes(filtro.toLowerCase()) &&
+                  !c.telefone.includes(filtro)) return;
+        count++;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${c.nome}</td>
+                        <td>${c.telefone}</td>
+                        <td>${c.email}</td>
+                        <td>${c.pets ? c.pets.join(', ') : ''}</td>
+                        <td>
+                          <button class="edit" onclick="editarCliente('${id}')">Editar</button>
+                          <button class="delete" onclick="excluirCliente('${id}')">Excluir</button>
+                        </td>`;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('tabelaClientes').style.display = count ? 'table' : 'none';
+      document.getElementById('clientesAtivos').innerText = count;
+    });
+  }
+
+  btnBuscar.addEventListener('click', ()=>buscarClientes(document.getElementById('buscaCliente').value));
+
+  // Funções globais para edição/exclusão
+  window.editarCliente = function(id){
+    const clienteRef = ref(db,'clientes/' + id);
+    onValue(clienteRef, snapshot=>{
+      if(snapshot.exists()){
+        const c = snapshot.val();
+        document.getElementById('nomeCliente').value = c.nome;
+        document.getElementById('telefoneCliente').value = c.telefone;
+        document.getElementById('emailCliente').value = c.email;
+        document.getElementById('senhaCliente').value = c.senha;
+        editId = id;
+        document.getElementById('tituloModal').innerText = "Editar Cliente";
+        modal.style.display='flex';
+      }
+    }, {onlyOnce:true});
+  }
+
+  window.excluirCliente = function(id){
+    if(confirm("Tem certeza que deseja excluir este cliente?")){
+      remove(ref(db,'clientes/'+id));
+    }
+  }
+
+  // Inicial
+  buscarClientes();
+});
 </script>
 
 </body>
