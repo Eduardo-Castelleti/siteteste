@@ -83,7 +83,7 @@ a { text-decoration:none; color:inherit; }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
 
-// CONFIG FIREBASE
+// CONFIGURAÇÃO FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
   authDomain: "site-f6495.firebaseapp.com",
@@ -109,18 +109,16 @@ const faturamentoChart = new Chart(ctxFat, {
   data:{labels:[], datasets:[{label:'Faturamento', data:[], borderColor:'#2980b9', fill:false}]} 
 });
 
-// FUNÇÃO ATUALIZAR DASHBOARD
+// FUNÇÃO PARA ATUALIZAR DASHBOARD
 function atualizarDashboard(){
   const clientesRef = ref(db, 'clientes');
   const pedidosRef = ref(db, 'pedidos');
 
-  // Clientes Ativos
   onValue(clientesRef, snapshot => {
     const clientesData = snapshot.exists() ? Object.values(snapshot.val()) : [];
     document.getElementById('clientesAtivos').innerText = clientesData.length;
   });
 
-  // Pedidos e KPIs
   onValue(pedidosRef, snapshot => {
     const pedidosData = snapshot.exists() ? Object.values(snapshot.val()) : [];
     let faturamento = 0;
@@ -130,7 +128,7 @@ function atualizarDashboard(){
     
     pedidosData.forEach(p => {
       faturamento += p.valorTotal || 0;
-      lucro += (p.valorTotal * 0.3); // margem 30%
+      lucro += (p.valorTotal * 0.3);
       if(p.categoria) catCount[p.categoria] = (catCount[p.categoria] || 0) + 1;
       if(p.produto) produtoMaisVendido[p.produto] = (produtoMaisVendido[p.produto] || 0) + 1;
     });
@@ -138,17 +136,14 @@ function atualizarDashboard(){
     document.getElementById('faturamentoTotal').innerText = 'R$ ' + faturamento.toFixed(2);
     document.getElementById('lucroLiquido').innerText = 'R$ ' + lucro.toFixed(2);
 
-    // Produto mais vendido
     let maisVendido = Object.keys(produtoMaisVendido).reduce((a,b)=>produtoMaisVendido[a]>produtoMaisVendido[b]?a:b,'--');
     document.getElementById('produtoMaisVendido').innerText = maisVendido;
 
-    // Atualizar gráfico por categoria
     vendasCategoriaChart.data.labels = Object.keys(catCount);
     vendasCategoriaChart.data.datasets[0].data = Object.values(catCount);
     vendasCategoriaChart.data.datasets[0].backgroundColor = Object.keys(catCount).map(()=>'#2980b9');
     vendasCategoriaChart.update();
 
-    // Faturamento mensal
     const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     const fatMensal = Array(12).fill(0);
     pedidosData.forEach(p=>{
@@ -165,9 +160,9 @@ function atualizarDashboard(){
 
 atualizarDashboard();
 
-// MARCAR MENU ATIVO AUTOMATICAMENTE
+// Destacar aba ativa
 document.querySelectorAll(".sidebar ul li a").forEach(link => {
-  if (link.href === window.location.href) {
+  if(link.href === window.location.href){
     link.classList.add("active");
   }
 });
