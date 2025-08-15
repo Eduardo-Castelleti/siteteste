@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Parceiros</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+/* ===== RESET ===== */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color:#f4f4f4; color:#333; padding:20px; }
+h1 { margin-bottom:20px; text-align:center; color:#2c3e50; }
+button { cursor:pointer; }
+table { width:100%; border-collapse: collapse; margin-top:20px; background:#fff; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+th, td { padding:12px; text-align:left; border-bottom:1px solid #ddd; }
+th { background-color:#2980b9; color:#fff; }
+tr:hover { background-color:#f1f1f1; }
+.form-container { background:#fff; padding:20px; margin-top:20px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+.form-container h2 { margin-bottom:15px; }
+.form-container input, .form-container select, .form-container textarea {
+    width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:4px;
+}
+.form-container button { background:#2980b9; color:#fff; border:none; padding:10px 20px; border-radius:4px; }
+.status-active { color:green; font-weight:bold; }
+.status-inactive { color:red; font-weight:bold; }
+.action-btn { background:none; border:none; color:#2980b9; margin-right:10px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<h1>Gestão de Parceiros</h1>
+
+<div class="form-container">
+  <h2 id="form-title">Adicionar Novo Parceiro</h2>
+  <input type="hidden" id="partnerId">
+  <label>Nome do Parceiro</label>
+  <input type="text" id="nome" placeholder="Nome da empresa" required>
+  
+  <label>Tipo de Parceiro</label>
+  <select id="tipo">
+    <option value="Banho e Tosa">Banho e Tosa</option>
+    <option value="Creche">Creche</option>
+    <option value="Clínica Veterinária">Clínica Veterinária</option>
+    <option value="Revendedor">Revendedor</option>
+  </select>
+
+  <label>Responsável</label>
+  <input type="text" id="responsavel" placeholder="Nome do responsável">
+
+  <label>Telefone</label>
+  <input type="text" id="telefone" placeholder="(XX) XXXXX-XXXX">
+
+  <label>E-mail</label>
+  <input type="email" id="email" placeholder="email@exemplo.com">
+
+  <label>Endereço</label>
+  <input type="text" id="endereco" placeholder="Rua, Número, Bairro">
+
+  <label>Cidade / Bairro</label>
+  <input type="text" id="cidade" placeholder="Cidade / Bairro">
+
+  <label>Status</label>
+  <select id="status">
+    <option value="Ativo">Ativo</option>
+    <option value="Inativo">Inativo</option>
+  </select>
+
+  <label>Observações</label>
+  <textarea id="observacoes" placeholder="Informações adicionais..."></textarea>
+
+  <button id="saveBtn">Salvar Parceiro</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Tipo</th>
+      <th>Responsável</th>
+      <th>Telefone</th>
+      <th>E-mail</th>
+      <th>Status</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="partnersTable">
+    <!-- Parceiros aparecerão aqui -->
+  </tbody>
+</table>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  // ===== CONFIGURAÇÃO FIREBASE =====
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_AUTH_DOMAIN",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_STORAGE_BUCKET",
+    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+    appId: "SEU_APP_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const partnersTable = document.getElementById('partnersTable');
+  const saveBtn = document.getElementById('saveBtn');
+
+  function clearForm() {
+    document.getElementById('partnerId').value = '';
+    document.getElementById('nome').value = '';
+    document.getElementById('tipo').value = 'Banho e Tosa';
+    document.getElementById('responsavel').value = '';
+    document.getElementById('telefone').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('endereco').value = '';
+    document.getElementById('cidade').value = '';
+    document.getElementById('status').value = 'Ativo';
+    document.getElementById('observacoes').value = '';
+    document.getElementById('form-title').innerText = 'Adicionar Novo Parceiro';
+  }
+
+  // ===== SALVAR OU ATUALIZAR PARCEIRO =====
+  saveBtn.addEventListener('click', () => {
+    const id = document.getElementById('partnerId').value;
+    const data = {
+      nome: document.getElementById('nome').value,
+      tipo: document.getElementById('tipo').value,
+      responsavel: document.getElementById('responsavel').value,
+      telefone: document.getElementById('telefone').value,
+      email: document.getElementById('email').value,
+      endereco: document.getElementById('endereco').value,
+      cidade: document.getElementById('cidade').value,
+      status: document.getElementById('status').value,
+      observacoes: document.getElementById('observacoes').value
+    };
+
+    if(id){
+      // Atualizar parceiro
+      db.collection('parceiros').doc(id).set(data).then(() => {
+        alert('Parceiro atualizado com sucesso!');
+        clearForm();
+      });
+    } else {
+      // Adicionar novo parceiro
+      db.collection('parceiros').add(data).then(() => {
+        alert('Parceiro adicionado com sucesso!');
+        clearForm();
+      });
+    }
+  });
+
+  // ===== CARREGAR PARCEIROS =====
+  db.collection('parceiros').onSnapshot((snapshot) => {
+    partnersTable.innerHTML = '';
+    snapshot.forEach(doc => {
+      const p = doc.data();
+      partnersTable.innerHTML += `
+        <tr>
+          <td>${p.nome}</td>
+          <td>${p.tipo}</td>
+          <td>${p.responsavel}</td>
+          <td>${p.telefone}</td>
+          <td>${p.email}</td>
+          <td class="${p.status === 'Ativo' ? 'status-active' : 'status-inactive'}">${p.status}</td>
+          <td>
+            <button class="action-btn" onclick="editPartner('${doc.id}')"><i class="fas fa-edit"></i></button>
+            <button class="action-btn" onclick="deletePartner('${doc.id}')"><i class="fas fa-trash-alt"></i></button>
+          </td>
+        </tr>
+      `;
+    });
+  });
+
+  // ===== EDITAR PARCEIRO =====
+  function editPartner(id){
+    db.collection('parceiros').doc(id).get().then(doc => {
+      const p = doc.data();
+      document.getElementById('partnerId').value = id;
+      document.getElementById('nome').value = p.nome;
+      document.getElementById('tipo').value = p.tipo;
+      document.getElementById('responsavel').value = p.responsavel;
+      document.getElementById('telefone').value = p.telefone;
+      document.getElementById('email').value = p.email;
+      document.getElementById('endereco').value = p.endereco;
+      document.getElementById('cidade').value = p.cidade;
+      document.getElementById('status').value = p.status;
+      document.getElementById('observacoes').value = p.observacoes;
+      document.getElementById('form-title').innerText = 'Editar Parceiro';
+    });
+  }
+
+  // ===== DELETAR PARCEIRO =====
+  function deletePartner(id){
+    if(confirm('Deseja realmente deletar este parceiro?')){
+      db.collection('parceiros').doc(id).delete();
+    }
+  }
+</script>
+
+</body>
+</html>
