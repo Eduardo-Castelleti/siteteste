@@ -44,7 +44,7 @@
   <p class="error" id="errorMsg"></p>
 </form>
 
-<!-- Firebase App (the core Firebase SDK) -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -66,7 +66,7 @@ const firebaseConfig = {
   const successMsg = document.getElementById('successMsg');
   const errorMsg = document.getElementById('errorMsg');
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     successMsg.textContent = '';
     errorMsg.textContent = '';
@@ -78,30 +78,48 @@ const firebaseConfig = {
     const telefone = document.getElementById('telefone').value;
     const cargo = document.getElementById('cargo').value;
 
-    // Criar usuário no Firebase Auth
-    firebase.auth().createUserWithEmailAndPassword(email, senha)
-      .then((userCredential) => {
-        const uid = userCredential.user.uid;
+    try {
+      // 1️⃣ Salvar no banco primeiro
+      const novoFuncionarioRef = firebase.database().ref('funcionarios').push();
+      const funcionarioId = novoFuncionarioRef.key;
 
-        // Salvar dados do funcionário no Realtime Database
-        firebase.database().ref('funcionarios/' + uid).set({
-          nome,
-          email,
-          cpf,
-          telefone,
-          cargo
-        })
-        .then(() => {
-          successMsg.textContent = 'Funcionário adicionado com sucesso!';
-          form.reset();
-        })
-        .catch((error) => {
-          errorMsg.textContent = 'Erro ao salvar dados: ' + error.message;
-        });
-      })
-      .catch((error) => {
-        errorMsg.textContent = 'Erro ao criar login: ' + error.message;
+      await novoFuncionarioRef.set({
+        nome,
+        email,
+        cpf,
+        telefone,
+        cargo,
+        uid: null
       });
+
+      // 2️⃣ Criar login sem derrubar admin
+      const adminUser = firebase.auth().currentUser;
+      const adminEmail = adminUser.email;
+      const adminPassword = prompt("Digite sua senha de administrador para continuar:");
+
+      // Criar instância temporária do Firebase
+      const tempApp = firebase.initializeApp(firebase.app().options, "tempApp");
+      await tempApp.auth().signInWithEmailAndPassword(adminEmail, adminPassword);
+
+      const userCred = await tempApp.auth().createUserWithEmailAndPassword(email, senha);
+      const uidFuncionario = userCred.user.uid;
+
+      // 3️⃣ Atualizar o registro no banco com UID
+      await firebase.database().ref(`funcionarios/${funcionarioId}`).update({ uid: uidFuncionario });
+
+      // 4️⃣ Mensagem de sucesso + redirecionamento
+      successMsg.textContent = "Funcionário adicionado com sucesso!";
+      form.reset();
+      tempApp.delete();
+
+      // Redireciona de volta para lista
+      setTimeout(() => {
+        window.location.href = "funcionarios.html";
+      }, 1000);
+
+    } catch (error) {
+      errorMsg.textContent = "Erro: " + error.message;
+    }
   });
 </script>
 
