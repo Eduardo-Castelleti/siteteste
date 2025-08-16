@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adicionar Produto - Admin Petshop</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; display: flex; }
+    .sidebar {
+      width: 220px; background: #2c3e50; color: white; height: 100vh;
+      position: fixed; top: 0; left: 0; padding: 20px 0;
+    }
+    .sidebar h2 { text-align: center; margin-bottom: 30px; }
+    .sidebar ul { list-style: none; padding: 0; }
+    .sidebar ul li { padding: 15px; }
+    .sidebar ul li a {
+      color: white; text-decoration: none; display: block; transition: 0.3s;
+    }
+    .sidebar ul li a:hover, .active { background: #1abc9c; }
+    .content { margin-left: 220px; padding: 20px; width: 100%; }
+    form {
+      max-width: 500px; margin-top: 20px;
+      background: #f9f9f9; padding: 20px; border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select {
+      width: 100%; padding: 8px; margin-top: 5px;
+      border: 1px solid #ccc; border-radius: 5px;
+    }
+    .btn {
+      display: inline-block; padding: 10px 15px; background: #1abc9c;
+      color: white; border-radius: 5px; margin-top: 15px; cursor: pointer; border: none;
+    }
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Admin Petshop</h2>
+    <ul>
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="clientes.html">Clientes</a></li>
+      <li><a href="parceiros.html">Parceiros</a></li>
+      <li><a href="funcionarios.html">Funcionários</a></li>
+      <li><a href="produtos.html" class="active">Produtos</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <h1>Adicionar Produto</h1>
+    <form id="produtoForm">
+      <label>Nome do Produto</label>
+      <input type="text" id="nome" required>
+
+      <label>Categoria</label>
+      <select id="categoria" required>
+        <option value="">Selecione</option>
+        <option>Ração</option>
+        <option>Petiscos</option>
+        <option>Higiene</option>
+        <option>Acessórios</option>
+        <option>Medicamentos</option>
+      </select>
+
+      <label>Preço</label>
+      <input type="number" id="preco" step="0.01" required>
+
+      <label>Quantidade em Estoque</label>
+      <input type="number" id="estoque" required>
+
+      <button type="submit" class="btn">Salvar Produto</button>
+      <a href="produtos.html" class="btn">Voltar</a>
+    </form>
+  </div>
+
+  <script>
+    // Configuração Firebase
+ const firebaseConfig = {
+  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
+  authDomain: "site-f6495.firebaseapp.com",
+  projectId: "site-f6495",
+  storageBucket: "site-f6495.firebasestorage.app",
+  messagingSenderId: "230161402024",
+  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
+  measurementId: "G-51G8XF6JH0"
+};
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const form = document.getElementById("produtoForm");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const categoria = document.getElementById("categoria").value;
+      const preco = document.getElementById("preco").value;
+      const estoque = document.getElementById("estoque").value;
+
+      const novoProduto = {
+        nome, categoria, preco, estoque
+      };
+
+      db.ref("produtos").push(novoProduto)
+        .then(() => {
+          alert("Produto cadastrado com sucesso!");
+          window.location.href = "produtos.html";
+        })
+        .catch(err => alert("Erro: " + err));
+    });
+  </script>
+</body>
+</html>
