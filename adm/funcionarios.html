@@ -5,20 +5,97 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Funcionários - Petshop</title>
 <style>
-  body { font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px; }
-  h1 { text-align: center; margin-bottom: 20px; color: #333; }
-  table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
-  th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    display: flex;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 220px;
+    background-color: #333;
+    color: white;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+  }
+  .sidebar h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 18px;
+    color: #4CAF50;
+  }
+  .sidebar a {
+    padding: 15px 20px;
+    text-decoration: none;
+    color: white;
+    display: block;
+    transition: 0.3s;
+  }
+  .sidebar a:hover {
+    background-color: #4CAF50;
+  }
+
+  /* ===== MAIN ===== */
+  .main {
+    margin-left: 220px; /* espaço da sidebar */
+    padding: 20px;
+    flex: 1;
+  }
+  h1 { 
+    margin-bottom: 20px; 
+    color: #333; 
+  }
+  #addBtn { 
+    margin-bottom: 15px; 
+    padding: 10px 20px; 
+    background-color: #2196F3; 
+    color: white; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+  }
+  #addBtn:hover { background-color: #1976D2; }
+
+  table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    background: #fff; 
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+    border-radius: 8px; 
+    overflow: hidden; 
+  }
+  th, td { 
+    padding: 12px; 
+    text-align: left; 
+    border-bottom: 1px solid #ddd; 
+  }
   th { background-color: #4CAF50; color: white; }
   tr:hover { background-color: #f1f1f1; }
-  #addBtn { margin-bottom: 15px; padding: 10px 20px; background-color: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; }
-  #addBtn:hover { background-color: #1976D2; }
-  .container { max-width: 900px; margin: 0 auto; }
+
 </style>
 </head>
 <body>
 
-<div class="container">
+<!-- ===== SIDEBAR ===== -->
+<div class="sidebar">
+  <h2>🐾 Petshop ADM</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="clientes.html">Clientes</a>
+  <a href="parceiros.html">Parceiros</a>
+  <a href="funcionarios.html">Funcionários</a>
+  <a href="config.html">Configurações</a>
+  <a href="logout.html">Sair</a>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="main">
   <h1>Funcionários</h1>
   <button id="addBtn">Adicionar Funcionário</button>
   <table id="funcionariosTable">
@@ -42,15 +119,15 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
-  authDomain: "site-f6495.firebaseapp.com",
-  projectId: "site-f6495",
-  storageBucket: "site-f6495.firebasestorage.app",
-  messagingSenderId: "230161402024",
-  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
-  measurementId: "G-51G8XF6JH0"
-};
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_AUTH_DOMAIN",
+    databaseURL: "SUA_DATABASE_URL",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_STORAGE_BUCKET",
+    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+    appId: "SEU_APP_ID"
+  };
   firebase.initializeApp(firebaseConfig);
 
   const dbRef = firebase.database().ref('funcionarios');
