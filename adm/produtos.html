@@ -1,82 +1,106 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Produtos - Admin Petshop</title>
-  <style>
-    body { margin: 0; font-family: Arial, sans-serif; display: flex; }
-    .sidebar {
-      width: 220px; background: #2c3e50; color: white; height: 100vh;
-      position: fixed; top: 0; left: 0; padding: 20px 0;
-    }
-    .sidebar h2 { text-align: center; margin-bottom: 30px; }
-    .sidebar ul { list-style: none; padding: 0; }
-    .sidebar ul li { padding: 15px; }
-    .sidebar ul li a {
-      color: white; text-decoration: none; display: block; transition: 0.3s;
-    }
-    .sidebar ul li a:hover, .active { background: #1abc9c; }
-    .content { margin-left: 220px; padding: 20px; width: 100%; }
-    table {
-      width: 100%; border-collapse: collapse; margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ddd; padding: 10px; text-align: left;
-    }
-    th { background: #1abc9c; color: white; }
-    .btn {
-      display: inline-block; padding: 10px 15px; background: #1abc9c;
-      color: white; text-decoration: none; border-radius: 5px;
-    }
-  </style>
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Petshop - Produtos</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+  body { display: flex; height: 100vh; }
+  .sidebar {
+    width: 220px;
+    background: #2c3e50;
+    color: #fff;
+    padding: 20px;
+    flex-shrink: 0;
+  }
+  .sidebar h2 { margin-bottom: 30px; text-align: center; }
+  .sidebar a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  .sidebar a:hover { background: #34495e; }
+  .content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  th { background: #ecf0f1; }
+  input, select, textarea, button { margin: 5px 0; padding: 8px; width: 100%; }
+  #formProduto { display: none; background: #f9f9f9; padding: 20px; margin-top: 20px; border: 1px solid #ccc; border-radius: 5px; }
+</style>
 </head>
 <body>
 
-  <div class="sidebar">
-  <h2>Admin Petshop</h2>
-  <ul>
-    <li><a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-    <li><a href="clientes.html"><i class="fas fa-user"></i> Clientes</a></li>
-    <li><a href="parceiros.html"><i class="fas fa-handshake"></i> Parceiros</a></li>
-    <li><a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a></li>
-    <li><a href="produtos.html"><i class="fas fa-box"></i> Produtos</a></li>
-    <li><a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a></li>
-    <li><a href="vendas.html"><i class="fas fa-receipt"></i> Vendas</a></li>
-  </ul>
+<div class="sidebar">
+  <h2>Admin Pet</h2>
+  <a href="index.html">Dashboard</a>
+  <a href="clientes.html">Clientes</a>
+  <a href="parceiros.html">Parceiros</a>
+  <a href="funcionarios.html">Funcionários</a>
+  <a href="produtos.html">Produtos</a>
+</div>
+
+<div class="content">
+  <h1>Produtos</h1>
+
+  <input type="text" id="buscaProduto" placeholder="Buscar produto..." onkeyup="filtrarProdutos()">
+
+  <button onclick="mostrarForm()">Adicionar Produto</button>
+
+  <table id="tabelaProdutos">
+    <thead>
+      <tr>
+        <th>Imagem</th>
+        <th>Nome</th>
+        <th>Categoria</th>
+        <th>Preço</th>
+        <th>Preço Assinante</th>
+        <th>Estoque</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Produtos vão aparecer aqui -->
+    </tbody>
+  </table>
+
+  <div id="formProduto">
+    <h2 id="tituloForm">Adicionar Produto</h2>
+    <input type="file" id="imagemProduto">
+    <input type="text" id="nomeProduto" placeholder="Nome">
+    <textarea id="descricaoBreve" placeholder="Breve descrição"></textarea>
+    <textarea id="descricaoCompleta" placeholder="Descrição completa / Composição"></textarea>
+    <input type="text" id="garantia" placeholder="Níveis de Garantia">
+    <textarea id="politicaTroca" placeholder="Política de troca"></textarea>
+    <input type="text" id="marca" placeholder="Marca / Fornecedor">
+    <input type="text" id="categoria" placeholder="Categoria">
+    <input type="text" id="porte" placeholder="Porte / Tamanho">
+    <input type="text" id="peso" placeholder="Peso / Volume">
+    <input type="number" id="precoCusto" placeholder="Preço de Custo" step="0.01">
+    <input type="number" id="precoVenda" placeholder="Preço de Venda" step="0.01" oninput="calcularPrecoAssinante()">
+    <input type="number" id="precoAssinante" placeholder="Preço para Assinantes" step="0.01" readonly>
+    <input type="number" id="estoque" placeholder="Quantidade em estoque">
+    <input type="text" id="sku" placeholder="Código SKU / Referência">
+    <input type="date" id="validade" placeholder="Data de Validade">
+    <input type="text" id="tags" placeholder="Tags / Palavras-chave">
+    <textarea id="observacoes" placeholder="Observações"></textarea>
+    <button onclick="salvarProduto()">Salvar</button>
+    <button onclick="fecharForm()">Cancelar</button>
+  </div>
 </div>
 
 <script>
-// Destacar aba ativa automaticamente
-document.querySelectorAll(".sidebar ul li a").forEach(link => {
-  if(link.href === window.location.href){
-    link.classList.add("active");
-  }
-});
-</script>
-  
-  <div class="content">
-    <h1>Produtos</h1>
-    <a href="adicionar-produtos.html" class="btn">+ Adicionar Produto</a>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Categoria</th>
-          <th>Preço</th>
-          <th>Estoque</th>
-        </tr>
-      </thead>
-      <tbody id="produtosTable"></tbody>
-    </table>
-  </div>
-
-  <script>
-    // Configuração Firebase
+  // Configuração Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
   authDomain: "site-f6495.firebaseapp.com",
@@ -86,29 +110,143 @@ const firebaseConfig = {
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
 };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const storage = firebase.storage();
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+  let editandoId = null;
 
-    const produtosTable = document.getElementById("produtosTable");
+  function mostrarForm() {
+    document.getElementById('formProduto').style.display = 'block';
+    document.getElementById('tituloForm').innerText = 'Adicionar Produto';
+    editandoId = null;
+    document.querySelector('#formProduto').reset?.();
+  }
 
-    function carregarProdutos() {
-      db.ref("produtos").on("value", snapshot => {
-        produtosTable.innerHTML = "";
-        snapshot.forEach(childSnapshot => {
-          const produto = childSnapshot.val();
-          const row = `<tr>
-                        <td>${produto.nome}</td>
-                        <td>${produto.categoria}</td>
-                        <td>R$ ${produto.preco}</td>
-                        <td>${produto.estoque}</td>
-                      </tr>`;
-          produtosTable.innerHTML += row;
+  function fecharForm() {
+    document.getElementById('formProduto').style.display = 'none';
+  }
+
+  function calcularPrecoAssinante() {
+    const venda = parseFloat(document.getElementById('precoVenda').value) || 0;
+    document.getElementById('precoAssinante').value = (venda * 0.85).toFixed(2);
+  }
+
+  function salvarProduto() {
+    const produto = {
+      nome: document.getElementById('nomeProduto').value,
+      descricaoBreve: document.getElementById('descricaoBreve').value,
+      descricaoCompleta: document.getElementById('descricaoCompleta').value,
+      garantia: document.getElementById('garantia').value,
+      politicaTroca: document.getElementById('politicaTroca').value,
+      marca: document.getElementById('marca').value,
+      categoria: document.getElementById('categoria').value,
+      porte: document.getElementById('porte').value,
+      peso: document.getElementById('peso').value,
+      precoCusto: parseFloat(document.getElementById('precoCusto').value) || 0,
+      precoVenda: parseFloat(document.getElementById('precoVenda').value) || 0,
+      precoAssinante: parseFloat(document.getElementById('precoAssinante').value) || 0,
+      estoque: parseInt(document.getElementById('estoque').value) || 0,
+      sku: document.getElementById('sku').value,
+      validade: document.getElementById('validade').value,
+      tags: document.getElementById('tags').value,
+      observacoes: document.getElementById('observacoes').value,
+      imagemUrl: ''
+    };
+
+    const arquivo = document.getElementById('imagemProduto').files[0];
+    if (arquivo) {
+      const storageRef = storage.ref('produtos/' + arquivo.name);
+      storageRef.put(arquivo).then(() => {
+        storageRef.getDownloadURL().then(url => {
+          produto.imagemUrl = url;
+          salvarNoFirebase(produto);
         });
       });
+    } else {
+      salvarNoFirebase(produto);
     }
+  }
 
+  function salvarNoFirebase(produto) {
+    if (editandoId) {
+      db.ref('produtos/' + editandoId).set(produto);
+    } else {
+      const novoRef = db.ref('produtos').push();
+      novoRef.set(produto);
+    }
+    fecharForm();
     carregarProdutos();
-  </script>
+  }
+
+  function carregarProdutos() {
+    const tbody = document.querySelector('#tabelaProdutos tbody');
+    tbody.innerHTML = '';
+    db.ref('produtos').once('value', snapshot => {
+      snapshot.forEach(child => {
+        const p = child.val();
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.imagemUrl ? '<img src="'+p.imagemUrl+'" width="50">' : ''}</td>
+          <td>${p.nome}</td>
+          <td>${p.categoria}</td>
+          <td>R$ ${p.precoVenda.toFixed(2)}</td>
+          <td>R$ ${p.precoAssinante.toFixed(2)}</td>
+          <td>${p.estoque}</td>
+          <td>
+            <button onclick="editarProduto('${child.key}')">Editar</button>
+            <button onclick="excluirProduto('${child.key}')">Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  }
+
+  function editarProduto(id) {
+    db.ref('produtos/' + id).once('value', snapshot => {
+      const p = snapshot.val();
+      editandoId = id;
+      document.getElementById('tituloForm').innerText = 'Editar Produto';
+      document.getElementById('nomeProduto').value = p.nome;
+      document.getElementById('descricaoBreve').value = p.descricaoBreve;
+      document.getElementById('descricaoCompleta').value = p.descricaoCompleta;
+      document.getElementById('garantia').value = p.garantia;
+      document.getElementById('politicaTroca').value = p.politicaTroca;
+      document.getElementById('marca').value = p.marca;
+      document.getElementById('categoria').value = p.categoria;
+      document.getElementById('porte').value = p.porte;
+      document.getElementById('peso').value = p.peso;
+      document.getElementById('precoCusto').value = p.precoCusto;
+      document.getElementById('precoVenda').value = p.precoVenda;
+      document.getElementById('precoAssinante').value = p.precoAssinante;
+      document.getElementById('estoque').value = p.estoque;
+      document.getElementById('sku').value = p.sku;
+      document.getElementById('validade').value = p.validade;
+      document.getElementById('tags').value = p.tags;
+      document.getElementById('observacoes').value = p.observacoes;
+      document.getElementById('formProduto').style.display = 'block';
+    });
+  }
+
+  function excluirProduto(id) {
+    if (confirm('Tem certeza que deseja excluir este produto?')) {
+      db.ref('produtos/' + id).remove();
+      carregarProdutos();
+    }
+  }
+
+  function filtrarProdutos() {
+    const filtro = document.getElementById('buscaProduto').value.toLowerCase();
+    const linhas = document.querySelectorAll('#tabelaProdutos tbody tr');
+    linhas.forEach(linha => {
+      const nome = linha.cells[1].innerText.toLowerCase();
+      linha.style.display = nome.includes(filtro) ? '' : 'none';
+    });
+  }
+
+  window.onload = carregarProdutos;
+</script>
+
 </body>
 </html>
