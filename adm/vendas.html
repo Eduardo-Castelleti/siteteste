@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendas e Resumos - Admin Pet</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+      import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "SEU_API_KEY",
+        authDomain: "SEU_AUTH_DOMAIN",
+        projectId: "SEU_PROJECT_ID",
+        storageBucket: "SEU_STORAGE_BUCKET",
+        messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+        appId: "SEU_APP_ID"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      window.fetchVendas = async function() {
+        const vendasRef = collection(db, "vendas");
+        const snapshot = await getDocs(vendasRef);
+        const vendas = [];
+        snapshot.forEach(doc => {
+          vendas.push({ id: doc.id, ...doc.data() });
+        });
+
+        updateResumo(vendas);
+        updateTabela(vendas);
+        updateGraficos(vendas);
+      }
+
+      function updateResumo(vendas) {
+        const faturamentoTotal = vendas.reduce((sum, v) => sum + parseFloat(v.total), 0);
+        const lucroEstimado = vendas.reduce((sum, v) => {
+          // exemplo de cálculo de lucro baseado em margens médias
+          let margem = 0.3; 
+          if(v.categoria === "Petiscos") margem = 0.4;
+          if(v.categoria === "Acessórios") margem = 0.4;
+          if(v.categoria === "Medicamentos") margem = 0.5;
+          if(v.categoria === "Serviços") margem = 0.5;
+          return sum + (parseFloat(v.total) * margem);
+        }, 0);
+
+        document.getElementById("faturamentoTotal").innerText = `R$ ${faturamentoTotal.toFixed(2)}`;
+        document.getElementById("lucroEstimado").innerText = `R$ ${lucroEstimado.toFixed(2)}`;
+      }
+
+      function updateTabela(vendas) {
+        const tbody = document.getElementById("tabelaVendasBody");
+        tbody.innerHTML = "";
+        vendas.forEach(v => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${v.data}</td>
+            <td>${v.cliente}</td>
+            <td>${v.produto}</td>
+            <td>${v.categoria}</td>
+            <td>${v.quantidade}</td>
+            <td>R$ ${parseFloat(v.valorUnitario).toFixed(2)}</td>
+            <td>${v.desconto || 0}%</td>
+            <td>R$ ${parseFloat(v.total).toFixed(2)}</td>
+            <td>${v.formaPagamento}</td>
+            <td>${v.status}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function updateGraficos(vendas) {
+        // Vendas por categoria
+        const categorias = {};
+        vendas.forEach(v => {
+          if(!categorias[v.categoria]) categorias[v.categoria] = 0;
+          categorias[v.categoria] += parseFloat(v.total);
+        });
+
+        const ctxCategoria = document.getElementById('graficoCategoria').getContext('2d');
+        new Chart(ctxCategoria, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(categorias),
+            datasets: [{
+              label: 'Vendas por Categoria',
+              data: Object.values(categorias),
+              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+            }]
+          }
+        });
+
+        // Vendas por período (diário)
+        const vendasPorDia = {};
+        vendas.forEach(v => {
+          const dia = v.data; // supondo formato YYYY-MM-DD
+          if(!vendasPorDia[dia]) vendasPorDia[dia] = 0;
+          vendasPorDia[dia] += parseFloat(v.total);
+        });
+
+        const ctxPeriodo = document.getElementById('graficoPeriodo').getContext('2d');
+        new Chart(ctxPeriodo, {
+          type: 'line',
+          data: {
+            labels: Object.keys(vendasPorDia),
+            datasets: [{
+              label: 'Vendas por Dia',
+              data: Object.values(vendasPorDia),
+              borderColor: 'rgba(75, 192, 192, 1)',
+              tension: 0.3,
+              fill: false
+            }]
+          }
+        });
+      }
+
+      window.addEventListener('load', fetchVendas);
+    </script>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 bg-dark text-white vh-100 p-3">
+            <h3>Admin Pet</h3>
+            <ul class="nav flex-column mt-4">
+                <li class="nav-item"><a href="index.html" class="nav-link text-white">Dashboard</a></li>
+                <li class="nav-item"><a href="clientes.html" class="nav-link text-white">Clientes</a></li>
+                <li class="nav-item"><a href="parceiros.html" class="nav-link text-white">Parceiros</a></li>
+                <li class="nav-item"><a href="funcionarios.html" class="nav-link text-white">Funcionários</a></li>
+                <li class="nav-item"><a href="produtos.html" class="nav-link text-white">Produtos</a></li>
+                <li class="nav-item"><a href="vendas.html" class="nav-link text-white fw-bold">Vendas</a></li>
+            </ul>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="col-md-10 p-4">
+            <h2>Vendas e Resumos</h2>
+
+            <!-- Cards de Resumo -->
+            <div class="row my-4">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-header">Faturamento Total</div>
+                        <div class="card-body">
+                            <h5 class="card-title" id="faturamentoTotal">R$ 0,00</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-header">Lucro Estimado</div>
+                        <div class="card-body">
+                            <h5 class="card-title" id="lucroEstimado">R$ 0,00</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="row">
+                <div class="col-md-6">
+                    <canvas id="graficoCategoria"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <canvas id="graficoPeriodo"></canvas>
+                </div>
+            </div>
+
+            <!-- Tabela de Vendas -->
+            <div class="row mt-5">
+                <h4>Lista de Vendas</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Cliente</th>
+                            <th>Produto/Serviço</th>
+                            <th>Categoria</th>
+                            <th>Qtd</th>
+                            <th>Valor Unit.</th>
+                            <th>Desconto</th>
+                            <th>Total</th>
+                            <th>Pagamento</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaVendasBody">
+                        <!-- Conteúdo preenchido pelo JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
