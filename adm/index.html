@@ -56,9 +56,20 @@ a { text-decoration:none; color:inherit; }
     <li><a href="parceiros.html"><i class="fas fa-handshake"></i> Parceiros</a></li>
     <li><a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a></li>
     <li><a href="produtos.html"><i class="fas fa-box"></i> Produtos</a></li>
+    <li><a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a></li>
+    <li><a href="vendas.html"><i class="fas fa-receipt"></i> Vendas</a></li>
   </ul>
 </div>
 
+<script>
+// Destacar aba ativa automaticamente
+document.querySelectorAll(".sidebar ul li a").forEach(link => {
+  if(link.href === window.location.href){
+    link.classList.add("active");
+  }
+});
+</script>
+  
 <div class="main-content">
   <h1>Dashboard</h1>
   <div class="cards">
