@@ -29,6 +29,8 @@ h1 button:hover {background:#2ecc71;}
 .card.fidelizados {background:#27ae60;}
 .card.vip {background:#8e44ad;}
 .card.alerta {background:#e74c3c;}
+.card.servicos {background:#f39c12;}
+.card.produtos {background:#16a085;}
 .search-bar {margin-bottom:20px; display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:10px; flex-wrap:wrap;}
 .search-bar input, .search-bar select {padding:10px; border-radius:5px; border:1px solid #ccc;}
 .search-bar button {padding:10px 15px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
@@ -70,16 +72,16 @@ h1 button:hover {background:#2ecc71;}
 <div class="card fidelizados"><h3>Fidelizados</h3><p id="clientesFidelizados">0</p></div>
 <div class="card vip"><h3>VIP</h3><p id="clientesVIP">0</p></div>
 <div class="card alerta"><h3>Aniversário Próximo</h3><p id="clientesAniversario">0</p></div>
-<div class="card"><h3>Serviços Realizados</h3><p id="totalServicos">0</p></div>
-<div class="card"><h3>Produtos Comprados</h3><p id="totalProdutos">0</p></div>
+<div class="card servicos"><h3>Serviços Realizados</h3><p id="totalServicos">0</p></div>
+<div class="card produtos"><h3>Produtos Comprados</h3><p id="totalProdutos">0</p></div>
 </div>
 
 <div class="search-bar">
 <input type="text" id="buscaCliente" placeholder="Pesquisar por nome">
-<select id="filtroStatus"><option value="">Status</option><option value="ativo">Ativo</option><option value="inativo">Inativo</option><option value="VIP">VIP</option><option value="fidelizado">Fidelizado</option></select>
-<select id="filtroIdade"><option value="">Faixa Etária</option><option value="0-1">0-1 anos</option><option value="2-5">2-5 anos</option><option value="6-10">6-10 anos</option><option value="11+">11+ anos</option></select>
-<select id="filtroServicos"><option value="">Serviço</option></select>
-<select id="filtroProdutos"><option value="">Produto</option></select>
+<select id="filtroStatus" multiple><option value="ativo">Ativo</option><option value="inativo">Inativo</option><option value="VIP">VIP</option><option value="fidelizado">Fidelizado</option></select>
+<select id="filtroIdade" multiple><option value="0-1">0-1 anos</option><option value="2-5">2-5 anos</option><option value="6-10">6-10 anos</option><option value="11+">11+ anos</option></select>
+<select id="filtroServicos" multiple></select>
+<select id="filtroProdutos" multiple></select>
 <button id="btnFiltrar"><i class="fas fa-search"></i> Filtrar</button>
 <button id="btnExportar"><i class="fas fa-file-csv"></i> Exportar CSV</button>
 </div>
@@ -110,6 +112,7 @@ h1 button:hover {background:#2ecc71;}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 // Firebase
 const firebaseConfig = {
@@ -130,72 +133,114 @@ let clienteAtual=null;
 function abrirModal(){document.getElementById('modalCliente').style.display='flex';}
 function fecharModal(){document.getElementById('modalCliente').style.display='none'; document.getElementById('mensagemModal').textContent='';}
 
-// Salvar alterações
-async function salvarAlteracoes(){
-  if(!clienteAtual) return;
-  const nome=document.getElementById('modalNome').value;
-  const email=document.getElementById('modalEmail').value;
-  const telefone=document.getElementById('modalTelefone').value;
-  const cpf=document.getElementById('modalCPF').value;
-  const status=document.getElementById('modalStatus').value;
-  try{
-    await db.collection('clientes').doc(clienteAtual).update({nome,email,telefone,cpf,status});
-    document.getElementById('mensagemModal').style.color='green';
-    document.getElementById('mensagemModal').textContent='Alterações salvas!';
-  }catch(e){
-    document.getElementById('mensagemModal').style.color='red';
-    document.getElementById('mensagemModal').textContent='Erro ao salvar: '+e.message;
-  }
+// Carregar filtros dinâmicos de serviços e produtos
+let servicosSet=new Set();
+let produtosSet=new Set();
+db.collection("clientes").get().then(snapshot=>{
+ snapshot.forEach(doc=>{
+   const c=doc.data();
+   if(c.servicos) c.servicos.forEach(s=>servicosSet.add(s));
+   if(c.produtos) c.produtos.forEach(p=>produtosSet.add(p));
+ });
+ const filtroServ=document.getElementById('filtroServicos');
+ const filtroProd=document.getElementById('filtroProdutos');
+ servicosSet.forEach(s=>filtroServ.innerHTML+=`<option value="${s}">${s}</option>`);
+ produtosSet.forEach(p=>filtroProd.innerHTML+=`<option value="${p}">${p}</option>`);
+});
+
+// Funções para KPIs e gráficos
+function calcularIdade(nasc){const hoje=new Date();const dataNasc=new Date(nasc);let idade=hoje.getFullYear()-dataNasc.getFullYear();const m=hoje.getMonth()-dataNasc.getMonth();if(m<0||(m===0&&hoje.getDate()<dataNasc.getDate()))idade--;return idade;}
+
+// Atualizar KPIs e gráficos com filtros
+function atualizarKPIs(clientes){
+ let total=0, novos=0, fidelizados=0, vip=0, aniversarios=0, totalServ=0, totalProd=0;
+ const hoje=new Date();
+ clientes.forEach(c=>{
+   const idade = c.nascimento ? calcularIdade(c.nascimento) : 0;
+   if(c.status==="ativo") total++;
+   if(c.vip) vip++;
+   if(c.fidelizado) fidelizados++;
+   if(new Date(c.cadastro) >= new Date(hoje.getFullYear(), hoje.getMonth()-1, hoje.getDate())) novos++;
+   if(c.nascimento){const nasc=new Date(c.nascimento);const prox=new Date(hoje.getFullYear(),nasc.getMonth(),nasc.getDate());const diff=(prox-hoje)/(1000*60*60*24);if(diff>=0 && diff<=7) aniversarios++;}
+   if(c.servicos) totalServ+=c.servicos.length;
+   if(c.produtos) totalProd+=c.produtos.length;
+ });
+ document.getElementById('totalClientes').textContent=total;
+ document.getElementById('clientesNovos').textContent=novos;
+ document.getElementById('clientesFidelizados').textContent=fidelizados;
+ document.getElementById('clientesVIP').textContent=vip;
+ document.getElementById('clientesAniversario').textContent=aniversarios;
+ document.getElementById('totalServicos').textContent=totalServ;
+ document.getElementById('totalProdutos').textContent=totalProd;
+ // Aqui você pode atualizar os gráficos também usando os clientes filtrados
 }
 
-// Atualizar gráficos e KPIs
-function calcularIdade(nasc){
-  if(!nasc) return '';
-  const hoje=new Date(), dataNasc=new Date(nasc);
-  let idade=hoje.getFullYear()-dataNasc.getFullYear();
-  const m=hoje.getMonth()-dataNasc.getMonth();
-  if(m<0||(m===0 && hoje.getDate()<dataNasc.getDate())) idade--;
-  return idade;
+// Filtro
+document.getElementById('btnFiltrar').addEventListener('click',()=>{
+ db.collection("clientes").get().then(snapshot=>{
+   let resultados=[];
+   snapshot.forEach(doc=>{resultados.push(doc.data());});
+   const busca=document.getElementById('buscaCliente').value.toLowerCase();
+   const statusSel=[...document.getElementById('filtroStatus').selectedOptions].map(o=>o.value);
+   const idadeSel=[...document.getElementById('filtroIdade').selectedOptions].map(o=>o.value);
+   const servSel=[...document.getElementById('filtroServicos').selectedOptions].map(o=>o.value);
+   const prodSel=[...document.getElementById('filtroProdutos').selectedOptions].map(o=>o.value);
+   const filtrados=resultados.filter(c=>{
+     let incluir=true;
+     if(busca && !c.nome.toLowerCase().includes(busca)) incluir=false;
+     if(statusSel.length && !statusSel.includes(c.status)) incluir=false;
+     if(idadeSel.length){
+       const idade=c.nascimento ? calcularIdade(c.nascimento) : 0;
+       let ok=false;
+       idadeSel.forEach(f=>{
+         if(f==="0-1" && idade>=0 && idade<=1) ok=true;
+         if(f==="2-5" && idade>=2 && idade<=5) ok=true;
+         if(f==="6-10" && idade>=6 && idade<=10) ok=true;
+         if(f==="11+" && idade>=11) ok=true;
+       });
+       if(!ok) incluir=false;
+     }
+     if(servSel.length && (!c.servicos || !c.servicos.some(s=>servSel.includes(s)))) incluir=false;
+     if(prodSel.length && (!c.produtos || !c.produtos.some(p=>prodSel.includes(p)))) incluir=false;
+     return incluir;
+   });
+   atualizarKPIs(filtrados);
+ });
+});
+
+// Modal salvar alterações
+function salvarAlteracoes(){
+ if(!clienteAtual) return;
+ const docRef=db.collection("clientes").doc(clienteAtual.id);
+ const dados={
+   nome: document.getElementById('modalNome').value,
+   email: document.getElementById('modalEmail').value,
+   telefone: document.getElementById('modalTelefone').value,
+   cpf: document.getElementById('modalCPF').value,
+   status: document.getElementById('modalStatus').value
+ };
+ docRef.update(dados).then(()=>{
+   document.getElementById('mensagemModal').textContent="Alterações salvas com sucesso!";
+   setTimeout(()=>fecharModal(),1500);
+ }).catch(err=>{
+   document.getElementById('mensagemModal').textContent="Erro ao salvar: "+err.message;
+ });
 }
 
-// Carregar KPIs
-db.collection("clientes").onSnapshot(snapshot=>{
-  let total=0, novos=0, fidelizados=0, vip=0, aniversarios=0, totalServicos=0, totalProdutos=0;
-  const hoje=new Date();
-  const servicosSet=new Set();
-  const produtosSet=new Set();
-  snapshot.forEach(doc=>{
-    const c=doc.data();
-    if(c.status==="ativo") total++;
-    if(c.vip) vip++;
-    if(c.fidelizado) fidelizados++;
-    if(new Date(c.cadastro)>=new Date(hoje.getFullYear(), hoje.getMonth()-1, hoje.getDate())) novos++;
-    if(c.nascimento){
-      const nasc=new Date(c.nascimento);
-      const prox=new Date(hoje.getFullYear(), nasc.getMonth(), nasc.getDate());
-      const diff=(prox-hoje)/(1000*60*60*24);
-      if(diff>=0 && diff<=7) aniversarios++;
-    }
-    if(c.agendamentos) c.agendamentos.forEach(a=>servicosSet.add(a.servico));
-    if(c.compras) c.compras.forEach(p=>produtosSet.add(p.produto));
-    if(c.agendamentos) totalServicos+=c.agendamentos.length;
-    if(c.compras) totalProdutos+=c.compras.length;
-  });
-  document.getElementById('totalClientes').textContent=total;
-  document.getElementById('clientesNovos').textContent=novos;
-  document.getElementById('clientesFidelizados').textContent=fidelizados;
-  document.getElementById('clientesVIP').textContent=vip;
-  document.getElementById('clientesAniversario').textContent=aniversarios;
-  document.getElementById('totalServicos').textContent=totalServicos;
-  document.getElementById('totalProdutos').textContent=totalProdutos;
-
-  // Preencher filtros de serviços e produtos
-  const filtroServ=document.getElementById('filtroServicos');
-  const filtroProd=document.getElementById('filtroProdutos');
-  filtroServ.innerHTML='<option value="">Serviço</option>';
-  filtroProd.innerHTML='<option value="">Produto</option>';
-  servicosSet.forEach(s=>filtroServ.innerHTML+=`<option value="${s}">${s}</option>`);
-  produtosSet.forEach(p=>filtroProd.innerHTML+=`<option value="${p}">${p}</option>`);
+// Exportar CSV
+document.getElementById('btnExportar').addEventListener('click',()=>{
+ db.collection("clientes").get().then(snapshot=>{
+   let csv="Nome,E-mail,Telefone,CPF,Status\n";
+   snapshot.forEach(doc=>{
+     const c=doc.data();
+     csv+=`${c.nome},${c.email},${c.telefone},${c.cpf||''},${c.status}\n`;
+   });
+   const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+   const link = document.createElement("a");
+   link.href = URL.createObjectURL(blob);
+   link.download = "clientes.csv";
+   link.click();
+ });
 });
 </script>
 </body>
