@@ -3,128 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Parceiros</title>
+  <title>Adicionar Parceiro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <style>
-    * {margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif;}
-
-    body {display:flex; height:100vh; background:#f5f6fa;}
-
-    /* ===== LATERAL MENU ===== */
-    .sidebar {
-      width:250px;
-      background:#2c3e50;
-      color:white;
-      display:flex;
-      flex-direction:column;
-      padding:20px 0;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
     }
-    .sidebar h2 {text-align:center; margin-bottom:30px;}
-    .sidebar a {
-      padding:15px 25px;
-      color:white;
-      text-decoration:none;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      transition:background 0.3s;
-    }
-    .sidebar a:hover, .sidebar a.active {background:#34495e;}
-    .sidebar a i {width:20px;}
 
-    /* ===== CONTEÚDO ===== */
-    .content {flex:1; padding:20px; overflow-y:auto;}
-    h1 {margin-bottom:20px; color:#2c3e50;}
+    header {
+      background: #3b5998;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
 
-    .form-container, .table-container {
-      background:white;
-      padding:20px;
-      border-radius:8px;
-      box-shadow:0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom:20px;
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
     }
-    .form-container h2 {margin-bottom:15px; color:#2c3e50;}
 
-    form {display:grid; grid-template-columns:1fr 1fr; gap:15px;}
-    form input {
-      padding:10px;
-      border:1px solid #ccc;
-      border-radius:5px;
-      width:100%;
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
     }
-    form button {
-      grid-column:1/-1;
-      padding:12px;
-      background:#27ae60;
-      color:white;
-      border:none;
-      border-radius:5px;
-      cursor:pointer;
-      font-size:16px;
-    }
-    form button:hover {background:#219150;}
 
-    table {width:100%; border-collapse:collapse; margin-top:10px;}
-    th, td {
-      border:1px solid #ddd;
-      padding:10px;
-      text-align:left;
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+      color: #444;
     }
-    th {background:#2c3e50; color:white;}
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #3b5998;
+      color: white;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #2d4373;
+    }
+
+    .btn-voltar {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      text-decoration: none;
+      color: #3b5998;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <!-- MENU LATERAL -->
-  <div class="sidebar">
-    <h2>Admin</h2>
-    <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
-    <a href="clientes.html"><i class="fas fa-users"></i> Clientes</a>
-    <a href="parceiros.html" class="active"><i class="fas fa-handshake"></i> Parceiros</a>
-    <a href="funcionarios.html"><i class="fas fa-user-tie"></i> Funcionários</a>
+  <header>
+    <h1>Cadastro de Parceiros</h1>
+  </header>
+
+  <div class="container">
+    <h2>Adicionar Parceiro</h2>
+    <form id="formParceiro">
+      <label>CNPJ / CPF:</label>
+      <input type="text" id="cnpjcpf" required>
+
+      <label>Nome da Empresa:</label>
+      <input type="text" id="nomeEmpresa" required>
+
+      <label>Telefone da Empresa:</label>
+      <input type="text" id="telefoneEmpresa" required>
+
+      <label>E-mail da Empresa:</label>
+      <input type="email" id="emailEmpresa" required>
+
+      <label>Nome do Responsável:</label>
+      <input type="text" id="nomeResponsavel" required>
+
+      <label>Telefone do Responsável:</label>
+      <input type="text" id="telefoneResponsavel" required>
+
+      <label>E-mail do Responsável:</label>
+      <input type="email" id="emailResponsavel" required>
+
+      <label>Endereço Completo:</label>
+      <textarea id="endereco" rows="3" required></textarea>
+
+      <button type="submit">Salvar</button>
+    </form>
+    <a href="parceiros.html" class="btn-voltar">⬅ Voltar</a>
   </div>
 
-  <!-- CONTEÚDO -->
-  <div class="content">
-    <h1>Gerenciar Parceiros</h1>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <!-- FORMULÁRIO -->
-    <div class="form-container">
-      <h2>Adicionar Parceiro</h2>
-      <form id="partnerForm">
-        <input type="text" id="nome" placeholder="Nome do Parceiro" required>
-        <input type="email" id="email" placeholder="E-mail" required>
-        <input type="text" id="telefone" placeholder="Telefone" required>
-        <input type="text" id="cnpjcpf" placeholder="CNPJ / CPF" required>
-        <input type="text" id="endereco" placeholder="Endereço Completo" required>
-        <button type="submit">Salvar Parceiro</button>
-      </form>
-    </div>
-
-    <!-- LISTA -->
-    <div class="table-container">
-      <h2>Lista de Parceiros</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>CNPJ/CPF</th>
-            <th>E-mail</th>
-            <th>Telefone</th>
-            <th>Endereço</th>
-          </tr>
-        </thead>
-        <tbody id="partnersList"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- FIREBASE -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getDatabase, ref, push, onChildAdded, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-const firebaseConfig = {
+  <script>
+    // ⚡ Configuração do Firebase (troque pelos seus dados!)
+    const firebaseConfig = {
   apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
   authDomain: "site-f6495.firebaseapp.com",
   projectId: "site-f6495",
@@ -134,55 +132,33 @@ const firebaseConfig = {
   measurementId: "G-51G8XF6JH0"
 };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    // FORMULÁRIO
-    document.getElementById("partnerForm").addEventListener("submit", async (e) => {
+    document.getElementById("formParceiro").addEventListener("submit", function(e){
       e.preventDefault();
-      const nome = document.getElementById("nome").value;
-      const email = document.getElementById("email").value;
-      const telefone = document.getElementById("telefone").value;
-      const cnpjcpf = document.getElementById("cnpjcpf").value;
-      const endereco = document.getElementById("endereco").value;
 
-      try {
-        // Cria login com senha padrão
-        const senhaPadrao = "123456";
-        const userCredential = await createUserWithEmailAndPassword(auth, email, senhaPadrao);
+      const parceiro = {
+        cnpjcpf: document.getElementById("cnpjcpf").value,
+        nomeEmpresa: document.getElementById("nomeEmpresa").value,
+        telefoneEmpresa: document.getElementById("telefoneEmpresa").value,
+        emailEmpresa: document.getElementById("emailEmpresa").value,
+        nomeResponsavel: document.getElementById("nomeResponsavel").value,
+        telefoneResponsavel: document.getElementById("telefoneResponsavel").value,
+        emailResponsavel: document.getElementById("emailResponsavel").value,
+        endereco: document.getElementById("endereco").value
+      };
 
-        // Salva no Realtime Database
-        const newPartnerRef = push(ref(db, "parceiros"));
-        await set(newPartnerRef, {
-          id: userCredential.user.uid,
-          nome,
-          email,
-          telefone,
-          cnpjcpf,
-          endereco
+      // Salvar no Firebase
+      db.ref("parceiros").push(parceiro)
+        .then(() => {
+          alert("✅ Parceiro cadastrado com sucesso!");
+          document.getElementById("formParceiro").reset();
+        })
+        .catch((error) => {
+          console.error("Erro ao salvar:", error);
+          alert("❌ Erro ao salvar parceiro!");
         });
-
-        alert("Parceiro cadastrado com sucesso!");
-        document.getElementById("partnerForm").reset();
-      } catch (error) {
-        alert("Erro: " + error.message);
-      }
-    });
-
-    // LISTAR
-    const partnersList = document.getElementById("partnersList");
-    onChildAdded(ref(db, "parceiros"), (snapshot) => {
-      const p = snapshot.val();
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${p.nome}</td>
-        <td>${p.email}</td>
-        <td>${p.telefone}</td>
-        <td>${p.cnpjcpf}</td>
-        <td>${p.endereco}</td>
-      `;
-      partnersList.appendChild(row);
     });
   </script>
 </body>
