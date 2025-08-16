@@ -1,74 +1,129 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Adicionar/Editar Parceiro</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<style>
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana; background:#f4f4f4; padding:20px; }
-h1 { text-align:center; margin-bottom:20px; color:#2c3e50; }
-.form-container { max-width:600px; margin:0 auto; background:#fff; padding:20px; box-shadow:0 0 10px rgba(0,0,0,0.1); border-radius:6px;}
-.form-container h2 { margin-bottom:15px; text-align:center; }
-input, textarea { width:100%; padding:10px; margin-bottom:10px; border:1px solid #ccc; border-radius:4px; }
-button { background:#2980b9; color:#fff; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; }
-.checkbox-group { display:flex; flex-wrap:wrap; margin-bottom:10px; }
-.checkbox-group label { margin-right:15px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Parceiros</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * {margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif;}
+
+    body {display:flex; height:100vh; background:#f5f6fa;}
+
+    /* ===== LATERAL MENU ===== */
+    .sidebar {
+      width:250px;
+      background:#2c3e50;
+      color:white;
+      display:flex;
+      flex-direction:column;
+      padding:20px 0;
+    }
+    .sidebar h2 {text-align:center; margin-bottom:30px;}
+    .sidebar a {
+      padding:15px 25px;
+      color:white;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      transition:background 0.3s;
+    }
+    .sidebar a:hover, .sidebar a.active {background:#34495e;}
+    .sidebar a i {width:20px;}
+
+    /* ===== CONTEÚDO ===== */
+    .content {flex:1; padding:20px; overflow-y:auto;}
+    h1 {margin-bottom:20px; color:#2c3e50;}
+
+    .form-container, .table-container {
+      background:white;
+      padding:20px;
+      border-radius:8px;
+      box-shadow:0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom:20px;
+    }
+    .form-container h2 {margin-bottom:15px; color:#2c3e50;}
+
+    form {display:grid; grid-template-columns:1fr 1fr; gap:15px;}
+    form input {
+      padding:10px;
+      border:1px solid #ccc;
+      border-radius:5px;
+      width:100%;
+    }
+    form button {
+      grid-column:1/-1;
+      padding:12px;
+      background:#27ae60;
+      color:white;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
+      font-size:16px;
+    }
+    form button:hover {background:#219150;}
+
+    table {width:100%; border-collapse:collapse; margin-top:10px;}
+    th, td {
+      border:1px solid #ddd;
+      padding:10px;
+      text-align:left;
+    }
+    th {background:#2c3e50; color:white;}
+  </style>
 </head>
 <body>
-
-<div class="form-container">
-  <h2 id="form-title">Adicionar Parceiro</h2>
-  <input type="hidden" id="partnerId">
-
-  <label>Nome do Parceiro</label>
-  <input type="text" id="nome" placeholder="Nome da empresa">
-
-  <label>CNPJ / CPF</label>
-  <input type="text" id="cnpjcpf" placeholder="000.000.000-00 ou 00.000.000/0000-00">
-
-  <label>Tipo de Parceiro</label>
-  <div class="checkbox-group">
-    <label><input type="checkbox" name="tipo" value="Banho e Tosa"> Banho e Tosa</label>
-    <label><input type="checkbox" name="tipo" value="Creche"> Creche</label>
-    <label><input type="checkbox" name="tipo" value="Hospedagem"> Hospedagem</label>
-    <label><input type="checkbox" name="tipo" value="Outros"> Outros serviços</label>
+  <!-- MENU LATERAL -->
+  <div class="sidebar">
+    <h2>Admin</h2>
+    <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="clientes.html"><i class="fas fa-users"></i> Clientes</a>
+    <a href="parceiros.html" class="active"><i class="fas fa-handshake"></i> Parceiros</a>
+    <a href="funcionarios.html"><i class="fas fa-user-tie"></i> Funcionários</a>
   </div>
 
-  <label>Responsável</label>
-  <input type="text" id="responsavel" placeholder="Nome do responsável">
+  <!-- CONTEÚDO -->
+  <div class="content">
+    <h1>Gerenciar Parceiros</h1>
 
-  <label>Telefone</label>
-  <input type="text" id="telefone" placeholder="(XX) XXXXX-XXXX">
+    <!-- FORMULÁRIO -->
+    <div class="form-container">
+      <h2>Adicionar Parceiro</h2>
+      <form id="partnerForm">
+        <input type="text" id="nome" placeholder="Nome do Parceiro" required>
+        <input type="email" id="email" placeholder="E-mail" required>
+        <input type="text" id="telefone" placeholder="Telefone" required>
+        <input type="text" id="cnpjcpf" placeholder="CNPJ / CPF" required>
+        <input type="text" id="endereco" placeholder="Endereço Completo" required>
+        <button type="submit">Salvar Parceiro</button>
+      </form>
+    </div>
 
-  <label>E-mail</label>
-  <input type="email" id="email" placeholder="email@exemplo.com">
+    <!-- LISTA -->
+    <div class="table-container">
+      <h2>Lista de Parceiros</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>CNPJ/CPF</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>Endereço</th>
+          </tr>
+        </thead>
+        <tbody id="partnersList"></tbody>
+      </table>
+    </div>
+  </div>
 
-  <label>Endereço</label>
-  <input type="text" id="endereco" placeholder="Rua, Número, Bairro">
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getDatabase, ref, push, onChildAdded, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  <label>Cidade / Bairro</label>
-  <input type="text" id="cidade" placeholder="Cidade / Bairro">
-
-  <label>Status</label>
-  <select id="status">
-    <option value="Ativo">Ativo</option>
-    <option value="Inativo">Inativo</option>
-  </select>
-
-  <label>Observações</label>
-  <textarea id="observacoes" placeholder="Informações adicionais..."></textarea>
-
-  <button id="saveBtn">Salvar Parceiro</button>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script>
-// ===== FIREBASE =====
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
   authDomain: "site-f6495.firebaseapp.com",
@@ -78,81 +133,57 @@ const firebaseConfig = {
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
 
-const urlParams = new URLSearchParams(window.location.search);
-const partnerId = urlParams.get('id');
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-// ===== PREENCHE FORMULÁRIO SE FOR EDIÇÃO =====
-if(partnerId){
-  document.getElementById('form-title').innerText = 'Editar Parceiro';
-  db.collection('parceiros').doc(partnerId).get().then(doc=>{
-    const p = doc.data();
-    document.getElementById('nome').value = p.nome;
-    document.getElementById('cnpjcpf').value = p.cnpjcpf;
-    document.getElementById('responsavel').value = p.responsavel;
-    document.getElementById('telefone').value = p.telefone;
-    document.getElementById('email').value = p.email;
-    document.getElementById('endereco').value = p.endereco;
-    document.getElementById('cidade').value = p.cidade;
-    document.getElementById('status').value = p.status;
-    document.getElementById('observacoes').value = p.observacoes;
-    const checkboxes = document.querySelectorAll('input[name="tipo"]');
-    checkboxes.forEach(cb => { if(p.tipo && p.tipo.includes(cb.value)) cb.checked = true; });
-  });
-}
+    // FORMULÁRIO
+    document.getElementById("partnerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const email = document.getElementById("email").value;
+      const telefone = document.getElementById("telefone").value;
+      const cnpjcpf = document.getElementById("cnpjcpf").value;
+      const endereco = document.getElementById("endereco").value;
 
-// ===== SALVAR OU ATUALIZAR PARCEIRO =====
-document.getElementById('saveBtn').addEventListener('click', ()=>{
-  const tipos = [];
-  document.querySelectorAll('input[name="tipo"]:checked').forEach(cb => tipos.push(cb.value));
+      try {
+        // Cria login com senha padrão
+        const senhaPadrao = "123456";
+        const userCredential = await createUserWithEmailAndPassword(auth, email, senhaPadrao);
 
-  const data = {
-    nome: document.getElementById('nome').value,
-    cnpjcpf: document.getElementById('cnpjcpf').value,
-    tipo: tipos,
-    responsavel: document.getElementById('responsavel').value,
-    telefone: document.getElementById('telefone').value,
-    email: document.getElementById('email').value,
-    endereco: document.getElementById('endereco').value,
-    cidade: document.getElementById('cidade').value,
-    status: document.getElementById('status').value,
-    observacoes: document.getElementById('observacoes').value
-  };
+        // Salva no Realtime Database
+        const newPartnerRef = push(ref(db, "parceiros"));
+        await set(newPartnerRef, {
+          id: userCredential.user.uid,
+          nome,
+          email,
+          telefone,
+          cnpjcpf,
+          endereco
+        });
 
-  function savePartner(uid=null){
-    if(partnerId){
-      db.collection('parceiros').doc(partnerId).set({...data, uid}).then(()=>{
-        alert('Parceiro atualizado com sucesso!');
-        window.location.href = 'parceiros.html';
-      });
-    } else {
-      db.collection('parceiros').add({...data, uid}).then(()=>{
-        alert('Parceiro adicionado com sucesso!');
-        window.location.href = 'parceiros.html';
-      });
-    }
-  }
+        alert("Parceiro cadastrado com sucesso!");
+        document.getElementById("partnerForm").reset();
+      } catch (error) {
+        alert("Erro: " + error.message);
+      }
+    });
 
-  // ===== CRIAR LOGIN AUTOMÁTICO =====
-  if(!partnerId){ // somente criar login se for novo parceiro
-    const email = data.email;
-    const senha = 'Senha123'; // pode gerar aleatória depois
-    auth.createUserWithEmailAndPassword(email, senha)
-      .then(userCredential => {
-        const uid = userCredential.user.uid;
-        savePartner(uid);
-      })
-      .catch(error => {
-        console.error('Erro ao criar login:', error);
-        alert('Erro ao criar login do parceiro. Verifique o e-mail.');
-      });
-  } else {
-    savePartner(); // atualização não cria login
-  }
-});
-</script>
+    // LISTAR
+    const partnersList = document.getElementById("partnersList");
+    onChildAdded(ref(db, "parceiros"), (snapshot) => {
+      const p = snapshot.val();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${p.nome}</td>
+        <td>${p.email}</td>
+        <td>${p.telefone}</td>
+        <td>${p.cnpjcpf}</td>
+        <td>${p.endereco}</td>
+      `;
+      partnersList.appendChild(row);
+    });
+  </script>
 </body>
 </html>
