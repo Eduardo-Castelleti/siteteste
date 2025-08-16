@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produtos - Admin Petshop</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; display: flex; }
+    .sidebar {
+      width: 220px; background: #2c3e50; color: white; height: 100vh;
+      position: fixed; top: 0; left: 0; padding: 20px 0;
+    }
+    .sidebar h2 { text-align: center; margin-bottom: 30px; }
+    .sidebar ul { list-style: none; padding: 0; }
+    .sidebar ul li { padding: 15px; }
+    .sidebar ul li a {
+      color: white; text-decoration: none; display: block; transition: 0.3s;
+    }
+    .sidebar ul li a:hover, .active { background: #1abc9c; }
+    .content { margin-left: 220px; padding: 20px; width: 100%; }
+    table {
+      width: 100%; border-collapse: collapse; margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd; padding: 10px; text-align: left;
+    }
+    th { background: #1abc9c; color: white; }
+    .btn {
+      display: inline-block; padding: 10px 15px; background: #1abc9c;
+      color: white; text-decoration: none; border-radius: 5px;
+    }
+  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Admin Petshop</h2>
+    <ul>
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="clientes.html">Clientes</a></li>
+      <li><a href="parceiros.html">Parceiros</a></li>
+      <li><a href="funcionarios.html">Funcionários</a></li>
+      <li><a href="produtos.html" class="active">Produtos</a></li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <h1>Produtos</h1>
+    <a href="adicionar-produtos.html" class="btn">+ Adicionar Produto</a>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Categoria</th>
+          <th>Preço</th>
+          <th>Estoque</th>
+        </tr>
+      </thead>
+      <tbody id="produtosTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // Configuração Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
+  authDomain: "site-f6495.firebaseapp.com",
+  projectId: "site-f6495",
+  storageBucket: "site-f6495.firebasestorage.app",
+  messagingSenderId: "230161402024",
+  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
+  measurementId: "G-51G8XF6JH0"
+};
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const produtosTable = document.getElementById("produtosTable");
+
+    function carregarProdutos() {
+      db.ref("produtos").on("value", snapshot => {
+        produtosTable.innerHTML = "";
+        snapshot.forEach(childSnapshot => {
+          const produto = childSnapshot.val();
+          const row = `<tr>
+                        <td>${produto.nome}</td>
+                        <td>${produto.categoria}</td>
+                        <td>R$ ${produto.preco}</td>
+                        <td>${produto.estoque}</td>
+                      </tr>`;
+          produtosTable.innerHTML += row;
+        });
+      });
+    }
+
+    carregarProdutos();
+  </script>
+</body>
+</html>
