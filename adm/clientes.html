@@ -44,6 +44,17 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 .client-list table {width:100%; border-collapse:collapse;}
 .client-list table th, .client-list table td {padding:10px; border-bottom:1px solid #ddd; text-align:left; cursor:pointer;}
 .client-list table tr:hover {background:#f0f0f0;}
+
+/* Modal de cadastro */
+.modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999;}
+.modal-content {background:#fff; padding:20px; border-radius:10px; width:400px; max-width:90%;}
+.modal-content h2 {margin-bottom:15px;}
+.modal-content label {display:block; margin-top:10px;}
+.modal-content input {width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc;}
+.modal-content button {margin-top:15px; padding:10px 15px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer;}
+.modal-content button:hover {background:#2ecc71;}
+.modal-close {position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;}
+#mensagemCadastro{margin-top:10px; font-weight:500;}
 </style>
 </head>
 <body>
@@ -66,7 +77,7 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 </div>
 
 <div class="main-content">
-<h1>Clientes <button onclick="window.location.href='adicionar-clientes.html'">Cadastrar Clientes</button></h1>
+<h1>Clientes <button id="btnAbrirCadastro">Cadastrar Cliente</button></h1>
 
 <div class="cards">
 <div class="card total"><h3>Total de Clientes</h3><p id="totalClientes">0</p></div>
@@ -77,46 +88,37 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 </div>
 
 <div class="search-bar">
-<input type="text" id="buscaCliente" placeholder="Pesquisar por nome, e-mail, telefone, CPF/CNPJ">
-<select id="filtroStatus"><option value="">Status</option><option value="ativo">Ativo</option><option value="inativo">Inativo</option><option value="VIP">VIP</option><option value="fidelizado">Fidelizado</option></select>
-<select id="filtroIdade"><option value="">Faixa Etária</option><option value="0-1">0-1 anos</option><option value="2-5">2-5 anos</option><option value="6-10">6-10 anos</option><option value="11+">11+ anos</option></select>
-<select id="filtroFrequencia"><option value="">Frequência Compras</option><option value="baixa">Baixa</option><option value="media">Média</option><option value="alta">Alta</option></select>
-<select id="filtroGasto"><option value="">Faixa de Gasto</option><option value="baixo">Baixo</option><option value="medio">Médio</option><option value="alto">Alto</option></select>
+<input type="text" id="buscaCliente" placeholder="Pesquisar por nome, e-mail, telefone, CPF">
+<select id="filtroStatus">
+<option value="">Status</option>
+<option value="ativo">Ativo</option>
+<option value="inativo">Inativo</option>
+<option value="VIP">VIP</option>
+<option value="fidelizado">Fidelizado</option>
+</select>
 <button id="btnBuscar"><i class="fas fa-search"></i> Buscar</button>
 <button id="btnExportar"><i class="fas fa-file-csv"></i> Exportar CSV</button>
 </div>
 
-<div class="graphs">
-<canvas id="graficoTicketMedio"></canvas>
-<canvas id="graficoFaixaGasto"></canvas>
-<canvas id="graficoFrequencia"></canvas>
-<canvas id="graficoIdade"></canvas>
-</div>
-
-<div id="perfilCliente" class="profile" style="display:none;">
-<div class="info">
-<h3>Informações do Cliente</h3>
-<p><strong>Nome:</strong> <span id="infoNome"></span></p>
-<p><strong>E-mail:</strong> <span id="infoEmail"></span></p>
-<p><strong>Telefone:</strong> <span id="infoTelefone"></span></p>
-<p><strong>CPF/CNPJ:</strong> <span id="infoCPF"></span></p>
-<p><strong>Data de Nascimento:</strong> <span id="infoNascimento"></span></p>
-<p><strong>Idade:</strong> <span id="infoIdade"></span></p>
-<p><strong>Status:</strong> <span id="infoStatus"></span></p>
-<p><strong>Assinaturas:</strong> <span id="infoAssinaturas"></span></p>
-</div>
-<div class="historico">
-<h3>Histórico</h3>
-<h4>Compras</h4>
-<table id="historicoCompras">
-<thead><tr><th>Data</th><th>Produto/Serviço</th><th>Valor</th></tr></thead>
-<tbody></tbody>
-</table>
-<h4>Agendamentos</h4>
-<table id="historicoAgendamentos">
-<thead><tr><th>Data</th><th>Serviço</th><th>Status</th></tr></thead>
-<tbody></tbody>
-</table>
+<!-- Modal Cadastro -->
+<div class="modal" id="modalCadastro">
+<div class="modal-content">
+<span class="modal-close" id="fecharModal">&times;</span>
+<h2>Adicionar Cliente</h2>
+<form id="formCadastro">
+<label for="nomeCliente">Nome *</label>
+<input type="text" id="nomeCliente" required>
+<label for="telefoneCliente">Telefone *</label>
+<input type="text" id="telefoneCliente" placeholder="(99) 99999-9999" required>
+<label for="emailCliente">E-mail *</label>
+<input type="email" id="emailCliente" required>
+<label for="cpfCliente">CPF (opcional)</label>
+<input type="text" id="cpfCliente" placeholder="000.000.000-00">
+<label for="nascimentoCliente">Data de Nascimento</label>
+<input type="date" id="nascimentoCliente">
+<button type="submit">Cadastrar</button>
+<p id="mensagemCadastro"></p>
+</form>
 </div>
 </div>
 
@@ -125,7 +127,7 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 <table id="tabelaClientes">
 <thead>
 <tr>
-<th>Nome</th><th>E-mail</th><th>Telefone</th><th>CPF/CNPJ</th><th>Status</th><th>Idade</th>
+<th>Nome</th><th>E-mail</th><th>Telefone</th><th>CPF</th><th>Status</th><th>Idade</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -133,19 +135,20 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 // Configuração Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
-  authDomain: "site-f6495.firebaseapp.com",
-  projectId: "site-f6495",
-  storageBucket: "site-f6495.firebasestorage.app",
-  messagingSenderId: "230161402024",
-  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
-  measurementId: "G-51G8XF6JH0"
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  projectId: "SEU_PROJECT_ID",
+  storageBucket: "SEU_STORAGE_BUCKET",
+  messagingSenderId: "SEU_SENDER_ID",
+  appId: "SEU_APP_ID"
 };
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.firestore();
 
 // Função idade
@@ -158,151 +161,86 @@ function calcularIdade(nascimento){
     return idade;
 }
 
-// Variáveis de gráficos
-let graficoTicket, graficoGasto, graficoFreq, graficoIdade;
+// Modal
+const modal = document.getElementById("modalCadastro");
+document.getElementById("btnAbrirCadastro").onclick = ()=>modal.style.display="flex";
+document.getElementById("fecharModal").onclick = ()=>{modal.style.display="none"; document.getElementById("formCadastro").reset(); document.getElementById("mensagemCadastro").textContent="";};
+window.onclick = e=>{if(e.target==modal){modal.style.display="none"; document.getElementById("formCadastro").reset(); document.getElementById("mensagemCadastro").textContent="";}};
 
-// Atualizar métricas e tabela
+// Cadastro cliente
+document.getElementById("formCadastro").addEventListener("submit", async e=>{
+    e.preventDefault();
+    const nome = document.getElementById("nomeCliente").value.trim();
+    const telefone = document.getElementById("telefoneCliente").value.trim();
+    const email = document.getElementById("emailCliente").value.trim();
+    const cpf = document.getElementById("cpfCliente").value.trim();
+    const nascimento = document.getElementById("nascimentoCliente").value;
+    const mensagem = document.getElementById("mensagemCadastro");
+
+    if(!nome || !telefone || !email){
+        mensagem.style.color="red"; mensagem.textContent="Preencha todos os campos obrigatórios"; return;
+    }
+
+    try{
+        // Criar usuário Firebase Auth
+        const senha = Math.random().toString(36).slice(-8)+"A1!";
+        const userCredential = await auth.createUserWithEmailAndPassword(email, senha);
+
+        // Adicionar Firestore
+        await db.collection("clientes").doc(userCredential.user.uid).set({
+            nome,
+            telefone,
+            email,
+            cpf: cpf || null,
+            nascimento: nascimento || null,
+            cadastro: new Date().toISOString(),
+            status: "ativo",
+            vip: false,
+            fidelizado: false,
+            assinaturas: []
+        });
+
+        mensagem.style.color="green";
+        mensagem.textContent="Cliente cadastrado com sucesso!";
+        setTimeout(()=>{modal.style.display="none"; document.getElementById("formCadastro").reset(); mensagem.textContent="";},1500);
+
+    } catch(error){
+        mensagem.style.color="red";
+        mensagem.textContent=error.message;
+    }
+});
+
+// Atualizar tabela de clientes
 function atualizarClientes(snapshot){
-    let total=0, novos=0, fidelizados=0, vip=0, aniversarios=0;
     const tbody = document.querySelector("#tabelaClientes tbody");
     tbody.innerHTML="";
-    const hoje = new Date();
-
     snapshot.forEach(doc=>{
-        const c=doc.data();
+        const c = doc.data();
         const idade = c.nascimento ? calcularIdade(c.nascimento) : "";
-        // Cards
-        if(c.status==="ativo") total++;
-        if(c.vip) vip++;
-        if(c.fidelizado) fidelizados++;
-        if(new Date(c.cadastro) >= new Date(hoje.getFullYear(), hoje.getMonth()-1, hoje.getDate())) novos++;
-        if(c.nascimento){
-            const nasc = new Date(c.nascimento);
-            const prox = new Date(hoje.getFullYear(), nasc.getMonth(), nasc.getDate());
-            const diff = (prox-hoje)/(1000*60*60*24);
-            if(diff>=0 && diff<=7) aniversarios++;
-        }
-        // Tabela
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${c.nome}</td><td>${c.email}</td><td>${c.telefone}</td><td>${c.cpf||''}</td><td>${c.status}</td><td>${idade}</td>`;
-        tr.onclick = ()=>mostrarPerfil(c, idade);
         tbody.appendChild(tr);
     });
-
-    document.getElementById('totalClientes').textContent = total;
-    document.getElementById('clientesNovos').textContent = novos;
-    document.getElementById('clientesFidelizados').textContent = fidelizados;
-    document.getElementById('clientesVIP').textContent = vip;
-    document.getElementById('clientesAniversario').textContent = aniversarios;
-
-    atualizarGraficos(snapshot);
 }
 
-// Mostrar perfil do cliente
-function mostrarPerfil(c, idade){
-    document.getElementById('perfilCliente').style.display='flex';
-    document.getElementById('infoNome').textContent=c.nome;
-    document.getElementById('infoEmail').textContent=c.email;
-    document.getElementById('infoTelefone').textContent=c.telefone;
-    document.getElementById('infoCPF').textContent=c.cpf||'';
-    document.getElementById('infoNascimento').textContent=c.nascimento||'';
-    document.getElementById('infoIdade').textContent=idade;
-    document.getElementById('infoStatus').textContent=c.status;
-    document.getElementById('infoAssinaturas').textContent=c.assinaturas||'Nenhuma';
-
-    const tbodyCompras = document.querySelector("#historicoCompras tbody");
-    tbodyCompras.innerHTML="";
-    if(c.compras) c.compras.forEach(comp=>{tbodyCompras.innerHTML+=`<tr><td>${comp.data}</td><td>${comp.produto}</td><td>${comp.valor}</td></tr>`;});
-
-    const tbodyAgend = document.querySelector("#historicoAgendamentos tbody");
-    tbodyAgend.innerHTML="";
-    if(c.agendamentos) c.agendamentos.forEach(a=>{tbodyAgend.innerHTML+=`<tr><td>${a.data}</td><td>${a.servico}</td><td>${a.status}</td></tr>`;});
-}
-
-// Atualizar gráficos
-function atualizarGraficos(snapshot){
-    const clientes = [];
-    snapshot.forEach(doc=>{clientes.push(doc.data());});
-
-    // Ticket médio por cliente (exemplo)
-    const labels = clientes.map(c=>c.nome);
-    const ticket = clientes.map(c=>{
-        if(c.compras && c.compras.length>0) return c.compras.reduce((acc,i)=>acc+parseFloat(i.valor),0)/c.compras.length;
-        return 0;
-    });
-
-    const idadeLabels = ["0-1","2-5","6-10","11+"];
-    const idadeData = [0,0,0,0];
-    clientes.forEach(c=>{
-        if(c.nascimento){
-            const idade = calcularIdade(c.nascimento);
-            if(idade<=1) idadeData[0]++;
-            else if(idade<=5) idadeData[1]++;
-            else if(idade<=10) idadeData[2]++;
-            else idadeData[3]++;
-        }
-    });
-
-    if(graficoTicket) graficoTicket.destroy();
-    const ctxTicket = document.getElementById('graficoTicketMedio').getContext('2d');
-    graficoTicket = new Chart(ctxTicket,{type:'bar',data:{labels, datasets:[{label:'Ticket Médio', data:ticket, backgroundColor:'#2980b9'}]} });
-
-    if(graficoIdade) graficoIdade.destroy();
-    const ctxIdade = document.getElementById('graficoIdade').getContext('2d');
-    graficoIdade = new Chart(ctxIdade,{type:'pie',data:{labels:idadeLabels,datasets:[{data:idadeData, backgroundColor:['#1abc9c','#27ae60','#8e44ad','#e74c3c']}]}} );
-}
+// Inicializa clientes
+db.collection("clientes").onSnapshot(snapshot=>{
+    atualizarClientes(snapshot.docs);
+});
 
 // Exportar CSV
-function exportarCSV(){
-    let csv="Nome,E-mail,Telefone,CPF/CNPJ,Status,Idade\n";
-    const rows = document.querySelectorAll("#tabelaClientes tbody tr");
-    rows.forEach(r=>{
+document.getElementById('btnExportar').addEventListener('click',()=>{
+    let csv="Nome,E-mail,Telefone,CPF,Status,Idade\n";
+    document.querySelectorAll("#tabelaClientes tbody tr").forEach(r=>{
         const cols = r.querySelectorAll("td");
-        const row = [];
-        cols.forEach(c=>row.push(c.textContent.replace(/,/g,";")));
-        csv+=row.join(",")+"\n";
+        csv+=Array.from(cols).map(c=>c.textContent.replace(/,/g,";")).join(",")+"\n";
     });
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = "clientes.csv";
     link.click();
-}
-
-// Filtros
-document.getElementById('btnBuscar').addEventListener('click',()=>{
-    const busca = document.getElementById('buscaCliente').value.toLowerCase();
-    const status = document.getElementById('filtroStatus').value;
-    const idadeFiltro = document.getElementById('filtroIdade').value;
-    const freq = document.getElementById('filtroFrequencia').value;
-    const gasto = document.getElementById('filtroGasto').value;
-
-    db.collection("clientes").get().then(snapshot=>{
-        let resultados = [];
-        snapshot.forEach(doc=>{
-            const c = doc.data();
-            let idade = c.nascimento ? calcularIdade(c.nascimento) : "";
-            let incluir = true;
-
-            if(busca && ![c.nome,c.email,c.telefone,c.cpf].some(x=>x && x.toLowerCase().includes(busca))) incluir=false;
-            if(status && c.status!==status) incluir=false;
-            if(idadeFiltro){
-                if(idadeFiltro==="0-1" && !(idade>=0 && idade<=1)) incluir=false;
-                if(idadeFiltro==="2-5" && !(idade>=2 && idade<=5)) incluir=false;
-                if(idadeFiltro==="6-10" && !(idade>=6 && idade<=10)) incluir=false;
-                if(idadeFiltro==="11+" && !(idade>=11)) incluir=false;
-            }
-            // freq e gasto podem ser preenchidos posteriormente
-            if(incluir) resultados.push(doc);
-        });
-        atualizarClientes(resultados);
-    });
 });
-
-document.getElementById('btnExportar').addEventListener('click', exportarCSV);
-
-// Carregar todos clientes inicialmente
-db.collection("clientes").onSnapshot(snapshot=>atualizarClientes(snapshot.docs));
 </script>
 </body>
 </html>
