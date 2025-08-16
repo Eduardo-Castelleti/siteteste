@@ -15,12 +15,14 @@ body {display:flex; min-height:100vh; background:#f4f6f9;}
 .sidebar a:hover {background:#34495e;}
 .sidebar a i {margin-right:15px;}
 .main-content {flex:1; padding:20px; overflow-y:auto;}
-h1 {margin-bottom:20px; color:#2c3e50;}
+h1 {margin-bottom:20px; color:#2c3e50; display:flex; justify-content:space-between; align-items:center;}
 form {background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); max-width:600px;}
 form label {display:block; margin-top:15px; font-weight:500;}
 form input {width:100%; padding:10px; margin-top:5px; border-radius:5px; border:1px solid #ccc;}
 form button {margin-top:20px; padding:10px 20px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer; transition:0.3s;}
 form button:hover {background:#2ecc71;}
+#loading {display:none; margin-top:10px; color:#2980b9; font-weight:500;}
+#mensagem {margin-top:10px; font-weight:500;}
 </style>
 </head>
 <body>
@@ -50,7 +52,7 @@ form button:hover {background:#2ecc71;}
 <input type="text" id="nome" required>
 
 <label for="telefone">Telefone</label>
-<input type="text" id="telefone" required>
+<input type="text" id="telefone" placeholder="Apenas números" required>
 
 <label for="cpf">CPF (opcional)</label>
 <input type="text" id="cpf">
@@ -62,7 +64,10 @@ form button:hover {background:#2ecc71;}
 <input type="date" id="nascimento" required>
 
 <button type="submit">Cadastrar Cliente</button>
+<div id="loading"><i class="fas fa-spinner fa-spin"></i> Cadastrando...</div>
+<div id="mensagem"></div>
 </form>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -76,10 +81,19 @@ const firebaseConfig = {
   messagingSenderId: "230161402024",
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
-};
+}; 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+
+function validarEmail(email){
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function validarTelefone(tel){
+    return /^\d{10,11}$/.test(tel.replace(/\D/g,''));
+}
 
 document.getElementById('formCliente').addEventListener('submit', async (e)=>{
     e.preventDefault();
@@ -90,16 +104,44 @@ document.getElementById('formCliente').addEventListener('submit', async (e)=>{
     const email = document.getElementById('email').value.trim();
     const nascimento = document.getElementById('nascimento').value;
 
+    const mensagem = document.getElementById('mensagem');
+    const loading = document.getElementById('loading');
+    mensagem.textContent="";
+    loading.style.display="block";
+
+    // Validações
     if(!nome || !telefone || !email || !nascimento){
-        return alert("Preencha todos os campos obrigatórios!");
+        loading.style.display="none";
+        return mensagem.textContent="Preencha todos os campos obrigatórios!";
+    }
+    if(!validarEmail(email)){
+        loading.style.display="none";
+        return mensagem.textContent="E-mail inválido!";
+    }
+    if(!validarTelefone(telefone)){
+        loading.style.display="none";
+        return mensagem.textContent="Telefone inválido! Apenas números (10-11 dígitos).";
+    }
+    if(new Date(nascimento) > new Date()){
+        loading.style.display="none";
+        return mensagem.textContent="Data de nascimento inválida!";
     }
 
     try{
+        // Verificar CPF duplicado
+        if(cpf){
+            const cpfCheck = await db.collection("clientes").where("cpf_cnpj","==",cpf).get();
+            if(!cpfCheck.empty){
+                loading.style.display="none";
+                return mensagem.textContent="CPF já cadastrado!";
+            }
+        }
+
         // Criar login no Firebase Auth
-        const senhaPadrao = "123456";
+        const senhaPadrao = Math.random().toString(36).slice(-8); // senha aleatória
         const userCredential = await auth.createUserWithEmailAndPassword(email, senhaPadrao);
 
-        // Enviar e-mail para redefinir senha
+        // Enviar e-mail de redefinição
         await auth.sendPasswordResetEmail(email);
 
         // Criar registro no Firestore
@@ -118,16 +160,24 @@ document.getElementById('formCliente').addEventListener('submit', async (e)=>{
             agendamentos: []
         });
 
-        alert("Cliente cadastrado com sucesso! O e-mail para redefinir senha foi enviado.");
-        // Limpar formulário
-        document.getElementById('formCliente').reset();
+        loading.style.display="none";
+        mensagem.style.color="green";
+        mensagem.textContent="Cliente cadastrado com sucesso! E-mail enviado para redefinir senha.";
 
-        // Redirecionar para a aba clientes
-        window.location.href = "clientes.html";
+        // Atualizar clientes.html automaticamente
+        if(window.opener && !window.opener.closed && window.opener.atualizarClientes){
+            window.opener.atualizarClientes();
+        }
+
+        // Limpar formulário e redirecionar
+        document.getElementById('formCliente').reset();
+        setTimeout(()=>window.location.href = "clientes.html", 1500);
 
     } catch(error){
+        loading.style.display="none";
+        mensagem.style.color="red";
+        mensagem.textContent="Erro ao cadastrar cliente: " + error.message;
         console.error(error);
-        alert("Erro ao cadastrar cliente: " + error.message);
     }
 });
 </script>
