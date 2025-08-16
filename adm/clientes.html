@@ -9,7 +9,6 @@
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, sans-serif; }
 body { background:#f4f6f9; color:#333; }
 a { text-decoration:none; color:inherit; }
-
 /* MENU LATERAL */
 .sidebar { position:fixed; left:0; top:0; bottom:0; width:250px; background:#2c3e50; color:#ecf0f1; padding-top:20px; }
 .sidebar h2 { text-align:center; margin-bottom:20px; font-size:1.5em; }
@@ -17,30 +16,28 @@ a { text-decoration:none; color:inherit; }
 .sidebar ul li { padding:15px 20px; cursor:pointer; display:flex; align-items:center; }
 .sidebar ul li:hover { background:#34495e; }
 .sidebar ul li i { margin-right:10px; }
-
 /* CONTEÚDO */
 .main-content { margin-left:250px; padding:20px; }
-
 /* CARDS */
 .cards { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:30px; }
 .card { background:#fff; flex:1; min-width:200px; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
 .card h3 { margin-bottom:10px; font-size:1.1em; color:#555; }
 .card p { font-size:1.5em; font-weight:bold; color:#2c3e50; }
-
 /* TABELA */
 table { width:100%; border-collapse:collapse; background:#fff; margin-bottom:30px; border-radius:8px; overflow:hidden; }
 table th, table td { padding:12px 15px; text-align:left; border-bottom:1px solid #ddd; }
 table th { background-color:#2980b9; color:#fff; }
 table tr:hover { background-color:#f1f1f1; }
-
 /* BOTÕES */
 button { padding:8px 12px; border:none; border-radius:5px; cursor:pointer; }
 button.edit { background-color:#27ae60; color:#fff; margin-right:5px; }
 button.delete { background-color:#c0392b; color:#fff; }
-
 /* LINKS ADICIONAR */
 a.add { display:inline-block; background:#2980b9; color:#fff; padding:8px 12px; border-radius:5px; text-decoration:none; margin-bottom:10px; }
-
+/* MODAL */
+#modalCliente { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+#modalCliente .modal-content { background:#fff; padding:20px; border-radius:8px; width:80%; max-width:600px; position:relative; }
+#modalCliente .close { position:absolute; top:10px; right:15px; font-size:1.2em; cursor:pointer; }
 @media(max-width:768px){ .sidebar{ width:200px; } .main-content{ margin-left:200px; } .cards{ flex-direction:column; } }
 </style>
 </head>
@@ -49,8 +46,8 @@ a.add { display:inline-block; background:#2980b9; color:#fff; padding:8px 12px; 
 <div class="sidebar">
   <h2>Admin Petshop</h2>
   <ul>
-    <li><a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-    <li><a href="clientes.html"><i class="fas fa-user"></i> Clientes</a></li>
+    <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+    <li><a href="clientes.html" class="active"><i class="fas fa-user"></i> Clientes</a></li>
     <li><a href="parceiros.html"><i class="fas fa-handshake"></i> Parceiros</a></li>
     <li><a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a></li>
     <li><a href="produtos.html"><i class="fas fa-box"></i> Produtos</a></li>
@@ -59,16 +56,6 @@ a.add { display:inline-block; background:#2980b9; color:#fff; padding:8px 12px; 
   </ul>
 </div>
 
-<script>
-// Destacar aba ativa automaticamente
-document.querySelectorAll(".sidebar ul li a").forEach(link => {
-  if(link.href === window.location.href){
-    link.classList.add("active");
-  }
-});
-</script>
-  
-
 <div class="main-content">
   <h1>Clientes</h1>
 
@@ -76,11 +63,12 @@ document.querySelectorAll(".sidebar ul li a").forEach(link => {
     <div class="card"><h3>Clientes Ativos</h3><p id="clientesAtivos">0</p></div>
     <div class="card"><h3>Clientes Novos</h3><p id="clientesNovos">0</p></div>
     <div class="card"><h3>Ticket Médio</h3><p id="ticketMedio">--</p></div>
+    <div class="card"><h3>Clientes Fidelizados</h3><p id="clientesFidelizados">0</p></div>
   </div>
 
   <div style="margin-bottom:20px;">
-    <input type="text" id="buscaCliente" placeholder="Pesquisar cliente..." style="padding:8px;width:60%;">
-    <button onclick="buscarClientes(document.getElementById('buscaCliente').value)" style="padding:8px 12px;margin-left:5px;">Buscar</button>
+    <input type="text" id="buscaCliente" placeholder="Pesquisar cliente (nome, email, telefone)..." style="padding:8px;width:60%;">
+    <button onclick="buscarClientes(document.getElementById('buscaCliente').value)">Buscar</button>
     <a href="adicionar-cliente.html" class="add">Adicionar Cliente</a>
   </div>
 
@@ -90,6 +78,20 @@ document.querySelectorAll(".sidebar ul li a").forEach(link => {
     </thead>
     <tbody id="clientesTable"></tbody>
   </table>
+</div>
+
+<!-- Modal de perfil do cliente -->
+<div id="modalCliente">
+  <div class="modal-content">
+    <span class="close" onclick="fecharModal()">&times;</span>
+    <h2 id="modalNome">Cliente</h2>
+    <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+    <p><strong>Telefone:</strong> <span id="modalTelefone"></span></p>
+    <p><strong>Pets:</strong> <span id="modalPets"></span></p>
+    <p><strong>Assinatura/Fidelidade:</strong> <span id="modalFidelidade"></span></p>
+    <h3>Histórico de Compras/Agendamentos</h3>
+    <ul id="modalHistorico"></ul>
+  </div>
 </div>
 
 <script type="module">
@@ -104,51 +106,88 @@ const firebaseConfig = {
   messagingSenderId: "230161402024",
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
-};
+};  
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // Buscar clientes
 window.buscarClientes = function(filtro=''){
-  const clientesRef = ref(db,'clientes');
-  onValue(clientesRef, snapshot=>{
-    const tbody = document.getElementById('clientesTable');
-    tbody.innerHTML='';
-    const clientes = snapshot.exists() ? Object.entries(snapshot.val()) : [];
-    let count = 0;
-    clientes.forEach(([id,c])=>{
-      if(filtro && !c.nome.toLowerCase().includes(filtro.toLowerCase()) && !c.email.toLowerCase().includes(filtro.toLowerCase()) && !c.telefone.includes(filtro)) return;
-      count++;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${c.nome}</td>
-                      <td>${c.telefone}</td>
-                      <td>${c.email}</td>
-                      <td>${c.pets ? c.pets.join(', ') : ''}</td>
-                      <td>
-                        <button class="edit" onclick="editarCliente('${id}')">Editar</button>
-                        <button class="delete" onclick="excluirCliente('${id}')">Excluir</button>
-                      </td>`;
-      tbody.appendChild(tr);
+    const clientesRef = ref(db,'clientes');
+    onValue(clientesRef, snapshot=>{
+        const tbody = document.getElementById('clientesTable');
+        tbody.innerHTML='';
+        const clientes = snapshot.exists() ? Object.entries(snapshot.val()) : [];
+        let count = 0;
+        let countFidelizados = 0;
+        clientes.forEach(([id,c])=>{
+            if(filtro && !c.nome.toLowerCase().includes(filtro.toLowerCase()) &&
+               !c.email.toLowerCase().includes(filtro.toLowerCase()) &&
+               !c.telefone.includes(filtro)) return;
+
+            count++;
+            if(c.fidelidade) countFidelizados++;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td><a href="#" onclick="abrirModal('${id}')">${c.nome}</a></td>
+                            <td>${c.telefone}</td>
+                            <td>${c.email}</td>
+                            <td>${c.pets ? c.pets.join(', ') : ''}</td>
+                            <td>
+                              <button class="edit" onclick="editarCliente('${id}')">Editar</button>
+                              <button class="delete" onclick="excluirCliente('${id}')">Excluir</button>
+                            </td>`;
+            tbody.appendChild(tr);
+        });
+        document.getElementById('tabelaClientes').style.display = count ? 'table' : 'none';
+        document.getElementById('clientesAtivos').innerText = count;
+        document.getElementById('clientesFidelizados').innerText = countFidelizados;
+        document.getElementById('clientesNovos').innerText = clientes.length ? clientes.length : 0;
+        // Ticket médio poderia ser calculado a partir do histórico
     });
-    document.getElementById('tabelaClientes').style.display = count ? 'table' : 'none';
-    document.getElementById('clientesAtivos').innerText = count;
-  });
 }
 
 // Editar cliente
 window.editarCliente = function(id){
-  const novoNome = prompt("Digite o novo nome do cliente:");
-  if(!novoNome) return;
-  const clienteRef = ref(db,'clientes/'+id);
-  update(clienteRef, {nome:novoNome});
+    const novoNome = prompt("Digite o novo nome do cliente:");
+    if(!novoNome) return;
+    const clienteRef = ref(db,'clientes/'+id);
+    update(clienteRef, {nome:novoNome});
 }
 
 // Excluir cliente
 window.excluirCliente = function(id){
-  if(confirm("Tem certeza que deseja excluir este cliente?")){
-    remove(ref(db,'clientes/'+id));
-  }
+    if(confirm("Tem certeza que deseja excluir este cliente?")){
+        remove(ref(db,'clientes/'+id));
+    }
+}
+
+// Modal cliente
+window.abrirModal = function(id){
+    const clienteRef = ref(db,'clientes/'+id);
+    onValue(clienteRef, snapshot=>{
+        if(!snapshot.exists()) return;
+        const c = snapshot.val();
+        document.getElementById('modalNome').innerText = c.nome;
+        document.getElementById('modalEmail').innerText = c.email;
+        document.getElementById('modalTelefone').innerText = c.telefone;
+        document.getElementById('modalPets').innerText = c.pets ? c.pets.join(', ') : '-';
+        document.getElementById('modalFidelidade').innerText = c.fidelidade ? c.fidelidade : 'Não possui';
+        const historico = document.getElementById('modalHistorico');
+        historico.innerHTML = '';
+        if(c.historico){
+            c.historico.forEach(item=>{
+                const li = document.createElement('li');
+                li.innerText = `${item.tipo} - ${item.data} - ${item.valor ? 'R$'+item.valor : ''}`;
+                historico.appendChild(li);
+            });
+        }
+        document.getElementById('modalCliente').style.display = 'flex';
+    });
+}
+
+window.fecharModal = function(){
+    document.getElementById('modalCliente').style.display = 'none';
 }
 
 // Inicial
