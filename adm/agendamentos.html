@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendamentos - Petshop</title>
+
+  <style>
+    /* ===== RESET ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: #f4f4f4; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ===== MENU LATERAL ===== */
+    .sidebar {
+      width: 220px;
+      background: #2c3e50;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar h2 {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 1px solid #34495e;
+      font-size: 22px;
+    }
+    .sidebar a {
+      padding: 15px 20px;
+      display: block;
+      color: #ecf0f1;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover { background: #34495e; }
+
+    /* ===== CONTEÚDO PRINCIPAL ===== */
+    .main {
+      margin-left: 220px;
+      padding: 20px;
+    }
+    h1 { margin-bottom: 20px; color: #333; }
+
+    /* ===== CARDS ===== */
+    .cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      flex: 1 1 200px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .card h3 { font-size: 16px; margin-bottom: 10px; color: #555; }
+    .card p { font-size: 24px; font-weight: bold; color: #2c3e50; }
+
+    /* ===== FILTROS ===== */
+    .filtros {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .filtros select, .filtros input[type="date"] {
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .filtros button {
+      padding: 8px 15px;
+      border: none;
+      background: #2c3e50;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .filtros button:hover { background: #34495e; }
+
+    /* ===== TABELA ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    table th, table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    table th { background: #2c3e50; color: #fff; }
+    table tr:hover { background: #f1f1f1; }
+    .action-btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 5px;
+      color: #fff;
+    }
+    .btn-edit { background: #3498db; }
+    .btn-cancel { background: #e74c3c; }
+    .btn-complete { background: #27ae60; }
+  </style>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+</head>
+<body>
+
+  <!-- MENU LATERAL -->
+  <div class="sidebar">
+    <h2>Admin Pet</h2>
+    <a href="index.html">Dashboard</a>
+    <a href="clientes.html">Clientes</a>
+    <a href="parceiros.html">Parceiros</a>
+    <a href="funcionarios.html">Funcionários</a>
+    <a href="produtos.html">Produtos</a>
+    <a href="agendamentos.html">Agendamentos</a>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="main">
+    <h1>Agendamentos</h1>
+
+    <!-- CARDS DE RESUMO -->
+    <div class="cards">
+      <div class="card">
+        <h3>Mais agendamentos</h3>
+        <p id="maisAgendamentos">-</p>
+      </div>
+      <div class="card">
+        <h3>Mais clientes ativos</h3>
+        <p id="maisClientes">-</p>
+      </div>
+      <div class="card">
+        <h3>Mais indicações</h3>
+        <p id="maisIndicacoes">-</p>
+      </div>
+      <div class="card">
+        <h3>Agendamentos pendentes</h3>
+        <p id="pendentes">0</p>
+      </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filtros">
+      <select id="filtroParceiro">
+        <option value="">Todos os parceiros</option>
+      </select>
+      <select id="filtroServico">
+        <option value="">Todos os serviços</option>
+        <option value="Banho/Tosa">Banho/Tosa</option>
+        <option value="Creche">Creche</option>
+        <option value="Consulta Veterinária">Consulta Veterinária</option>
+        <option value="Entrega">Entrega</option>
+        <option value="Reunião">Reunião</option>
+      </select>
+      <input type="date" id="filtroDataInicio">
+      <input type="date" id="filtroDataFim">
+      <button onclick="filtrarAgendamentos()">Filtrar</button>
+    </div>
+
+    <!-- TABELA DE AGENDAMENTOS -->
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Pet</th>
+          <th>Serviço</th>
+          <th>Data/Hora</th>
+          <th>Status</th>
+          <th>Parceiro</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaAgendamentos"></tbody>
+    </table>
+
+  </div>
+
+  <script>
+    // CONFIGURAÇÃO FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
+  authDomain: "site-f6495.firebaseapp.com",
+  projectId: "site-f6495",
+  storageBucket: "site-f6495.firebasestorage.app",
+  messagingSenderId: "230161402024",
+  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
+  measurementId: "G-51G8XF6JH0"
+};
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    const tabela = document.getElementById('tabelaAgendamentos');
+    const filtroParceiro = document.getElementById('filtroParceiro');
+
+    // OBJETO PARA CALCULAR KPIs
+    let contagemParceiros = {};
+    let contagemClientes = {};
+    let contagemIndicacoes = {};
+    let agendamentosPendentes = 0;
+
+    // CARREGA AGENDAMENTOS DO FIREBASE
+    function carregarAgendamentos() {
+      tabela.innerHTML = '';
+      filtroParceiro.innerHTML = '<option value="">Todos os parceiros</option>';
+      contagemParceiros = {};
+      contagemClientes = {};
+      contagemIndicacoes = {};
+      agendamentosPendentes = 0;
+
+      database.ref('agendamentos').on('value', (snapshot) => {
+        tabela.innerHTML = '';
+
+        snapshot.forEach((childSnapshot) => {
+          const agendamento = childSnapshot.val();
+          const parceiro = agendamento.parceiro;
+          const cliente = agendamento.cliente;
+
+          // Monta lista de parceiros no filtro
+          if (!Array.from(filtroParceiro.options).some(opt => opt.value === parceiro)) {
+            const opt = document.createElement('option');
+            opt.value = parceiro;
+            opt.textContent = parceiro;
+            filtroParceiro.appendChild(opt);
+          }
+
+          // Contagem para KPIs
+          contagemParceiros[parceiro] = (contagemParceiros[parceiro] || 0) + 1;
+          contagemClientes[parceiro] = contagemClientes[parceiro] || new Set();
+          contagemClientes[parceiro].add(cliente);
+          if (agendamento.status === 'Pendente') agendamentosPendentes++;
+
+          // Monta linha da tabela
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${agendamento.cliente}</td>
+            <td>${agendamento.pet || ''}</td>
+            <td>${agendamento.servico}</td>
+            <td>${agendamento.data} ${agendamento.hora || ''}</td>
+            <td>${agendamento.status}</td>
+            <td>${agendamento.parceiro}</td>
+            <td>
+              <button class="action-btn btn-edit" onclick="editarAgendamento('${childSnapshot.key}')">Editar</button>
+              <button class="action-btn btn-complete" onclick="concluirAgendamento('${childSnapshot.key}')">Concluir</button>
+              <button class="action-btn btn-cancel" onclick="cancelarAgendamento('${childSnapshot.key}')">Cancelar</button>
+            </td>
+          `;
+          tabela.appendChild(tr);
+        });
+
+        atualizarKPIs();
+      });
+    }
+
+    function atualizarKPIs() {
+      // Mais agendamentos
+      let maxAgendamentos = { parceiro: '-', total: 0 };
+      for (const [p, count] of Object.entries(contagemParceiros)) {
+        if (count > maxAgendamentos.total) maxAgendamentos = { parceiro: p, total: count };
+      }
+      document.getElementById('maisAgendamentos').textContent = maxAgendamentos.parceiro;
+
+      // Mais clientes ativos
+      let maxClientes = { parceiro: '-', total: 0 };
+      for (const [p, clientesSet] of Object.entries(contagemClientes)) {
+        if (clientesSet.size > maxClientes.total) maxClientes = { parceiro: p, total: clientesSet.size };
+      }
+      document.getElementById('maisClientes').textContent = maxClientes.parceiro;
+
+      // Indicacoes (aqui usamos mesmo que agendamentos como exemplo)
+      document.getElementById('maisIndicacoes').textContent = maxAgendamentos.parceiro;
+
+      // Pendentes
+      document.getElementById('pendentes').textContent = agendamentosPendentes;
+    }
+
+    function filtrarAgendamentos() {
+      const parceiroFiltro = document.getElementById('filtroParceiro').value;
+      const servicoFiltro = document.getElementById('filtroServico').value;
+      const dataInicio = document.getElementById('filtroDataInicio').value;
+      const dataFim = document.getElementById('filtroDataFim').value;
+
+      const linhas = tabela.getElementsByTagName('tr');
+
+      for (let i = 0; i < linhas.length; i++) {
+        const tds = linhas[i].getElementsByTagName('td');
+        if (tds.length < 6) continue;
+
+        let parceiro = tds[5].textContent;
+        let servico = tds[2].textContent;
+        let data = tds[3].textContent.split(' ')[0];
+
+        let exibir = true;
+        if (parceiroFiltro && parceiro !== parceiroFiltro) exibir = false;
+        if (servicoFiltro && servico !== servicoFiltro) exibir = false;
+
+        if (dataInicio) {
+          const startDate = new Date(dataInicio);
+          const agendamentoDate = new Date(data.split('/').reverse().join('-'));
+          if (agendamentoDate < startDate) exibir = false;
+        }
+        if (dataFim) {
+          const endDate = new Date(dataFim);
+          const agendamentoDate = new Date(data.split('/').reverse().join('-'));
+          if (agendamentoDate > endDate) exibir = false;
+        }
+
+        linhas[i].style.display = exibir ? '' : 'none';
+      }
+    }
+
+    // Funções de ação (você pode integrar com Firebase)
+    function editarAgendamento(id) { alert('Editar: ' + id); }
+    function concluirAgendamento(id) { alert('Concluir: ' + id); }
+    function cancelarAgendamento(id) { alert('Cancelar: ' + id); }
+
+    window.onload = carregarAgendamentos;
+  </script>
+</body>
+</html>
