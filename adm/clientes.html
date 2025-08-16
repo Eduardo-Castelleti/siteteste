@@ -3,100 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Clientes</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<title>Admin Pet - Clientes</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, sans-serif; }
-body { background:#f4f6f9; color:#333; }
-a { text-decoration:none; color:inherit; }
-/* MENU LATERAL */
-.sidebar { position:fixed; left:0; top:0; bottom:0; width:250px; background:#2c3e50; color:#ecf0f1; padding-top:20px; }
-.sidebar h2 { text-align:center; margin-bottom:20px; font-size:1.5em; }
-.sidebar ul { list-style:none; }
-.sidebar ul li { padding:15px 20px; cursor:pointer; display:flex; align-items:center; }
-.sidebar ul li:hover { background:#34495e; }
-.sidebar ul li i { margin-right:10px; }
-/* CONTEÚDO */
-.main-content { margin-left:250px; padding:20px; }
-/* CARDS */
-.cards { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:30px; }
-.card { background:#fff; flex:1; min-width:200px; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
-.card h3 { margin-bottom:10px; font-size:1.1em; color:#555; }
-.card p { font-size:1.5em; font-weight:bold; color:#2c3e50; }
-/* TABELA */
-table { width:100%; border-collapse:collapse; background:#fff; margin-bottom:30px; border-radius:8px; overflow:hidden; }
-table th, table td { padding:12px 15px; text-align:left; border-bottom:1px solid #ddd; }
-table th { background-color:#2980b9; color:#fff; }
-table tr:hover { background-color:#f1f1f1; }
-/* BOTÕES */
-button { padding:8px 12px; border:none; border-radius:5px; cursor:pointer; }
-button.edit { background-color:#27ae60; color:#fff; margin-right:5px; }
-button.delete { background-color:#c0392b; color:#fff; }
-/* LINKS ADICIONAR */
-a.add { display:inline-block; background:#2980b9; color:#fff; padding:8px 12px; border-radius:5px; text-decoration:none; margin-bottom:10px; }
-/* MODAL */
-#modalCliente { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-#modalCliente .modal-content { background:#fff; padding:20px; border-radius:8px; width:80%; max-width:600px; position:relative; }
-#modalCliente .close { position:absolute; top:10px; right:15px; font-size:1.2em; cursor:pointer; }
-@media(max-width:768px){ .sidebar{ width:200px; } .main-content{ margin-left:200px; } .cards{ flex-direction:column; } }
+* {margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif;}
+body {display:flex; min-height:100vh; background:#f4f6f9;}
+.sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
+.sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
+.sidebar a {padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none; border-bottom:1px solid #34495e; transition:0.3s;}
+.sidebar a:hover {background:#34495e;}
+.sidebar a i {margin-right:15px;}
+.main-content {flex:1; padding:20px; overflow-y:auto;}
+h1 {margin-bottom:20px; color:#2c3e50; display:flex; justify-content:space-between; align-items:center;}
+h1 button {padding:8px 15px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer; transition:0.3s;}
+h1 button:hover {background:#2ecc71;}
+.cards {display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:30px;}
+.card {padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); color:white; position:relative; transition:0.3s;}
+.card h3 {margin-bottom:10px; font-size:16px;}
+.card p {font-size:20px; font-weight:700;}
+.card.total {background:#2980b9;}
+.card.novos {background:#1abc9c;}
+.card.fidelizados {background:#27ae60;}
+.card.vip {background:#8e44ad;}
+.search-bar {margin-bottom:20px; display:flex; gap:10px;}
+.search-bar input, .search-bar select {padding:10px; border-radius:5px; border:1px solid #ccc; flex:1;}
+.search-bar button {padding:10px 15px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
+.search-bar button:hover {background:#3498db;}
+.profile {display:flex; gap:20px; margin-top:20px; flex-wrap:wrap;}
+.profile .info, .profile .historico {background:#fff; padding:20px; border-radius:10px; flex:1; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+.profile h3 {margin-bottom:10px;}
+.profile table {width:100%; border-collapse:collapse;}
+.profile table th, .profile table td {padding:8px; text-align:left; border-bottom:1px solid #ddd;}
+.graphs {display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:20px; margin-top:30px;}
+canvas {background:#fff; border-radius:10px; padding:10px;}
 </style>
 </head>
 <body>
 
 <div class="sidebar">
-  <h2>Admin Petshop</h2>
-  <ul>
-    <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-    <li><a href="clientes.html" class="active"><i class="fas fa-user"></i> Clientes</a></li>
-    <li><a href="parceiros.html"><i class="fas fa-handshake"></i> Parceiros</a></li>
-    <li><a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a></li>
-    <li><a href="produtos.html"><i class="fas fa-box"></i> Produtos</a></li>
-    <li><a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a></li>
-    <li><a href="vendas.html"><i class="fas fa-receipt"></i> Vendas</a></li>
-  </ul>
+<h2>Admin Pet</h2>
+<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
+<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
+<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
+<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
+<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
 </div>
 
 <div class="main-content">
-  <h1>Clientes</h1>
+<h1>Clientes <button onclick="window.location.href='adicionar-clientes.html'">Cadastrar Clientes</button></h1>
 
-  <div class="cards">
-    <div class="card"><h3>Clientes Ativos</h3><p id="clientesAtivos">0</p></div>
-    <div class="card"><h3>Clientes Novos</h3><p id="clientesNovos">0</p></div>
-    <div class="card"><h3>Ticket Médio</h3><p id="ticketMedio">--</p></div>
-    <div class="card"><h3>Clientes Fidelizados</h3><p id="clientesFidelizados">0</p></div>
-  </div>
-
-  <div style="margin-bottom:20px;">
-    <input type="text" id="buscaCliente" placeholder="Pesquisar cliente (nome, email, telefone)..." style="padding:8px;width:60%;">
-    <button onclick="buscarClientes(document.getElementById('buscaCliente').value)">Buscar</button>
-    <a href="adicionar-cliente.html" class="add">Adicionar Cliente</a>
-  </div>
-
-  <table id="tabelaClientes" style="display:none;">
-    <thead>
-      <tr><th>Nome</th><th>Telefone</th><th>Email</th><th>Pets</th><th>Ações</th></tr>
-    </thead>
-    <tbody id="clientesTable"></tbody>
-  </table>
+<!-- Cards de métricas -->
+<div class="cards">
+<div class="card total"><h3>Total de Clientes Ativos</h3><p id="totalClientes">0</p></div>
+<div class="card novos"><h3>Clientes Novos no Mês</h3><p id="clientesNovos">0</p></div>
+<div class="card fidelizados"><h3>Clientes Fidelizados</h3><p id="clientesFidelizados">0</p></div>
+<div class="card vip"><h3>Clientes VIP</h3><p id="clientesVIP">0</p></div>
 </div>
 
-<!-- Modal de perfil do cliente -->
-<div id="modalCliente">
-  <div class="modal-content">
-    <span class="close" onclick="fecharModal()">&times;</span>
-    <h2 id="modalNome">Cliente</h2>
-    <p><strong>Email:</strong> <span id="modalEmail"></span></p>
-    <p><strong>Telefone:</strong> <span id="modalTelefone"></span></p>
-    <p><strong>Pets:</strong> <span id="modalPets"></span></p>
-    <p><strong>Assinatura/Fidelidade:</strong> <span id="modalFidelidade"></span></p>
-    <h3>Histórico de Compras/Agendamentos</h3>
-    <ul id="modalHistorico"></ul>
-  </div>
+<!-- Barra de busca -->
+<div class="search-bar">
+<input type="text" id="buscaCliente" placeholder="Pesquisar por nome, e-mail, telefone, CPF/CNPJ">
+<select id="filtroCliente">
+<option value="">Filtrar por status</option>
+<option value="ativo">Ativo</option>
+<option value="inativo">Inativo</option>
+<option value="VIP">VIP</option>
+<option value="fidelizado">Fidelizado</option>
+</select>
+<button id="btnBuscar"><i class="fas fa-search"></i> Buscar</button>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
-import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
+<!-- Gráficos estratégicos -->
+<div class="graphs">
+<canvas id="graficoTicketMedio"></canvas>
+<canvas id="graficoFaixaGasto"></canvas>
+<canvas id="graficoFrequencia"></canvas>
+</div>
+
+<!-- Perfil do cliente -->
+<div id="perfilCliente" class="profile" style="display:none;">
+<div class="info">
+<h3>Informações do Cliente</h3>
+<p><strong>Nome:</strong> <span id="infoNome"></span></p>
+<p><strong>E-mail:</strong> <span id="infoEmail"></span></p>
+<p><strong>Telefone:</strong> <span id="infoTelefone"></span></p>
+<p><strong>CPF/CNPJ:</strong> <span id="infoCPF"></span></p>
+<p><strong>Status:</strong> <span id="infoStatus"></span></p>
+<p><strong>Assinaturas:</strong> <span id="infoAssinaturas"></span></p>
+</div>
+<div class="historico">
+<h3>Histórico</h3>
+<h4>Compras</h4>
+<table id="historicoCompras">
+<thead><tr><th>Data</th><th>Produto/Serviço</th><th>Valor</th></tr></thead>
+<tbody></tbody>
+</table>
+<h4>Agendamentos</h4>
+<table id="historicoAgendamentos">
+<thead><tr><th>Data</th><th>Serviço</th><th>Status</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
 
 const firebaseConfig = {
   apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
@@ -106,92 +122,121 @@ const firebaseConfig = {
   messagingSenderId: "230161402024",
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
-};  
+};
+  
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// Buscar clientes
-window.buscarClientes = function(filtro=''){
-    const clientesRef = ref(db,'clientes');
-    onValue(clientesRef, snapshot=>{
-        const tbody = document.getElementById('clientesTable');
-        tbody.innerHTML='';
-        const clientes = snapshot.exists() ? Object.entries(snapshot.val()) : [];
-        let count = 0;
-        let countFidelizados = 0;
-        clientes.forEach(([id,c])=>{
-            if(filtro && !c.nome.toLowerCase().includes(filtro.toLowerCase()) &&
-               !c.email.toLowerCase().includes(filtro.toLowerCase()) &&
-               !c.telefone.includes(filtro)) return;
-
-            count++;
-            if(c.fidelidade) countFidelizados++;
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td><a href="#" onclick="abrirModal('${id}')">${c.nome}</a></td>
-                            <td>${c.telefone}</td>
-                            <td>${c.email}</td>
-                            <td>${c.pets ? c.pets.join(', ') : ''}</td>
-                            <td>
-                              <button class="edit" onclick="editarCliente('${id}')">Editar</button>
-                              <button class="delete" onclick="excluirCliente('${id}')">Excluir</button>
-                            </td>`;
-            tbody.appendChild(tr);
-        });
-        document.getElementById('tabelaClientes').style.display = count ? 'table' : 'none';
-        document.getElementById('clientesAtivos').innerText = count;
-        document.getElementById('clientesFidelizados').innerText = countFidelizados;
-        document.getElementById('clientesNovos').innerText = clientes.length ? clientes.length : 0;
-        // Ticket médio poderia ser calculado a partir do histórico
+// Atualiza métricas
+db.collection("clientes").onSnapshot(snapshot=>{
+    let total=0, novos=0, fidelizados=0, vip=0;
+    snapshot.forEach(doc=>{
+        const c=doc.data();
+        if(c.ativo) total++;
+        if(c.vip) vip++;
+        if(c.fidelizado) fidelizados++;
+        if(new Date(c.cadastro)>=new Date(new Date().setMonth(new Date().getMonth()-1))) novos++;
     });
-}
+    document.getElementById('totalClientes').textContent=total;
+    document.getElementById('clientesNovos').textContent=novos;
+    document.getElementById('clientesFidelizados').textContent=fidelizados;
+    document.getElementById('clientesVIP').textContent=vip;
+});
 
-// Editar cliente
-window.editarCliente = function(id){
-    const novoNome = prompt("Digite o novo nome do cliente:");
-    if(!novoNome) return;
-    const clienteRef = ref(db,'clientes/'+id);
-    update(clienteRef, {nome:novoNome});
-}
+// Função de busca
+document.getElementById('btnBuscar').addEventListener('click', async ()=>{
+    const termo=document.getElementById('buscaCliente').value.trim().toLowerCase();
+    const filtro=document.getElementById('filtroCliente').value;
+    if(!termo) return alert("Digite um termo de busca");
 
-// Excluir cliente
-window.excluirCliente = function(id){
-    if(confirm("Tem certeza que deseja excluir este cliente?")){
-        remove(ref(db,'clientes/'+id));
-    }
-}
+    let query=db.collection("clientes");
+    if(filtro) query=query.where("status","==",filtro);
 
-// Modal cliente
-window.abrirModal = function(id){
-    const clienteRef = ref(db,'clientes/'+id);
-    onValue(clienteRef, snapshot=>{
-        if(!snapshot.exists()) return;
-        const c = snapshot.val();
-        document.getElementById('modalNome').innerText = c.nome;
-        document.getElementById('modalEmail').innerText = c.email;
-        document.getElementById('modalTelefone').innerText = c.telefone;
-        document.getElementById('modalPets').innerText = c.pets ? c.pets.join(', ') : '-';
-        document.getElementById('modalFidelidade').innerText = c.fidelidade ? c.fidelidade : 'Não possui';
-        const historico = document.getElementById('modalHistorico');
-        historico.innerHTML = '';
-        if(c.historico){
-            c.historico.forEach(item=>{
-                const li = document.createElement('li');
-                li.innerText = `${item.tipo} - ${item.data} - ${item.valor ? 'R$'+item.valor : ''}`;
-                historico.appendChild(li);
+    const snapshot=await query.get();
+    let encontrado=null;
+    snapshot.forEach(doc=>{
+        const c=doc.data();
+        if(c.nome.toLowerCase().includes(termo) || 
+           (c.email && c.email.toLowerCase().includes(termo)) ||
+           (c.telefone && c.telefone.includes(termo)) ||
+           (c.cpf_cnpj && c.cpf_cnpj.includes(termo))
+        ){
+            encontrado={id:doc.id,...c};
+        }
+    });
+
+    if(encontrado){
+        document.getElementById('perfilCliente').style.display='flex';
+        document.getElementById('infoNome').textContent=encontrado.nome;
+        document.getElementById('infoEmail').textContent=encontrado.email || '-';
+        document.getElementById('infoTelefone').textContent=encontrado.telefone || '-';
+        document.getElementById('infoCPF').textContent=encontrado.cpf_cnpj || '-';
+        document.getElementById('infoStatus').textContent=encontrado.status || '-';
+        document.getElementById('infoAssinaturas').textContent=encontrado.assinaturas || '-';
+
+        // Preencher histórico de compras
+        const tbodyCompras=document.getElementById('historicoCompras').querySelector('tbody');
+        tbodyCompras.innerHTML='';
+        if(encontrado.compras){
+            encontrado.compras.forEach(c=>{
+                const tr=document.createElement('tr');
+                tr.innerHTML=`<td>${c.data}</td><td>${c.produto}</td><td>R$ ${c.valor.toFixed(2)}</td>`;
+                tbodyCompras.appendChild(tr);
             });
         }
-        document.getElementById('modalCliente').style.display = 'flex';
+
+        // Preencher histórico de agendamentos
+        const tbodyAgend=document.getElementById('historicoAgendamentos').querySelector('tbody');
+        tbodyAgend.innerHTML='';
+        if(encontrado.agendamentos){
+            encontrado.agendamentos.forEach(a=>{
+                const tr=document.createElement('tr');
+                tr.innerHTML=`<td>${a.data}</td><td>${a.servico}</td><td>${a.status}</td>`;
+                tbodyAgend.appendChild(tr);
+            });
+        }
+
+    } else {
+        alert("Cliente não encontrado.");
+        document.getElementById('perfilCliente').style.display='none';
+    }
+});
+
+// Gráficos estratégicos
+const graficoTicketMedio = new Chart(document.getElementById('graficoTicketMedio'), {type:'bar', data:{labels:[], datasets:[{label:'Ticket Médio', data:[], backgroundColor:'#2980b9'}]}, options:{responsive:true}});
+const graficoFaixaGasto = new Chart(document.getElementById('graficoFaixaGasto'), {type:'pie', data:{labels:[], datasets:[{data:[], backgroundColor:['#1abc9c','#f39c12','#e74c3c']}]}, options:{responsive:true}});
+const graficoFrequencia = new Chart(document.getElementById('graficoFrequencia'), {type:'bar', data:{labels:[], datasets:[{label:'Frequência de Compras', data:[], backgroundColor:'#8e44ad'}]}, options:{responsive:true}});
+
+// Atualização dos gráficos
+db.collection("clientes").onSnapshot(snapshot=>{
+    let ticketMedioData=[], faixaLabels=['Baixo','Médio','Alto'], faixaData=[0,0,0], freqLabels=[], freqData=[];
+    snapshot.forEach(doc=>{
+        const c=doc.data();
+        if(c.compras && c.compras.length>0){
+            const total = c.compras.reduce((acc,i)=>acc+i.valor,0);
+            const media = total/c.compras.length;
+            ticketMedioData.push(media);
+            // Faixa gasto
+            if(total<500) faixaData[0]++;
+            else if(total<1500) faixaData[1]++;
+            else faixaData[2]++;
+            // Frequência
+            freqLabels.push(c.nome);
+            freqData.push(c.compras.length);
+        }
     });
-}
+    graficoTicketMedio.data.labels=snapshot.docs.map(d=>d.data().nome);
+    graficoTicketMedio.data.datasets[0].data=ticketMedioData;
+    graficoTicketMedio.update();
 
-window.fecharModal = function(){
-    document.getElementById('modalCliente').style.display = 'none';
-}
+    graficoFaixaGasto.data.labels=faixaLabels;
+    graficoFaixaGasto.data.datasets[0].data=faixaData;
+    graficoFaixaGasto.update();
 
-// Inicial
-buscarClientes();
+    graficoFrequencia.data.labels=freqLabels;
+    graficoFrequencia.data.datasets[0].data=freqData;
+    graficoFrequencia.update();
+});
 </script>
 
 </body>
