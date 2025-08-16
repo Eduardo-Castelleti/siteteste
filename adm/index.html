@@ -1,100 +1,113 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Dashboard</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-/* ===== RESET ===== */
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, sans-serif; }
-body { background:#f4f6f9; color:#333; }
-a { text-decoration:none; color:inherit; }
-
-/* ===== MENU LATERAL ===== */
-.sidebar { position:fixed; left:0; top:0; bottom:0; width:250px; background:#2c3e50; color:#ecf0f1; padding-top:20px; }
-.sidebar h2 { text-align:center; margin-bottom:20px; font-size:1.5em; }
-.sidebar ul { list-style:none; }
-.sidebar ul li a {
-  display:flex;
-  align-items:center;
-  padding:15px 20px;
-  color:inherit;
-  width:100%;
-}
-.sidebar ul li a:hover { background:#34495e; }
-.sidebar ul li a.active { background:#1abc9c; }
-.sidebar ul li i { margin-right:10px; }
-
-/* ===== CONTEÚDO ===== */
-.main-content { margin-left:250px; padding:20px; }
-
-/* ===== CARDS ===== */
-.cards { display:flex; gap:20px; flex-wrap:wrap; margin-bottom:30px; }
-.card { background:#fff; flex:1; min-width:200px; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
-.card h3 { margin-bottom:10px; font-size:1.1em; color:#555; }
-.card p { font-size:1.5em; font-weight:bold; color:#2c3e50; }
-
-/* ===== GRÁFICOS ===== */
-.chart-container { background:#fff; padding:20px; border-radius:8px; margin-bottom:30px; }
-
-@media(max-width:768px){
-  .sidebar{ width:200px; }
-  .main-content{ margin-left:200px; }
-  .cards{ flex-direction:column; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Pet - Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS -->
+    <style>
+        * {margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif;}
+        body {display:flex; min-height:100vh; background:#f4f6f9;}
+        /* Sidebar */
+        .sidebar {
+            width: 260px; background: #2c3e50; color: #ecf0f1; flex-shrink:0;
+            display: flex; flex-direction: column;
+        }
+        .sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
+        .sidebar a {
+            padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none;
+            border-bottom:1px solid #34495e; transition:0.3s;
+        }
+        .sidebar a:hover {background:#34495e;}
+        .sidebar a i {margin-right:15px;}
+        .badge {background:#e74c3c; color:white; border-radius:12px; padding:2px 8px; font-size:12px; margin-left:auto;}
+        /* Main content */
+        .main-content {flex:1; padding:20px; overflow-y:auto;}
+        .cards {display:grid; grid-template-columns: repeat(auto-fit,minmax(250px,1fr)); gap:20px; margin-bottom:30px;}
+        .card {background:white; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+        .card h3 {margin-bottom:10px; font-size:18px; color:#34495e;}
+        .card p {font-size:24px; font-weight:700; color:#2c3e50;}
+        /* Graphs placeholders */
+        .graph {height:300px; background:#ecf0f1; border-radius:10px; display:flex; justify-content:center; align-items:center; color:#7f8c8d; font-size:18px; margin-bottom:30px;}
+    </style>
 </head>
 <body>
 
-<div class="sidebar">
-  <h2>Admin Petshop</h2>
-  <ul>
-    <li><a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-    <li><a href="clientes.html"><i class="fas fa-user"></i> Clientes</a></li>
-    <li><a href="parceiros.html"><i class="fas fa-handshake"></i> Parceiros</a></li>
-    <li><a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a></li>
-    <li><a href="produtos.html"><i class="fas fa-box"></i> Produtos</a></li>
-    <li><a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a></li>
-    <li><a href="vendas.html"><i class="fas fa-receipt"></i> Vendas</a></li>
-  </ul>
-</div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Pet</h2>
+        <a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
+        <a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
+        <a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
+        <a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
+        <a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+        <a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
+        <a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
+        <a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
+        <a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
+        <a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
+        <a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
+        <a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
+    </div>
 
-<script>
-// Destacar aba ativa automaticamente
-document.querySelectorAll(".sidebar ul li a").forEach(link => {
-  if(link.href === window.location.href){
-    link.classList.add("active");
-  }
-});
-</script>
-  
-<div class="main-content">
-  <h1>Dashboard</h1>
-  <div class="cards">
-    <div class="card"><h3>Faturamento Total</h3><p id="faturamentoTotal">R$ 0</p></div>
-    <div class="card"><h3>Lucro Líquido</h3><p id="lucroLiquido">R$ 0</p></div>
-    <div class="card"><h3>Clientes Ativos</h3><p id="clientesAtivos">0</p></div>
-    <div class="card"><h3>Produto Mais Vendido</h3><p id="produtoMaisVendido">--</p></div>
-  </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>Dashboard</h1>
 
-  <div class="chart-container">
-    <h3>Vendas por Categoria</h3>
-    <canvas id="vendasCategoriaChart"></canvas>
-  </div>
+        <!-- Cards resumo rápido -->
+        <div class="cards">
+            <div class="card">
+                <h3>Faturamento do Mês</h3>
+                <p>R$ 0,00</p>
+            </div>
+            <div class="card">
+                <h3>Clientes Ativos</h3>
+                <p>0</p>
+            </div>
+            <div class="card">
+                <h3>Agendamentos Pendentes</h3>
+                <p>0</p>
+            </div>
+            <div class="card">
+                <h3>Produtos em Estoque</h3>
+                <p>0</p>
+            </div>
+        </div>
 
-  <div class="chart-container">
-    <h3>Faturamento Mensal</h3>
-    <canvas id="faturamentoChart"></canvas>
-  </div>
-</div>
+        <!-- Gráficos e indicadores -->
+        <div class="graph">Gráfico de Vendas por Categoria</div>
+        <div class="graph">Gráfico de Clientes Ativos vs Novos</div>
+        <div class="graph">Resumo de Agendamentos por Parceiro</div>
+        <div class="graph">Lucro por Produto/Categoria</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
+        <!-- Notificações rápidas -->
+        <div class="cards">
+            <div class="card">
+                <h3>Produtos em Falta</h3>
+                <p>0</p>
+            </div>
+            <div class="card">
+                <h3>Pagamentos Pendentes</h3>
+                <p>0</p>
+            </div>
+            <div class="card">
+                <h3>Clientes VIPs</h3>
+                <p>0</p>
+            </div>
+        </div>
 
-// CONFIGURAÇÃO FIREBASE
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script>
+        // Configuração Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
   authDomain: "site-f6495.firebaseapp.com",
@@ -104,79 +117,21 @@ const firebaseConfig = {
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
 };
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-// GRÁFICOS
-const ctxCat = document.getElementById('vendasCategoriaChart').getContext('2d');
-const vendasCategoriaChart = new Chart(ctxCat, { 
-  type:'bar', 
-  data:{labels:[], datasets:[{label:'Vendas', data:[], backgroundColor:[]}]} 
-});
+        // Exemplo de atualização em tempo real do Faturamento do Mês
+        const faturamentoCard = document.querySelector('.cards .card:nth-child(1) p');
+        db.collection("vendas").onSnapshot(snapshot => {
+            let total = 0;
+            snapshot.forEach(doc => {
+                total += doc.data().valor || 0;
+            });
+            faturamentoCard.textContent = "R$ " + total.toFixed(2);
+        });
 
-const ctxFat = document.getElementById('faturamentoChart').getContext('2d');
-const faturamentoChart = new Chart(ctxFat, { 
-  type:'line', 
-  data:{labels:[], datasets:[{label:'Faturamento', data:[], borderColor:'#2980b9', fill:false}]} 
-});
-
-// FUNÇÃO PARA ATUALIZAR DASHBOARD
-function atualizarDashboard(){
-  const clientesRef = ref(db, 'clientes');
-  const pedidosRef = ref(db, 'pedidos');
-
-  onValue(clientesRef, snapshot => {
-    const clientesData = snapshot.exists() ? Object.values(snapshot.val()) : [];
-    document.getElementById('clientesAtivos').innerText = clientesData.length;
-  });
-
-  onValue(pedidosRef, snapshot => {
-    const pedidosData = snapshot.exists() ? Object.values(snapshot.val()) : [];
-    let faturamento = 0;
-    let lucro = 0;
-    const catCount = {};
-    let produtoMaisVendido = {};
-    
-    pedidosData.forEach(p => {
-      faturamento += p.valorTotal || 0;
-      lucro += (p.valorTotal * 0.3);
-      if(p.categoria) catCount[p.categoria] = (catCount[p.categoria] || 0) + 1;
-      if(p.produto) produtoMaisVendido[p.produto] = (produtoMaisVendido[p.produto] || 0) + 1;
-    });
-
-    document.getElementById('faturamentoTotal').innerText = 'R$ ' + faturamento.toFixed(2);
-    document.getElementById('lucroLiquido').innerText = 'R$ ' + lucro.toFixed(2);
-
-    let maisVendido = Object.keys(produtoMaisVendido).reduce((a,b)=>produtoMaisVendido[a]>produtoMaisVendido[b]?a:b,'--');
-    document.getElementById('produtoMaisVendido').innerText = maisVendido;
-
-    vendasCategoriaChart.data.labels = Object.keys(catCount);
-    vendasCategoriaChart.data.datasets[0].data = Object.values(catCount);
-    vendasCategoriaChart.data.datasets[0].backgroundColor = Object.keys(catCount).map(()=>'#2980b9');
-    vendasCategoriaChart.update();
-
-    const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    const fatMensal = Array(12).fill(0);
-    pedidosData.forEach(p=>{
-      if(p.data){
-        const m = new Date(p.data).getMonth();
-        fatMensal[m] += p.valorTotal || 0;
-      }
-    });
-    faturamentoChart.data.labels = meses;
-    faturamentoChart.data.datasets[0].data = fatMensal;
-    faturamentoChart.update();
-  });
-}
-
-atualizarDashboard();
-
-// Destacar aba ativa
-document.querySelectorAll(".sidebar ul li a").forEach(link => {
-  if(link.href === window.location.href){
-    link.classList.add("active");
-  }
-});
-</script>
+        // Outras consultas podem ser feitas de forma similar:
+        // clientes, agendamentos, produtos, notificações etc.
+    </script>
 </body>
 </html>
