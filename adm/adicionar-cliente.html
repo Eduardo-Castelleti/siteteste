@@ -3,38 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Adicionar Cliente</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<title>Admin Pet - Adicionar Cliente</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, sans-serif; }
-body { background:#f4f6f9; color:#333; display:flex; justify-content:center; align-items:center; height:100vh; }
-.container { background:#fff; padding:30px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); width:400px; }
-h2 { margin-bottom:20px; text-align:center; }
-input { width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px; }
-button { width:100%; padding:10px; background:#2980b9; color:#fff; border:none; border-radius:5px; cursor:pointer; font-size:1em; }
-button:hover { background:#2471a3; }
-a { display:block; margin-top:10px; text-align:center; color:#2980b9; text-decoration:none; }
+* {margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif;}
+body {display:flex; min-height:100vh; background:#f4f6f9;}
+.sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
+.sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
+.sidebar a {padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none; border-bottom:1px solid #34495e; transition:0.3s;}
+.sidebar a:hover {background:#34495e;}
+.sidebar a i {margin-right:15px;}
+.main-content {flex:1; padding:20px; overflow-y:auto;}
+h1 {margin-bottom:20px; color:#2c3e50;}
+form {background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); max-width:600px;}
+form label {display:block; margin-top:15px; font-weight:500;}
+form input {width:100%; padding:10px; margin-top:5px; border-radius:5px; border:1px solid #ccc;}
+form button {margin-top:20px; padding:10px 20px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer; transition:0.3s;}
+form button:hover {background:#2ecc71;}
 </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>Adicionar Cliente</h2>
-  <form id="formCliente">
-    <input type="text" id="nomeCliente" placeholder="Nome completo" required>
-    <input type="text" id="telefoneCliente" placeholder="Telefone" required>
-    <input type="email" id="emailCliente" placeholder="Email" required>
-    <input type="password" id="senhaCliente" placeholder="Senha" required>
-    <button type="submit">Cadastrar Cliente</button>
-  </form>
-  <a href="clientes.html">&larr; Voltar para lista de clientes</a>
+<div class="sidebar">
+<h2>Admin Pet</h2>
+<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
+<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
+<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
+<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
+<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-app.js";
-import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.6.1/firebase-auth.js";
+<div class="main-content">
+<h1>Adicionar Cliente</h1>
 
+<form id="formCliente">
+<label for="nome">Nome</label>
+<input type="text" id="nome" required>
+
+<label for="telefone">Telefone</label>
+<input type="text" id="telefone" required>
+
+<label for="cpf">CPF (opcional)</label>
+<input type="text" id="cpf">
+
+<label for="email">E-mail</label>
+<input type="email" id="email" required>
+
+<label for="nascimento">Data de Nascimento</label>
+<input type="date" id="nascimento" required>
+
+<button type="submit">Cadastrar Cliente</button>
+</form>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
   authDomain: "site-f6495.firebaseapp.com",
@@ -44,40 +71,59 @@ const firebaseConfig = {
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
+document.getElementById('formCliente').addEventListener('submit', async (e)=>{
+    e.preventDefault();
 
-document.getElementById('formCliente').addEventListener('submit', async function(e){
-  e.preventDefault();
+    const nome = document.getElementById('nome').value.trim();
+    const telefone = document.getElementById('telefone').value.trim();
+    const cpf = document.getElementById('cpf').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const nascimento = document.getElementById('nascimento').value;
 
-  const nome = document.getElementById('nomeCliente').value;
-  const telefone = document.getElementById('telefoneCliente').value;
-  const email = document.getElementById('emailCliente').value;
-  const senha = document.getElementById('senhaCliente').value;
+    if(!nome || !telefone || !email || !nascimento){
+        return alert("Preencha todos os campos obrigatórios!");
+    }
 
-  try {
-    // 1️⃣ Criar login do cliente
-    const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
-    const uid = userCredential.user.uid;
+    try{
+        // Criar login no Firebase Auth
+        const senhaPadrao = "123456";
+        const userCredential = await auth.createUserWithEmailAndPassword(email, senhaPadrao);
 
-    // 2️⃣ Adicionar cliente no banco de dados
-    await push(ref(db, 'clientes'), {
-      uid,
-      nome,
-      telefone,
-      email,
-      pets: []
-    });
+        // Enviar e-mail para redefinir senha
+        await auth.sendPasswordResetEmail(email);
 
-    alert("Cliente cadastrado com sucesso!");
-    window.location.href = "clientes.html"; // voltar para lista
-  } catch (error) {
-    alert("Erro: " + error.message);
-  }
+        // Criar registro no Firestore
+        await db.collection("clientes").doc(userCredential.user.uid).set({
+            nome: nome,
+            telefone: telefone,
+            cpf_cnpj: cpf,
+            email: email,
+            nascimento: nascimento,
+            status: "ativo",
+            cadastro: new Date(),
+            vip: false,
+            fidelizado: false,
+            assinaturas: [],
+            compras: [],
+            agendamentos: []
+        });
+
+        alert("Cliente cadastrado com sucesso! O e-mail para redefinir senha foi enviado.");
+        // Limpar formulário
+        document.getElementById('formCliente').reset();
+
+        // Redirecionar para a aba clientes
+        window.location.href = "clientes.html";
+
+    } catch(error){
+        console.error(error);
+        alert("Erro ao cadastrar cliente: " + error.message);
+    }
 });
 </script>
-
 </body>
 </html>
