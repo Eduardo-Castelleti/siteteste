@@ -35,17 +35,29 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 </head>
 <body>
-  <div class="sidebar">
-    <h2>Admin Petshop</h2>
-    <ul>
-      <li><a href="index.html">Dashboard</a></li>
-      <li><a href="clientes.html">Clientes</a></li>
-      <li><a href="parceiros.html">Parceiros</a></li>
-      <li><a href="funcionarios.html">Funcionários</a></li>
-      <li><a href="produtos.html" class="active">Produtos</a></li>
-    </ul>
-  </div>
 
+  <div class="sidebar">
+  <h2>Admin Petshop</h2>
+  <ul>
+    <li><a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+    <li><a href="clientes.html"><i class="fas fa-user"></i> Clientes</a></li>
+    <li><a href="parceiros.html"><i class="fas fa-handshake"></i> Parceiros</a></li>
+    <li><a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a></li>
+    <li><a href="produtos.html"><i class="fas fa-box"></i> Produtos</a></li>
+    <li><a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a></li>
+    <li><a href="vendas.html"><i class="fas fa-receipt"></i> Vendas</a></li>
+  </ul>
+</div>
+
+<script>
+// Destacar aba ativa automaticamente
+document.querySelectorAll(".sidebar ul li a").forEach(link => {
+  if(link.href === window.location.href){
+    link.classList.add("active");
+  }
+});
+</script>
+  
   <div class="content">
     <h1>Produtos</h1>
     <a href="adicionar-produtos.html" class="btn">+ Adicionar Produto</a>
