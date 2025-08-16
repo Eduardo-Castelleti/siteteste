@@ -1,178 +1,129 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin - Parceiros</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adicionar Parceiro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
   <style>
-    * {margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
-    body {display:flex;height:100vh;background:#f4f6f9;}
-
-    /* ===== Sidebar ===== */
-    .sidebar {
-      width: 220px;
-      background: #2c3e50; /* mesma cor usada no menu Clientes */
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      padding-top: 20px;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
     }
-    .sidebar h2 {
+
+    header {
+      background: #3b5998;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
       text-align: center;
       margin-bottom: 20px;
-      font-size: 20px;
-    }
-    .sidebar a {
-      padding: 12px 20px;
-      color: #ecf0f1;
-      text-decoration: none;
-      display: block;
-      transition: background 0.3s;
-    }
-    .sidebar a:hover {
-      background: #34495e;
-    }
-    .sidebar a.active {
-      background: #1abc9c;
+      color: #333;
     }
 
-    /* ===== Main content ===== */
-    .main {
-      flex:1;
-      padding:20px;
-      overflow-y:auto;
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+      color: #444;
     }
-    h1 {margin-bottom:20px;color:#333;}
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
 
     button {
-      padding:10px 15px;
-      background:#1abc9c;
-      color:#fff;
-      border:none;
-      border-radius:5px;
-      cursor:pointer;
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #3b5998;
+      color: white;
+      transition: 0.3s;
     }
-    button:hover {background:#16a085;}
 
-    table {
-      width:100%;
-      border-collapse:collapse;
-      margin-top:20px;
-      background:#fff;
-      border-radius:8px;
-      overflow:hidden;
-      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    button:hover {
+      background: #2d4373;
     }
-    th, td {
-      padding:12px;
-      text-align:left;
-      border-bottom:1px solid #ddd;
-    }
-    th {background:#1abc9c;color:#fff;}
-    tr:hover {background:#f1f1f1;}
 
-    /* Modal */
-    .modal {
-      display:none;
-      position:fixed;
-      z-index:1000;
-      left:0;top:0;
-      width:100%;height:100%;
-      background:rgba(0,0,0,0.5);
-      justify-content:center;
-      align-items:center;
+    .btn-voltar {
+      display: block;
+      text-align: center;
+      margin-top: 15px;
+      text-decoration: none;
+      color: #3b5998;
+      font-weight: bold;
     }
-    .modal-content {
-      background:#fff;
-      padding:20px;
-      border-radius:8px;
-      width:400px;
-      box-shadow:0 2px 8px rgba(0,0,0,0.2);
-    }
-    .modal-content h2 {margin-bottom:15px;}
-    .modal-content input {
-      width:100%;
-      padding:10px;
-      margin-bottom:10px;
-      border:1px solid #ccc;
-      border-radius:5px;
-    }
-    .close {
-      float:right;
-      font-size:20px;
-      cursor:pointer;
-      color:#aaa;
-    }
-    .close:hover {color:#000;}
   </style>
 </head>
 <body>
+  <header>
+    <h1>Cadastro de Parceiros</h1>
+  </header>
 
-  <!-- Sidebar -->
-  <div class="sidebar">
-  <h2>Admin Petshop</h2>
-  <ul>
-    <li><a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-    <li><a href="clientes.html"><i class="fas fa-user"></i> Clientes</a></li>
-    <li><a href="parceiros.html"><i class="fas fa-handshake"></i> Parceiros</a></li>
-    <li><a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a></li>
-    <li><a href="produtos.html"><i class="fas fa-box"></i> Produtos</a></li>
-    <li><a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a></li>
-    <li><a href="vendas.html"><i class="fas fa-receipt"></i> Vendas</a></li>
-  </ul>
-</div>
+  <div class="container">
+    <h2>Adicionar Parceiro</h2>
+    <form id="formParceiro">
+      <label>CNPJ / CPF:</label>
+      <input type="text" id="cnpjcpf" required>
 
-<script>
-// Destacar aba ativa automaticamente
-document.querySelectorAll(".sidebar ul li a").forEach(link => {
-  if(link.href === window.location.href){
-    link.classList.add("active");
-  }
-});
-</script>
+      <label>Nome da Empresa:</label>
+      <input type="text" id="nomeEmpresa" required>
 
-  <!-- Main content -->
-  <div class="main">
-    <h1>Gerenciar Parceiros</h1>
-    <button id="btnAbrirModal">Adicionar Parceiro</button>
+      <label>Telefone da Empresa:</label>
+      <input type="text" id="telefoneEmpresa" required>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Email</th>
-          <th>Telefone</th>
-          <th>CNPJ / CPF</th>
-        </tr>
-      </thead>
-      <tbody id="parceirosLista"></tbody>
-    </table>
+      <label>E-mail da Empresa:</label>
+      <input type="email" id="emailEmpresa" required>
+
+      <label>Nome do Responsável:</label>
+      <input type="text" id="nomeResponsavel" required>
+
+      <label>Telefone do Responsável:</label>
+      <input type="text" id="telefoneResponsavel" required>
+
+      <label>E-mail do Responsável:</label>
+      <input type="email" id="emailResponsavel" required>
+
+      <label>Endereço Completo:</label>
+      <textarea id="endereco" rows="3" required></textarea>
+
+      <button type="submit">Salvar</button>
+    </form>
+    <a href="parceiros.html" class="btn-voltar">⬅ Voltar</a>
   </div>
 
-  <!-- Modal -->
-  <div id="modalParceiro" class="modal">
-    <div class="modal-content">
-      <span class="close" id="fecharModal">&times;</span>
-      <h2>Novo Parceiro</h2>
-      <input type="text" id="nomeParceiro" placeholder="Nome" required />
-      <input type="email" id="emailParceiro" placeholder="Email" required />
-      <input type="password" id="senhaParceiro" placeholder="Senha" required />
-      <input type="text" id="telefoneParceiro" placeholder="Telefone" required />
-      <input type="text" id="documentoParceiro" placeholder="CNPJ ou CPF" required />
-      <button id="salvarParceiro">Salvar</button>
-    </div>
-  </div>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-
-    const firebaseConfig = {
+  <script>
+    // ⚡ Configuração do Firebase (troque pelos seus dados!)
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
   apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
   authDomain: "site-f6495.firebaseapp.com",
   projectId: "site-f6495",
@@ -182,66 +133,34 @@ document.querySelectorAll(".sidebar ul li a").forEach(link => {
   measurementId: "G-51G8XF6JH0"
 };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    const btnAbrirModal = document.getElementById("btnAbrirModal");
-    const modal = document.getElementById("modalParceiro");
-    const fecharModal = document.getElementById("fecharModal");
-    const salvarParceiro = document.getElementById("salvarParceiro");
-    const parceirosLista = document.getElementById("parceirosLista");
+    document.getElementById("formParceiro").addEventListener("submit", function(e){
+      e.preventDefault();
 
-    // Abrir modal
-    btnAbrirModal.onclick = () => modal.style.display = "flex";
-    fecharModal.onclick = () => modal.style.display = "none";
-    window.onclick = (e) => { if(e.target == modal) modal.style.display = "none"; }
+      const parceiro = {
+        cnpjcpf: document.getElementById("cnpjcpf").value,
+        nomeEmpresa: document.getElementById("nomeEmpresa").value,
+        telefoneEmpresa: document.getElementById("telefoneEmpresa").value,
+        emailEmpresa: document.getElementById("emailEmpresa").value,
+        nomeResponsavel: document.getElementById("nomeResponsavel").value,
+        telefoneResponsavel: document.getElementById("telefoneResponsavel").value,
+        emailResponsavel: document.getElementById("emailResponsavel").value,
+        endereco: document.getElementById("endereco").value
+      };
 
-    // Salvar Parceiro
-    salvarParceiro.onclick = async () => {
-      const nome = document.getElementById("nomeParceiro").value;
-      const email = document.getElementById("emailParceiro").value;
-      const senha = document.getElementById("senhaParceiro").value;
-      const telefone = document.getElementById("telefoneParceiro").value;
-      const documento = document.getElementById("documentoParceiro").value;
-
-      try {
-        const userCred = await createUserWithEmailAndPassword(auth, email, senha);
-        const userId = userCred.user.uid;
-
-        await push(ref(db, "parceiros"), {
-          uid: userId,
-          nome, email, telefone, documento
+      // Salvar no Firebase
+      db.ref("parceiros").push(parceiro)
+        .then(() => {
+          alert("✅ Parceiro cadastrado com sucesso!");
+          document.getElementById("formParceiro").reset();
+        })
+        .catch((error) => {
+          console.error("Erro ao salvar:", error);
+          alert("❌ Erro ao salvar parceiro!");
         });
-
-        alert("Parceiro adicionado com sucesso!");
-        modal.style.display = "none";
-      } catch (error) {
-        alert("Erro: " + error.message);
-      }
-    };
-
-    // Listar Parceiros
-    const parceirosRef = ref(db, "parceiros");
-    onValue(parceirosRef, (snapshot) => {
-      parceirosLista.innerHTML = "";
-      snapshot.forEach((childSnapshot) => {
-        const p = childSnapshot.val();
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${p.nome}</td>
-          <td>${p.email}</td>
-          <td>${p.telefone}</td>
-          <td>${p.documento}</td>
-        `;
-        parceirosLista.appendChild(tr);
-      });
     });
-
-    // Botão Funcionário -> redireciona para cadastro
-    document.getElementById("btnAbrirFuncionario").onclick = () => {
-      window.location.href = "funcionarios.html";
-    };
   </script>
 </body>
 </html>
