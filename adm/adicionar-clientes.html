@@ -1,79 +1,121 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Pet - Adicionar Cliente</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-* {margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif;}
-body {display:flex; min-height:100vh; background:#f4f6f9;}
-.sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
-.sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
-.sidebar a {padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none; border-bottom:1px solid #34495e; transition:0.3s;}
-.sidebar a:hover {background:#34495e;}
-.sidebar a i {margin-right:15px;}
-.main-content {flex:1; padding:20px; overflow-y:auto;}
-h1 {margin-bottom:20px; color:#2c3e50; display:flex; justify-content:space-between; align-items:center;}
-form {background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); max-width:600px;}
-form label {display:block; margin-top:15px; font-weight:500;}
-form input {width:100%; padding:10px; margin-top:5px; border-radius:5px; border:1px solid #ccc;}
-form button {margin-top:20px; padding:10px 20px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer; transition:0.3s;}
-form button:hover {background:#2ecc71;}
-#loading {display:none; margin-top:10px; color:#2980b9; font-weight:500;}
-#mensagem {margin-top:10px; font-weight:500;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adicionar Cliente</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #4a90e2;
+      padding: 15px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin: 8px 0 4px;
+      font-weight: bold;
+      color: #444;
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      font-size: 14px;
+      transition: border 0.3s;
+    }
+
+    input:focus {
+      border-color: #4a90e2;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      background: #4a90e2;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #357ab8;
+    }
+
+    .mensagem {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Admin Pet - Adicionar Cliente</h1>
+  </header>
 
-<div class="sidebar">
-<h2>Admin Pet</h2>
-<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
-<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
-<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
-<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
-<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
-<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
-<a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
-<a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
-<a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
-<a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
-<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
-<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
-</div>
+  <div class="container">
+    <h2>Novo Cliente</h2>
+    <form id="formCliente">
+      <label for="cpf">CPF</label>
+      <input type="text" id="cpf" placeholder="Digite o CPF" required>
 
-<div class="main-content">
-<h1>Adicionar Cliente</h1>
+      <label for="nome">Nome Completo</label>
+      <input type="text" id="nome" placeholder="Digite o nome" required>
 
-<form id="formCliente">
-<label for="nome">Nome</label>
-<input type="text" id="nome" required>
+      <label for="telefone">Telefone</label>
+      <input type="tel" id="telefone" placeholder="(xx) xxxxx-xxxx">
 
-<label for="telefone">Telefone</label>
-<input type="text" id="telefone" placeholder="Apenas números" required>
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="exemplo@email.com">
 
-<label for="cpf">CPF (opcional)</label>
-<input type="text" id="cpf">
+      <label for="endereco">Endereço</label>
+      <input type="text" id="endereco" placeholder="Rua, número, bairro, cidade">
 
-<label for="email">E-mail</label>
-<input type="email" id="email" required>
+      <button type="submit">Cadastrar Cliente</button>
+    </form>
+    <p id="mensagem" class="mensagem"></p>
+  </div>
 
-<label for="nascimento">Data de Nascimento</label>
-<input type="date" id="nascimento" required>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js"></script>
 
-<button type="submit">Cadastrar Cliente</button>
-<div id="loading"><i class="fas fa-spinner fa-spin"></i> Cadastrando...</div>
-<div id="mensagem"></div>
-</form>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script>
-const firebaseConfig = {
+  <script>
+    // 🔹 Configuração do Firebase
+    const firebaseConfig = {
   apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
   authDomain: "site-f6495.firebaseapp.com",
   projectId: "site-f6495",
@@ -81,105 +123,50 @@ const firebaseConfig = {
   messagingSenderId: "230161402024",
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
-}; 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+};
 
-function validarEmail(email){
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-}
+    // Inicializa Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-function validarTelefone(tel){
-    return /^\d{10,11}$/.test(tel.replace(/\D/g,''));
-}
+    // Formulário
+    const form = document.getElementById("formCliente");
+    const mensagem = document.getElementById("mensagem");
 
-document.getElementById('formCliente').addEventListener('submit', async (e)=>{
-    e.preventDefault();
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const nome = document.getElementById('nome').value.trim();
-    const telefone = document.getElementById('telefone').value.trim();
-    const cpf = document.getElementById('cpf').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const nascimento = document.getElementById('nascimento').value;
+      const cpf = document.getElementById("cpf").value.trim();
+      const nome = document.getElementById("nome").value.trim();
+      const telefone = document.getElementById("telefone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const endereco = document.getElementById("endereco").value.trim();
 
-    const mensagem = document.getElementById('mensagem');
-    const loading = document.getElementById('loading');
-    mensagem.textContent="";
-    loading.style.display="block";
-
-    // Validações
-    if(!nome || !telefone || !email || !nascimento){
-        loading.style.display="none";
-        return mensagem.textContent="Preencha todos os campos obrigatórios!";
-    }
-    if(!validarEmail(email)){
-        loading.style.display="none";
-        return mensagem.textContent="E-mail inválido!";
-    }
-    if(!validarTelefone(telefone)){
-        loading.style.display="none";
-        return mensagem.textContent="Telefone inválido! Apenas números (10-11 dígitos).";
-    }
-    if(new Date(nascimento) > new Date()){
-        loading.style.display="none";
-        return mensagem.textContent="Data de nascimento inválida!";
-    }
-
-    try{
-        // Verificar CPF duplicado
-        if(cpf){
-            const cpfCheck = await db.collection("clientes").where("cpf_cnpj","==",cpf).get();
-            if(!cpfCheck.empty){
-                loading.style.display="none";
-                return mensagem.textContent="CPF já cadastrado!";
-            }
-        }
-
-        // Criar login no Firebase Auth
-        const senhaPadrao = Math.random().toString(36).slice(-8); // senha aleatória
-        const userCredential = await auth.createUserWithEmailAndPassword(email, senhaPadrao);
-
-        // Enviar e-mail de redefinição
-        await auth.sendPasswordResetEmail(email);
-
-        // Criar registro no Firestore
-        await db.collection("clientes").doc(userCredential.user.uid).set({
-            nome: nome,
-            telefone: telefone,
-            cpf_cnpj: cpf,
-            email: email,
-            nascimento: nascimento,
-            status: "ativo",
-            cadastro: new Date(),
-            vip: false,
-            fidelizado: false,
-            assinaturas: [],
-            compras: [],
-            agendamentos: []
+      try {
+        await db.collection("Clientes").add({
+          cpf,
+          nome,
+          telefone,
+          email,
+          endereco,
+          criadoEm: new Date()
         });
 
-        loading.style.display="none";
-        mensagem.style.color="green";
-        mensagem.textContent="Cliente cadastrado com sucesso! E-mail enviado para redefinir senha.";
+        mensagem.style.color = "green";
+        mensagem.textContent = "✅ Cliente cadastrado com sucesso!";
+        form.reset();
 
-        // Atualizar clientes.html automaticamente
-        if(window.opener && !window.opener.closed && window.opener.atualizarClientes){
-            window.opener.atualizarClientes();
-        }
+        // Redireciona para a lista de clientes
+        setTimeout(() => {
+          window.location.href = "clientes.html";
+        }, 1200);
 
-        // Limpar formulário e redirecionar
-        document.getElementById('formCliente').reset();
-        setTimeout(()=>window.location.href = "clientes.html", 1500);
-
-    } catch(error){
-        loading.style.display="none";
-        mensagem.style.color="red";
-        mensagem.textContent="Erro ao cadastrar cliente: " + error.message;
-        console.error(error);
-    }
-});
-</script>
+      } catch (error) {
+        console.error("Erro ao cadastrar cliente:", error);
+        mensagem.style.color = "red";
+        mensagem.textContent = "❌ Erro ao cadastrar cliente.";
+      }
+    });
+  </script>
 </body>
 </html>
