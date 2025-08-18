@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Admin Pet - Parceiros</title>
 
@@ -12,7 +12,7 @@
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, doc, updateDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "SUA_API_KEY",
@@ -25,15 +25,10 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
   window.db = db;
-  window.collection = collection;
+  window.parceirosCollection = collection(db, "parceiros");
   window.addDoc = addDoc;
-  window.doc = doc;
-  window.updateDoc = updateDoc;
   window.getDocs = getDocs;
-  window.query = query;
-  window.where = where;
 </script>
 
 <style>
@@ -63,24 +58,19 @@ h1 button:hover {background:#2ecc71;}
 .card.ativos {background:#1abc9c;}
 .card.inativos {background:#e74c3c;}
 
-/* Search */
-.search-bar {margin-bottom:20px; display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:10px; flex-wrap:wrap;}
-.search-bar input, .search-bar select {padding:10px; border-radius:5px; border:1px solid #ccc;}
-.search-bar button {padding:10px 15px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
-.search-bar button:hover {background:#3498db;}
+/* Search / Form */
+.form-container {background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+.form-container input, .form-container select, .form-container button {margin-bottom:10px; padding:10px; border-radius:5px; border:1px solid #ccc; width:100%;}
+.form-container button {background:#27ae60; color:white; cursor:pointer; transition:0.3s; border:none;}
+.form-container button:hover {background:#2ecc71;}
+.servicos-container label {display:flex; align-items:center; gap:5px; margin-bottom:5px;}
+.servicos-container p {margin-bottom:5px; font-weight:500;}
 
 /* Graphs */
 .graphs {display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:20px; margin-top:30px;}
 canvas {background:#fff; border-radius:10px; padding:10px;}
-
-/* Form */
-.form-container {background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-.form-container input, .form-container select, .form-container button {margin-bottom:10px;}
-.form-container button {background:#27ae60; color:white; cursor:pointer; transition:0.3s;}
-.form-container button:hover {background:#2ecc71;}
 </style>
 </head>
-
 <body>
 
 <!-- Sidebar -->
@@ -129,21 +119,29 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
     <input type="text" id="nome_responsavel" placeholder="Nome do Responsável">
     <input type="text" id="telefone_responsavel" placeholder="Telefone do Responsável">
     <input type="email" id="email_responsavel" placeholder="Email do Responsável">
+
+    <!-- Endereço -->
     <input type="text" id="cep" placeholder="CEP">
     <input type="text" id="rua" placeholder="Rua">
+    <input type="text" id="numero" placeholder="Número">
     <input type="text" id="bairro" placeholder="Bairro">
     <input type="text" id="cidade" placeholder="Cidade">
     <input type="text" id="estado" placeholder="Estado">
-    <select id="tipo">
-      <option value="Banho/Tosa">Banho/Tosa</option>
-      <option value="Creche">Creche</option>
-      <option value="Clínica">Clínica</option>
-      <option value="Outro">Outro</option>
-    </select>
+
+    <!-- Serviços múltiplos -->
+    <div class="servicos-container">
+      <p>Serviços prestados:</p>
+      <label><input type="checkbox" class="servico" value="Banho/Tosa"> Banho/Tosa</label>
+      <label><input type="checkbox" class="servico" value="Creche"> Creche</label>
+      <label><input type="checkbox" class="servico" value="Clínica"> Clínica</label>
+      <label><input type="checkbox" class="servico" value="Outro"> Outro</label>
+    </div>
+
     <select id="status">
       <option value="Ativo">Ativo</option>
       <option value="Inativo">Inativo</option>
     </select>
+
     <button onclick="salvarParceiro()">Salvar Parceiro</button>
   </div>
 
@@ -155,10 +153,7 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 </div>
 
 <script>
-  const db = window.db;
-  const parceirosCollection = window.collection(db, "parceiros");
-
-  // CEP responsivo
+  // CEP automático
   document.getElementById('cep').addEventListener('blur', () => {
     const cep = document.getElementById('cep').value.replace(/\D/g, '');
     if(cep.length === 8){
@@ -166,10 +161,10 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
         .then(response => response.json())
         .then(dados => {
           if (!dados.erro) {
-            document.getElementById('rua').value = dados.logradouro;
-            document.getElementById('bairro').value = dados.bairro;
-            document.getElementById('cidade').value = dados.localidade;
-            document.getElementById('estado').value = dados.uf;
+            document.getElementById('rua').value = dados.logradouro || '';
+            document.getElementById('bairro').value = dados.bairro || '';
+            document.getElementById('cidade').value = dados.localidade || '';
+            document.getElementById('estado').value = dados.uf || '';
           } else {
             alert('CEP não encontrado!');
           }
@@ -178,6 +173,8 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
   });
 
   async function salvarParceiro(){
+    const servicosSelecionados = Array.from(document.querySelectorAll('.servico:checked')).map(s => s.value);
+
     const parceiro = {
       cnpj: document.getElementById('cnpj').value,
       nome_empresa: document.getElementById('nome_empresa').value,
@@ -186,13 +183,21 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
       nome_responsavel: document.getElementById('nome_responsavel').value,
       telefone_responsavel: document.getElementById('telefone_responsavel').value,
       email_responsavel: document.getElementById('email_responsavel').value,
-      endereco: `${document.getElementById('rua').value}, ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value} - ${document.getElementById('estado').value}`,
-      tipo: document.getElementById('tipo').value,
+      endereco: {
+        cep: document.getElementById('cep').value,
+        rua: document.getElementById('rua').value,
+        numero: document.getElementById('numero').value,
+        bairro: document.getElementById('bairro').value,
+        cidade: document.getElementById('cidade').value,
+        estado: document.getElementById('estado').value
+      },
+      servicos: servicosSelecionados,
       status: document.getElementById('status').value,
       created_at: new Date().toISOString()
     };
+
     try {
-      await window.addDoc(parceirosCollection, parceiro);
+      await window.addDoc(window.parceirosCollection, parceiro);
       alert('Parceiro salvo com sucesso!');
       carregarKpis();
       carregarGraficos();
@@ -204,7 +209,7 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 
   async function consultarParceiro(){
     const pesquisa = document.getElementById('pesquisa-parceiro').value.toLowerCase();
-    const snapshot = await window.getDocs(parceirosCollection);
+    const snapshot = await window.getDocs(window.parceirosCollection);
     let encontrado = false;
     snapshot.forEach(doc => {
       const data = doc.data();
@@ -217,20 +222,25 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
         document.getElementById('nome_responsavel').value = data.nome_responsavel;
         document.getElementById('telefone_responsavel').value = data.telefone_responsavel;
         document.getElementById('email_responsavel').value = data.email_responsavel;
-        const endParts = data.endereco.split(',');
-        document.getElementById('rua').value = endParts[0] || '';
-        document.getElementById('bairro').value = endParts[1] || '';
-        document.getElementById('cidade').value = endParts[2]?.split('-')[0].trim() || '';
-        document.getElementById('estado').value = endParts[2]?.split('-')[1]?.trim() || '';
-        document.getElementById('tipo').value = data.tipo;
+        document.getElementById('cep').value = data.endereco.cep || '';
+        document.getElementById('rua').value = data.endereco.rua || '';
+        document.getElementById('numero').value = data.endereco.numero || '';
+        document.getElementById('bairro').value = data.endereco.bairro || '';
+        document.getElementById('cidade').value = data.endereco.cidade || '';
+        document.getElementById('estado').value = data.endereco.estado || '';
         document.getElementById('status').value = data.status;
+
+        // Serviços
+        document.querySelectorAll('.servico').forEach(s => {
+          s.checked = data.servicos.includes(s.value);
+        });
       }
     });
     if(!encontrado) alert('Parceiro não encontrado!');
   }
 
   async function carregarKpis(){
-    const snapshot = await window.getDocs(parceirosCollection);
+    const snapshot = await window.getDocs(window.parceirosCollection);
     let total=0, ativos=0, inativos=0;
     snapshot.forEach(doc => {
       total++;
@@ -244,12 +254,14 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
   }
 
   async function carregarGraficos(){
-    const snapshot = await window.getDocs(parceirosCollection);
+    const snapshot = await window.getDocs(window.parceirosCollection);
     const tipos = {};
     const meses = {};
     snapshot.forEach(doc => {
       const data = doc.data();
-      tipos[data.tipo] = (tipos[data.tipo] || 0) + 1;
+      data.servicos.forEach(tipo => {
+        tipos[tipo] = (tipos[tipo] || 0) + 1;
+      });
       const mes = new Date(data.created_at).toLocaleString('pt-BR', { month:'short', year:'numeric'});
       meses[mes] = (meses[mes] || 0) +1;
     });
