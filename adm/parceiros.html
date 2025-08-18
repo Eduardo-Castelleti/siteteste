@@ -1,254 +1,260 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parceiros - Admin Pet</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { display:flex; height:100vh; background:#f4f6f9; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Pet - Parceiros</title>
 
-    .sidebar {
-      width:250px; background:#2c3e50; color:#fff; display:flex; flex-direction:column; padding:20px;
-    }
-    .sidebar h2 { text-align:center; margin-bottom:30px; font-size:22px; }
-    .sidebar a {
-      color:#fff; text-decoration:none; padding:12px; display:flex; align-items:center;
-      transition:0.3s; border-radius:6px; margin-bottom:10px;
-    }
-    .sidebar a:hover { background:#1a252f; }
-    .sidebar a i { margin-right:10px; }
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, doc, updateDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
-    .main-content { flex:1; padding:20px; overflow:auto; }
-    header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-    header h1 { font-size:24px; color:#333; }
-    .search-bar {
-      display:flex; align-items:center; background:#fff; border-radius:8px; padding:6px 12px;
-      box-shadow:0 2px 5px rgba(0,0,0,0.1); width:100%; max-width:400px;
-    }
-    .search-bar input {
-      border:none; outline:none; padding:8px; flex:1; font-size:14px;
-    }
-    .search-bar i { color:#888; }
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_AUTH_DOMAIN",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_STORAGE_BUCKET",
+    messagingSenderId: "SEU_MESSAGING_SENDER_ID",
+    appId: "SEU_APP_ID"
+  };
 
-    .card {
-      background:#fff; padding:20px; border-radius:10px;
-      box-shadow:0 2px 6px rgba(0,0,0,0.1); margin-bottom:20px;
-    }
-    .card h3 { margin-bottom:15px; color:#444; }
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    table {
-      width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden;
-      box-shadow:0 2px 6px rgba(0,0,0,0.1);
-    }
-    table th, table td {
-      padding:12px 15px; text-align:left; border-bottom:1px solid #ddd;
-    }
-    table th { background:#2c3e50; color:#fff; }
-    table tr:hover { background:#f1f1f1; }
+  window.db = db;
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.doc = doc;
+  window.updateDoc = updateDoc;
+  window.getDocs = getDocs;
+  window.query = query;
+  window.where = where;
+</script>
 
-    form {
-      display:grid; gap:12px; margin-top:15px;
-      grid-template-columns:repeat(auto-fit, minmax(250px,1fr));
-    }
-    form input {
-      padding:10px; border:1px solid #ccc; border-radius:6px; font-size:14px;
-    }
-    button {
-      padding:10px 15px; background:#27ae60; color:#fff; border:none; border-radius:6px;
-      cursor:pointer; transition:0.3s;
-    }
-    button:hover { background:#219150; }
-  </style>
+<style>
+  body { font-family: Arial, sans-serif; background:#f5f5f5; margin:0; padding:0;}
+  .sidebar { width:220px; background:#1f1f1f; color:#fff; position:fixed; height:100%; padding-top:20px;}
+  .sidebar h2 { text-align:center; margin-bottom:30px;}
+  .sidebar a { display:block; padding:10px 20px; color:#fff; text-decoration:none;}
+  .sidebar a:hover { background:#333;}
+  .main { margin-left:220px; padding:20px;}
+  .card { background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; display:inline-block; width:23%; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+  input, select { width:100%; padding:8px; margin:5px 0 10px; border-radius:5px; border:1px solid #ccc;}
+  button { padding:10px 20px; border:none; border-radius:5px; background:#1f1f1f; color:#fff; cursor:pointer;}
+  button:hover { background:#333;}
+  .form-container { background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+  .chart-container { background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+</style>
 </head>
+
 <body>
-  <div class="sidebar">
-    <h2>Admin Pet</h2>
-    <a href="index.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
-    <a href="clientes.html"><i class="fas fa-users"></i>Clientes</a>
-    <a href="parceiros.html"><i class="fas fa-handshake"></i>Parceiros</a>
-    <a href="funcionarios.html"><i class="fas fa-user-tie"></i>Funcionários</a>
-    <a href="produtos.html"><i class="fas fa-box"></i>Produtos</a>
-    <a href="vendas.html"><i class="fas fa-shopping-cart"></i>Vendas & Resumos</a>
-    <a href="agendamentos.html"><i class="fas fa-calendar-alt"></i>Agendamentos</a>
+
+<div class="sidebar">
+  <h2>Admin Pet</h2>
+  <a href="index.html"><i class="fa fa-home"></i> Dashboard</a>
+  <a href="clientes.html"><i class="fa fa-users"></i> Clientes</a>
+  <a href="parceiros.html"><i class="fa fa-handshake"></i> Parceiros</a>
+  <a href="produtos.html"><i class="fa fa-box"></i> Produtos</a>
+</div>
+
+<div class="main">
+  <h1>Parceiros</h1>
+
+  <!-- KPIs -->
+  <div class="cards">
+    <div class="card"><h3 id="total-parceiros">0</h3><p>Total</p></div>
+    <div class="card"><h3 id="ativos-parceiros">0</h3><p>Ativos</p></div>
+    <div class="card"><h3 id="inativos-parceiros">0</h3><p>Inativos</p></div>
   </div>
 
-  <div class="main-content">
-    <header>
-      <h1>Gerenciar Parceiros</h1>
-      <div class="search-bar">
-        <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Pesquisar parceiro...">
-      </div>
-    </header>
+  <!-- Pesquisa -->
+  <div class="form-container">
+    <h3>Consultar Parceiro</h3>
+    <input type="text" id="pesquisa-parceiro" placeholder="Nome ou CNPJ">
+    <button onclick="consultarParceiro()">Buscar</button>
+  </div>
 
-<!-- Modal Cadastro / Edição Parceiro -->
-<div class="modal" id="modalParceiro">
-  <div class="modal-content">
-    <span class="modal-close" id="fecharModalParceiro">&times;</span>
-    <h2 id="modalTitleParceiro">Adicionar Parceiro</h2>
-    <form id="formParceiro">
-      
-      <fieldset>
-        <legend>Informações da Empresa</legend>
-        <label for="nomeEmpresa">Nome da Empresa *</label>
-        <input type="text" id="nomeEmpresa" required>
-        <label for="cnpjEmpresa">CNPJ / CPF *</label>
-        <input type="text" id="cnpjEmpresa" required>
-        <label for="telefoneEmpresa">Telefone *</label>
-        <input type="text" id="telefoneEmpresa" required>
-        <label for="cepEmpresa">CEP *</label>
-        <input type="text" id="cepEmpresa" required>
-        <label for="ruaEmpresa">Rua *</label>
-        <input type="text" id="ruaEmpresa" required>
-        <label for="numeroEmpresa">Número *</label>
-        <input type="text" id="numeroEmpresa" required>
-        <label for="bairroEmpresa">Bairro *</label>
-        <input type="text" id="bairroEmpresa" required>
-        <label for="cidadeEmpresa">Cidade *</label>
-        <input type="text" id="cidadeEmpresa" required>
-        <label for="estadoEmpresa">Estado *</label>
-        <input type="text" id="estadoEmpresa" required>
-        <label for="websiteEmpresa">Website / Redes Sociais</label>
-        <input type="text" id="websiteEmpresa" placeholder="https://">
-      </fieldset>
+  <!-- Cadastro/Alteração -->
+  <div class="form-container">
+    <h3>Adicionar / Alterar Parceiro</h3>
+    <input type="text" id="cnpj" placeholder="CNPJ / CPF">
+    <input type="text" id="nome_empresa" placeholder="Nome da Empresa">
+    <input type="text" id="telefone_empresa" placeholder="Telefone da Empresa">
+    <input type="email" id="email_empresa" placeholder="Email da Empresa">
+    <input type="text" id="nome_responsavel" placeholder="Nome do Responsável">
+    <input type="text" id="telefone_responsavel" placeholder="Telefone do Responsável">
+    <input type="email" id="email_responsavel" placeholder="Email do Responsável">
+    <input type="text" id="cep" placeholder="CEP">
+    <input type="text" id="rua" placeholder="Rua">
+    <input type="text" id="bairro" placeholder="Bairro">
+    <input type="text" id="cidade" placeholder="Cidade">
+    <input type="text" id="estado" placeholder="Estado">
+    <select id="tipo">
+      <option value="Banho/Tosa">Banho/Tosa</option>
+      <option value="Creche">Creche</option>
+      <option value="Clínica">Clínica</option>
+      <option value="Outro">Outro</option>
+    </select>
+    <select id="status">
+      <option value="Ativo">Ativo</option>
+      <option value="Inativo">Inativo</option>
+    </select>
+    <button onclick="salvarParceiro()">Salvar Parceiro</button>
+  </div>
 
-      <fieldset>
-        <legend>Serviços Oferecidos</legend>
-        <label><input type="checkbox" name="servicos" value="Banho e Tosa"> Banho e Tosa</label><br>
-        <label><input type="checkbox" name="servicos" value="Creche"> Creche</label><br>
-        <label><input type="checkbox" name="servicos" value="Hospedagem"> Hospedagem</label><br>
-        <label><input type="checkbox" name="servicos" value="Dog Walker"> Dog Walker</label><br>
-        <label><input type="checkbox" name="servicos" value="Pet Sitter"> Pet Sitter</label><br>
-        <label><input type="checkbox" name="servicos" value="Adestramento"> Adestramento</label><br>
-        <label for="outrosServicos">Outros (opcional)</label>
-        <input type="text" id="outrosServicos" placeholder="Descrever outros serviços">
-      </fieldset>
-
-      <fieldset>
-        <legend>Informações do Responsável</legend>
-        <label for="nomeResponsavel">Nome *</label>
-        <input type="text" id="nomeResponsavel" required>
-        <label for="telefoneResponsavel">Telefone *</label>
-        <input type="text" id="telefoneResponsavel" required>
-        <label for="emailResponsavel">E-mail *</label>
-        <input type="email" id="emailResponsavel" required>
-        <label for="cargoResponsavel">Cargo / Função</label>
-        <input type="text" id="cargoResponsavel">
-      </fieldset>
-
-      <fieldset>
-        <legend>Financeiro / Observações</legend>
-        <label for="faixaFaturamento">Faixa de Faturamento</label>
-        <input type="text" id="faixaFaturamento" placeholder="Ex: R$0-5.000">
-        <label for="formasPagamento">Formas de Pagamento</label>
-        <input type="text" id="formasPagamento" placeholder="Dinheiro, Cartão, Transferência">
-        <label for="limiteCredito">Limite de Crédito</label>
-        <input type="text" id="limiteCredito" placeholder="Ex: R$5.000">
-        <label for="observacoesParceiro">Observações</label>
-        <textarea id="observacoesParceiro" rows="3" placeholder="Notas internas"></textarea>
-        <label for="statusParceiro">Status</label>
-        <select id="statusParceiro">
-          <option value="ativo">Ativo</option>
-          <option value="inativo">Inativo</option>
-          <option value="vip">VIP</option>
-        </select>
-      </fieldset>
-
-      <button type="submit" id="btnSalvarParceiro">Salvar</button>
-      <p id="mensagemCadastroParceiro"></p>
-    </form>
+  <!-- Gráficos -->
+  <div class="chart-container">
+    <h3>Parceiros por Tipo</h3>
+    <canvas id="graficoTipo"></canvas>
+  </div>
+  <div class="chart-container">
+    <h3>Novos Parceiros por Mês</h3>
+    <canvas id="graficoMes"></canvas>
   </div>
 </div>
 
-    <div class="card">
-      <h3>Lista de Parceiros</h3>
-      <table id="partnersTable">
-        <thead>
-          <tr>
-            <th>Empresa</th>
-            <th>Responsável</th>
-            <th>Telefone</th>
-            <th>Email</th>
-            <th>Endereço</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
+<script>
+  const db = window.db;
+  const parceirosCollection = window.collection(db, "parceiros");
 
-  <script>
-    const firebaseConfig = {
-  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
-  authDomain: "site-f6495.firebaseapp.com",
-  projectId: "site-f6495",
-  storageBucket: "site-f6495.firebasestorage.app",
-  messagingSenderId: "230161402024",
-  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
-  measurementId: "G-51G8XF6JH0"
-};
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    const form = document.getElementById("partnerForm");
-    const tableBody = document.querySelector("#partnersTable tbody");
-    const searchInput = document.getElementById("searchInput");
-
-    form.addEventListener("submit", function(e){
-      e.preventDefault();
-      const partner = {
-        cnpj: document.getElementById("cnpj").value,
-        empresa: document.getElementById("empresa").value,
-        telefoneEmpresa: document.getElementById("telefoneEmpresa").value,
-        emailEmpresa: document.getElementById("emailEmpresa").value,
-        responsavel: document.getElementById("responsavel").value,
-        telefoneResponsavel: document.getElementById("telefoneResponsavel").value,
-        emailResponsavel: document.getElementById("emailResponsavel").value,
-        cep: document.getElementById("cep").value,
-        endereco: document.getElementById("endereco").value,
-      };
-      const newRef = db.ref("parceiros").push();
-      newRef.set(partner);
-      form.reset();
-    });
-
-    function renderTable(snapshot) {
-      tableBody.innerHTML = "";
-      snapshot.forEach(child => {
-        const p = child.val();
-        const row = `
-          <tr>
-            <td>${p.empresa}</td>
-            <td>${p.responsavel}</td>
-            <td>${p.telefoneEmpresa}</td>
-            <td>${p.emailEmpresa}</td>
-            <td>${p.endereco}</td>
-          </tr>`;
-        tableBody.innerHTML += row;
-      });
-    }
-
-    db.ref("parceiros").on("value", renderTable);
-
-    searchInput.addEventListener("input", function(){
-      const filter = searchInput.value.toLowerCase();
-      const rows = tableBody.getElementsByTagName("tr");
-      for (let i=0; i<rows.length; i++) {
-        const cells = rows[i].getElementsByTagName("td");
-        let show = false;
-        for (let j=0; j<cells.length; j++) {
-          if (cells[j].innerText.toLowerCase().includes(filter)) {
-            show = true; break;
+  // CEP responsivo
+  document.getElementById('cep').addEventListener('blur', () => {
+    const cep = document.getElementById('cep').value.replace(/\D/g, '');
+    if(cep.length === 8){
+      fetch(`https://viacep.com.br/ws/${cep}/json/`)
+        .then(response => response.json())
+        .then(dados => {
+          if (!dados.erro) {
+            document.getElementById('rua').value = dados.logradouro;
+            document.getElementById('bairro').value = dados.bairro;
+            document.getElementById('cidade').value = dados.localidade;
+            document.getElementById('estado').value = dados.uf;
+          } else {
+            alert('CEP não encontrado!');
           }
-        }
-        rows[i].style.display = show ? "" : "none";
+        });
+    }
+  });
+
+  async function salvarParceiro(){
+    const parceiro = {
+      cnpj: document.getElementById('cnpj').value,
+      nome_empresa: document.getElementById('nome_empresa').value,
+      telefone_empresa: document.getElementById('telefone_empresa').value,
+      email_empresa: document.getElementById('email_empresa').value,
+      nome_responsavel: document.getElementById('nome_responsavel').value,
+      telefone_responsavel: document.getElementById('telefone_responsavel').value,
+      email_responsavel: document.getElementById('email_responsavel').value,
+      endereco: `${document.getElementById('rua').value}, ${document.getElementById('bairro').value}, ${document.getElementById('cidade').value} - ${document.getElementById('estado').value}`,
+      tipo: document.getElementById('tipo').value,
+      status: document.getElementById('status').value,
+      created_at: new Date().toISOString()
+    };
+    try {
+      await window.addDoc(parceirosCollection, parceiro);
+      alert('Parceiro salvo com sucesso!');
+      carregarKpis();
+      carregarGraficos();
+    } catch (e) {
+      console.error(e);
+      alert('Erro ao salvar parceiro!');
+    }
+  }
+
+  async function consultarParceiro(){
+    const pesquisa = document.getElementById('pesquisa-parceiro').value.toLowerCase();
+    const snapshot = await window.getDocs(parceirosCollection);
+    let encontrado = false;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if(data.nome_empresa.toLowerCase() === pesquisa || data.cnpj === pesquisa){
+        encontrado = true;
+        // Preenche formulário para edição
+        document.getElementById('cnpj').value = data.cnpj;
+        document.getElementById('nome_empresa').value = data.nome_empresa;
+        document.getElementById('telefone_empresa').value = data.telefone_empresa;
+        document.getElementById('email_empresa').value = data.email_empresa;
+        document.getElementById('nome_responsavel').value = data.nome_responsavel;
+        document.getElementById('telefone_responsavel').value = data.telefone_responsavel;
+        document.getElementById('email_responsavel').value = data.email_responsavel;
+        const endParts = data.endereco.split(',');
+        document.getElementById('rua').value = endParts[0] || '';
+        document.getElementById('bairro').value = endParts[1] || '';
+        document.getElementById('cidade').value = endParts[2]?.split('-')[0].trim() || '';
+        document.getElementById('estado').value = endParts[2]?.split('-')[1]?.trim() || '';
+        document.getElementById('tipo').value = data.tipo;
+        document.getElementById('status').value = data.status;
       }
     });
-  </script>
+    if(!encontrado) alert('Parceiro não encontrado!');
+  }
+
+  // KPIs
+  async function carregarKpis(){
+    const snapshot = await window.getDocs(parceirosCollection);
+    let total=0, ativos=0, inativos=0;
+    snapshot.forEach(doc => {
+      total++;
+      const data = doc.data();
+      if(data.status === "Ativo") ativos++;
+      else inativos++;
+    });
+    document.getElementById('total-parceiros').innerText = total;
+    document.getElementById('ativos-parceiros').innerText = ativos;
+    document.getElementById('inativos-parceiros').innerText = inativos;
+  }
+
+  // Gráficos
+  async function carregarGraficos(){
+    const snapshot = await window.getDocs(parceirosCollection);
+    const tipos = {};
+    const meses = {};
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      tipos[data.tipo] = (tipos[data.tipo] || 0) + 1;
+
+      const mes = new Date(data.created_at).toLocaleString('pt-BR', { month:'short', year:'numeric'});
+      meses[mes] = (meses[mes] || 0) +1;
+    });
+
+    // Tipo de parceiro
+    const ctx1 = document.getElementById('graficoTipo').getContext('2d');
+    new Chart(ctx1, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(tipos),
+        datasets: [{
+          data: Object.values(tipos),
+          backgroundColor: ['#1f77b4','#ff7f0e','#2ca02c','#d62728']
+        }]
+      }
+    });
+
+    // Novos parceiros por mês
+    const ctx2 = document.getElementById('graficoMes').getContext('2d');
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(meses),
+        datasets: [{
+          label: 'Novos Parceiros',
+          data: Object.values(meses),
+          backgroundColor: '#1f77b4'
+        }]
+      },
+      options: { responsive:true, plugins: { legend:{ display:false } } }
+    });
+  }
+
+  // Inicializa KPIs e gráficos
+  carregarKpis();
+  carregarGraficos();
+</script>
+
 </body>
 </html>
