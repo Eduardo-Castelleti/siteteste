@@ -80,6 +80,12 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 <div class="card faturamento"><h3>Faturamento</h3><p id="parceirosFaturamento">R$ 0,00</p></div>
 </div>
 
+<div class="graphs">
+<canvas id="graficoVendas"></canvas>
+<canvas id="graficoCombos"></canvas>
+<canvas id="graficoFaturamento"></canvas>
+</div>
+
 <div class="search-bar">
 <input type="text" id="buscaParceiro" placeholder="Pesquisar por nome, CNPJ, e-mail, telefone">
 <select id="filtroStatus" multiple>
@@ -106,10 +112,10 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 <input type="email" id="emailParceiro" required>
 <label for="responsavelParceiro">Responsável *</label>
 <input type="text" id="responsavelParceiro" required>
-<label for="telefoneRespParceiro">Telefone Responsável</label>
-<input type="text" id="telefoneRespParceiro" placeholder="(99) 99999-9999">
-<label for="emailRespParceiro">E-mail Responsável</label>
-<input type="email" id="emailRespParceiro">
+<label for="telefoneRespParceiro">Telefone Resp *</label>
+<input type="text" id="telefoneRespParceiro" required>
+<label for="emailRespParceiro">E-mail Resp *</label>
+<input type="email" id="emailRespParceiro" required>
 <label for="enderecoParceiro">Endereço</label>
 <input type="text" id="enderecoParceiro">
 <button type="submit" id="btnSalvar">Salvar</button>
@@ -123,7 +129,7 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 <table id="tabelaParceiros">
 <thead>
 <tr>
-<th>Nome</th><th>CNPJ</th><th>E-mail</th><th>Telefone</th><th>Status</th><th>Responsável</th><th>Telefone Resp</th><th>E-mail Resp</th><th>Endereço</th>
+<th>Nome</th><th>CNPJ</th><th>Telefone</th><th>E-mail</th><th>Responsável</th><th>Telefone Resp</th><th>E-mail Resp</th><th>Endereço</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -171,48 +177,39 @@ window.onclick = e=>{
   }
 };
 
-// Atualizar lista
-function atualizarParceiros(snapshot){
+// Atualizar KPIs
+function atualizarKPIs(snapshot){
+    let total=0, ativos=0, vendas=0, combos=0, faturamento=0;
+    snapshot.forEach(doc=>{
+        const p = doc.data();
+        total++;
+        if(p.status==="ativo") ativos++;
+        vendas += p.vendas || 0;
+        combos += p.combos || 0;
+        faturamento += p.faturamento || 0;
+    });
+    document.getElementById("totalParceiros").textContent=total;
+    document.getElementById("parceirosAtivos").textContent=ativos;
+    document.getElementById("parceirosVendas").textContent=vendas;
+    document.getElementById("parceirosCombos").textContent=combos;
+    document.getElementById("parceirosFaturamento").textContent="R$ "+faturamento.toFixed(2);
+}
+
+// Carregar parceiros
+function atualizarTabela(snapshot){
     const tbody=document.querySelector("#tabelaParceiros tbody");
     tbody.innerHTML="";
     snapshot.forEach(doc=>{
-        const p=doc.data();
+        const p = doc.data();
+        p.id=doc.id;
         const tr=document.createElement("tr");
-        tr.innerHTML=`
-        <td>${p.nome}</td>
-        <td>${p.cnpj}</td>
-        <td>${p.email}</td>
-        <td>${p.telefone}</td>
-        <td>${p.status}</td>
-        <td>${p.responsavel||''}</td>
-        <td>${p.telefoneResp||''}</td>
-        <td>${p.emailResp||''}</td>
-        <td>${p.endereco||''}</td>`;
-        tr.onclick = ()=>abrirEdicaoParceiro(doc.id,p);
+        tr.innerHTML=`<td>${p.nome}</td><td>${p.cnpj||''}</td><td>${p.telefone||''}</td><td>${p.email||''}</td><td>${p.responsavel||''}</td>
+            <td>${p.telefoneResp||''}</td><td>${p.emailResp||''}</td><td>${p.endereco||''}</td>`;
+        tr.onclick = ()=>abrirEdicaoParceiro(p.id,p);
         tbody.appendChild(tr);
     });
+    atualizarKPIs(snapshot);
 }
-db.collection("parceiros").onSnapshot(snapshot=>{
-    atualizarParceiros(snapshot.docs);
-
-    // Atualizar KPIs
-    const total = snapshot.size;
-    let ativos = 0, vendas = 0, combos = 0, faturamento = 0;
-    snapshot.forEach(doc=>{
-        const p = doc.data();
-        if(p.status==="ativo") ativos++;
-        if(p.kpis){
-            vendas += p.kpis.vendas || 0;
-            combos += p.kpis.combos_vendidos || 0;
-            faturamento += p.kpis.faturamento || 0;
-        }
-    });
-    document.getElementById("totalParceiros").textContent = total;
-    document.getElementById("parceirosAtivos").textContent = ativos;
-    document.getElementById("parceirosVendas").textContent = vendas;
-    document.getElementById("parceirosCombos").textContent = combos;
-    document.getElementById("parceirosFaturamento").textContent = `R$ ${faturamento.toFixed(2)}`;
-});
 
 // Abrir edição
 function abrirEdicaoParceiro(id,data){
@@ -233,53 +230,54 @@ function abrirEdicaoParceiro(id,data){
 // Salvar parceiro
 document.getElementById("formCadastro").addEventListener("submit", async (e)=>{
     e.preventDefault();
-    const nome = document.getElementById("nomeParceiro").value.trim();
-    const cnpj = document.getElementById("cnpjParceiro").value.trim();
-    const telefone = document.getElementById("telefoneParceiro").value.trim();
-    const email = document.getElementById("emailParceiro").value.trim();
-    const responsavel = document.getElementById("responsavelParceiro").value.trim();
-    const telefoneResp = document.getElementById("telefoneRespParceiro").value.trim();
-    const emailResp = document.getElementById("emailRespParceiro").value.trim();
-    const endereco = document.getElementById("enderecoParceiro").value.trim();
-    const mensagem = document.getElementById("mensagemCadastro");
+    const nome=document.getElementById("nomeParceiro").value.trim();
+    const cnpj=document.getElementById("cnpjParceiro").value.trim();
+    const telefone=document.getElementById("telefoneParceiro").value.trim();
+    const email=document.getElementById("emailParceiro").value.trim();
+    const responsavel=document.getElementById("responsavelParceiro").value.trim();
+    const telefoneResp=document.getElementById("telefoneRespParceiro").value.trim();
+    const emailResp=document.getElementById("emailRespParceiro").value.trim();
+    const endereco=document.getElementById("enderecoParceiro").value.trim();
+    const mensagem=document.getElementById("mensagemCadastro");
 
-    if(!nome || !cnpj || !telefone || !email || !responsavel){
-        mensagem.style.color="red"; 
-        mensagem.textContent="Preencha todos os campos obrigatórios"; 
-        return;
+    if(!nome||!cnpj||!telefone||!email||!responsavel||!telefoneResp||!emailResp){
+      mensagem.style.color="red"; 
+      mensagem.textContent="Preencha todos os campos obrigatórios"; 
+      return;
     }
 
     try{
-        const status = parceiroAtual ? statusAtual : "ativo";
-
         if(parceiroAtual){
             await db.collection("parceiros").doc(parceiroAtual).update({
-                nome, cnpj, telefone, email, responsavel, telefoneResp, emailResp, endereco, status
+                nome, cnpj, telefone, email, responsavel, telefoneResp, emailResp, endereco
             });
             mensagem.style.color="green";
             mensagem.textContent="Parceiro atualizado com sucesso!";
         }else{
             const senha=Math.random().toString(36).slice(-8)+"A1!";
-            const userCredential = await auth.createUserWithEmailAndPassword(email, senha);
+            const userCredential=await auth.createUserWithEmailAndPassword(email,senha);
             await db.collection("parceiros").doc(userCredential.user.uid).set({
                 nome, cnpj, telefone, email, responsavel, telefoneResp, emailResp, endereco,
-                cadastro:new Date().toISOString(),
-                status:"ativo",
-                kpis:{vendas:0, combos_vendidos:0, faturamento:0}
+                status:"ativo", vendas:0, combos:0, faturamento:0, cadastro:new Date().toISOString()
             });
             mensagem.style.color="green";
             mensagem.textContent="Parceiro cadastrado com sucesso!";
         }
         setTimeout(()=>{
-            modal.style.display="none";
-            document.getElementById("formCadastro").reset();
-            mensagem.textContent="";
+          modal.style.display="none"; 
+          document.getElementById("formCadastro").reset(); 
+          mensagem.textContent="";
         },1500);
     }catch(error){
         console.error(error);
         mensagem.style.color="red"; 
         mensagem.textContent=error.message;
     }
+});
+
+// Snapshot
+db.collection("parceiros").onSnapshot(snapshot=>{
+    atualizarTabela(snapshot.docs);
 });
 
 // Filtro simples
@@ -289,40 +287,80 @@ document.getElementById("btnBuscar").addEventListener("click",()=>{
         snapshot.forEach(doc=>{resultados.push({...doc.data(), id:doc.id});});
         const busca=document.getElementById("buscaParceiro").value.toLowerCase();
         const statusSel=[...document.getElementById("filtroStatus").selectedOptions].map(o=>o.value);
-
         const filtrados=resultados.filter(p=>{
             let incluir=true;
-            if(busca && !(
-                p.nome.toLowerCase().includes(busca) ||
-                p.cnpj.toLowerCase().includes(busca) ||
-                p.email.toLowerCase().includes(busca) ||
-                p.telefone.toLowerCase().includes(busca)
-            )) incluir=false;
+            if(busca && !p.nome.toLowerCase().includes(busca)) incluir=false;
             if(statusSel.length && !statusSel.includes(p.status)) incluir=false;
             return incluir;
         });
-
         const tbody=document.querySelector("#tabelaParceiros tbody");
         tbody.innerHTML="";
         filtrados.forEach(p=>{
-            const tr=document.createElement("tr");
-            tr.innerHTML=`
-            <td>${p.nome}</td>
-            <td>${p.cnpj}</td>
-            <td>${p.email}</td>
-            <td>${p.telefone}</td>
-            <td>${p.status}</td>
-            <td>${p.responsavel||''}</td>
-            <td>${p.telefoneResp||''}</td>
-            <td>${p.emailResp||''}</td>
-            <td>${p.endereco||''}</td>`;
-            tr.onclick = ()=>abrirEdicaoParceiro(p.id,p);
-            tbody.appendChild(tr);
+          const tr=document.createElement("tr");
+          tr.innerHTML=`<td>${p.nome}</td><td>${p.cnpj||''}</td><td>${p.telefone||''}</td><td>${p.email||''}</td><td>${p.responsavel||''}</td>
+            <td>${p.telefoneResp||''}</td><td>${p.emailResp||''}</td><td>${p.endereco||''}</td>`;
+          tr.onclick = ()=>abrirEdicaoParceiro(p.id,p);
+          tbody.appendChild(tr);
         });
     });
 });
-</script>
 
-</div>
+// Exportar CSV
+document.getElementById('btnExportar').addEventListener('click',()=>{
+    let csv="Nome,CNPJ,Telefone,E-mail,Responsável,Telefone Resp,E-mail Resp,Endereço\n";
+    document.querySelectorAll("#tabelaParceiros tbody tr").forEach(r=>{
+        const cols=r.querySelectorAll("td");
+        csv+=Array.from(cols).map(c=>c.textContent.replace(/,/g,";")).join(",")+"\n";
+    });
+    const blob=new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const link=document.createElement("a");
+    link.href=URL.createObjectURL(blob);
+    link.download="parceiros.csv";
+    link.click();
+});
+
+// Gráficos
+let chartVendas, chartCombos, chartFaturamento;
+
+function atualizarGraficos(snapshot){
+    const labels=[], dataVendas=[], dataCombos=[], dataFaturamento=[];
+    snapshot.forEach(doc=>{
+        const p=doc.data();
+        labels.push(p.nome);
+        dataVendas.push(p.vendas||0);
+        dataCombos.push(p.combos||0);
+        dataFaturamento.push(p.faturamento||0);
+    });
+
+    const ctxVendas=document.getElementById('graficoVendas').getContext('2d');
+    const ctxCombos=document.getElementById('graficoCombos').getContext('2d');
+    const ctxFaturamento=document.getElementById('graficoFaturamento').getContext('2d');
+
+    if(chartVendas) chartVendas.destroy();
+    if(chartCombos) chartCombos.destroy();
+    if(chartFaturamento) chartFaturamento.destroy();
+
+    chartVendas=new Chart(ctxVendas,{
+        type:'bar',
+        data:{labels, datasets:[{label:'Vendas', data:dataVendas, backgroundColor:'#1abc9c'}]},
+        options:{responsive:true, plugins:{legend:{display:false}}}
+    });
+    chartCombos=new Chart(ctxCombos,{
+        type:'bar',
+        data:{labels, datasets:[{label:'Combos Vendidos', data:dataCombos, backgroundColor:'#8e44ad'}]},
+        options:{responsive:true, plugins:{legend:{display:false}}}
+    });
+    chartFaturamento=new Chart(ctxFaturamento,{
+        type:'bar',
+        data:{labels, datasets:[{label:'Faturamento (R$)', data:dataFaturamento, backgroundColor:'#e74c3c'}]},
+        options:{responsive:true, plugins:{legend:{display:false}}}
+    });
+}
+
+// Atualizar gráficos em tempo real
+db.collection("parceiros").onSnapshot(snapshot=>{
+    atualizarGraficos(snapshot.docs);
+});
+</script>
 </body>
 </html>
