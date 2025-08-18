@@ -25,10 +25,9 @@ h1 button:hover {background:#2ecc71;}
 .card h3 {margin-bottom:10px; font-size:16px;}
 .card p {font-size:20px; font-weight:700;}
 .card.total {background:#2980b9;}
-.card.ativos {background:#1abc9c;}
-.card.vendas {background:#27ae60;}
-.card.combos {background:#8e44ad;}
-.card.faturamento {background:#e74c3c;}
+.card.novos {background:#1abc9c;}
+.card.ativos {background:#27ae60;}
+.card.inativos {background:#e74c3c;}
 .search-bar {margin-bottom:20px; display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:10px; flex-wrap:wrap;}
 .search-bar input, .search-bar select {padding:10px; border-radius:5px; border:1px solid #ccc;}
 .search-bar button {padding:10px 15px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
@@ -40,14 +39,18 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 .partner-list table th, .partner-list table td {padding:10px; border-bottom:1px solid #ddd; text-align:left; cursor:pointer;}
 .partner-list table tr:hover {background:#f0f0f0;}
 .modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999;}
-.modal-content {background:#fff; padding:20px; border-radius:10px; width:450px; max-width:90%; position:relative;}
+.modal-content {background:#fff; padding:20px; border-radius:10px; width:600px; max-width:95%; position:relative; max-height:90vh; overflow-y:auto;}
 .modal-content h2 {margin-bottom:15px;}
 .modal-content label {display:block; margin-top:10px;}
-.modal-content input, .modal-content select {width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc;}
+.modal-content input, .modal-content select, .modal-content textarea {width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc;}
 .modal-content button {margin-top:15px; padding:10px 15px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer;}
 .modal-content button:hover {background:#2ecc71;}
 .modal-close {position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;}
 #mensagemCadastro{margin-top:10px; font-weight:500;}
+.tabs {display:flex; margin-bottom:10px;}
+.tablink {flex:1; padding:10px; cursor:pointer; background:#ecf0f1; border:none; border-bottom:2px solid transparent; transition:0.3s;}
+.tablink.active {background:#fff; border-bottom:2px solid #27ae60;}
+.tabcontent {display:none; margin-top:10px;}
 </style>
 </head>
 <body>
@@ -74,20 +77,17 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 
 <div class="cards">
 <div class="card total"><h3>Total de Parceiros</h3><p id="totalParceiros">0</p></div>
-<div class="card ativos"><h3>Ativos</h3><p id="parceirosAtivos">0</p></div>
-<div class="card vendas"><h3>Vendas</h3><p id="parceirosVendas">0</p></div>
-<div class="card combos"><h3>Combos Vendidos</h3><p id="parceirosCombos">0</p></div>
-<div class="card faturamento"><h3>Faturamento</h3><p id="parceirosFaturamento">R$ 0,00</p></div>
+<div class="card novos"><h3>Novos no Mês</h3><p id="novosParceiros">0</p></div>
+<div class="card ativos"><h3>Ativos</h3><p id="ativosParceiros">0</p></div>
+<div class="card inativos"><h3>Inativos</h3><p id="inativosParceiros">0</p></div>
 </div>
 
 <div class="graphs">
-<canvas id="graficoVendas"></canvas>
-<canvas id="graficoCombos"></canvas>
-<canvas id="graficoFaturamento"></canvas>
+<canvas id="graficoServicos"></canvas>
 </div>
 
 <div class="search-bar">
-<input type="text" id="buscaParceiro" placeholder="Pesquisar por nome, CNPJ, e-mail, telefone">
+<input type="text" id="buscaParceiro" placeholder="Pesquisar por nome, e-mail, telefone, CNPJ">
 <select id="filtroStatus" multiple>
 <option value="ativo">Ativo</option>
 <option value="inativo">Inativo</option>
@@ -98,30 +98,66 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 
 <!-- Modal Cadastro / Edição -->
 <div class="modal" id="modalCadastro">
-<div class="modal-content">
-<span class="modal-close" id="fecharModal">&times;</span>
-<h2 id="modalTitle">Adicionar Parceiro</h2>
-<form id="formCadastro">
-<label for="nomeParceiro">Nome *</label>
-<input type="text" id="nomeParceiro" required>
-<label for="cnpjParceiro">CNPJ *</label>
-<input type="text" id="cnpjParceiro" placeholder="00.000.000/0000-00" required>
-<label for="telefoneParceiro">Telefone *</label>
-<input type="text" id="telefoneParceiro" placeholder="(99) 99999-9999" required>
-<label for="emailParceiro">E-mail *</label>
-<input type="email" id="emailParceiro" required>
-<label for="responsavelParceiro">Responsável *</label>
-<input type="text" id="responsavelParceiro" required>
-<label for="telefoneRespParceiro">Telefone Resp *</label>
-<input type="text" id="telefoneRespParceiro" required>
-<label for="emailRespParceiro">E-mail Resp *</label>
-<input type="email" id="emailRespParceiro" required>
-<label for="enderecoParceiro">Endereço</label>
-<input type="text" id="enderecoParceiro">
-<button type="submit" id="btnSalvar">Salvar</button>
-<p id="mensagemCadastro"></p>
-</form>
-</div>
+  <div class="modal-content">
+    <span class="modal-close" id="fecharModal">&times;</span>
+    <h2 id="modalTitle">Adicionar Parceiro</h2>
+
+    <!-- Abas -->
+    <div class="tabs">
+      <button type="button" class="tablink active" data-tab="empresa">Empresa</button>
+      <button type="button" class="tablink" data-tab="servicos">Serviços</button>
+      <button type="button" class="tablink" data-tab="responsavel">Responsável</button>
+      <button type="button" class="tablink" data-tab="financeiro">Financeiro</button>
+    </div>
+
+    <form id="formCadastro">
+      <div class="tabcontent" id="empresa" style="display:block;">
+        <label>Nome da Empresa *</label><input type="text" id="nomeEmpresa" required>
+        <label>CNPJ / CPF *</label><input type="text" id="cnpjCpf" required>
+        <label>Telefone *</label><input type="text" id="telefoneEmpresa" required>
+        <label>CEP *</label><input type="text" id="cep" required>
+        <label>Rua</label><input type="text" id="rua">
+        <label>Número</label><input type="text" id="numero">
+        <label>Bairro</label><input type="text" id="bairro">
+        <label>Cidade</label><input type="text" id="cidade">
+        <label>Estado</label><input type="text" id="estado">
+        <label>WebSite / Redes sociais</label><input type="text" id="website">
+      </div>
+
+      <div class="tabcontent" id="servicos">
+        <label><input type="checkbox" value="Banho & Tosa" class="servico"> Banho & Tosa</label>
+        <label><input type="checkbox" value="Creche" class="servico"> Creche</label>
+        <label><input type="checkbox" value="Hospedagem" class="servico"> Hospedagem</label>
+        <label><input type="checkbox" value="Dog Walker" class="servico"> Dog Walker</label>
+        <label><input type="checkbox" value="Pet Sitter" class="servico"> Pet Sitter</label>
+        <label><input type="checkbox" value="Adestramento" class="servico"> Adestramento</label>
+        <label><input type="checkbox" value="Outros" id="outrosCheck"> Outros</label>
+        <input type="text" id="outrosDescricao" placeholder="Descrever outros serviços" style="display:none;">
+      </div>
+
+      <div class="tabcontent" id="responsavel">
+        <label>Nome *</label><input type="text" id="nomeResp" required>
+        <label>Telefone *</label><input type="text" id="telefoneResp" required>
+        <label>E-mail *</label><input type="email" id="emailResp" required>
+        <label>Cargo / Função</label><input type="text" id="cargoResp">
+      </div>
+
+      <div class="tabcontent" id="financeiro">
+        <label>Faixa de Faturamento</label><input type="text" id="faixaFaturamento">
+        <label>Formas de pagamento</label><input type="text" id="formasPagamento">
+        <label>Limite de Crédito</label><input type="text" id="limiteCredito">
+        <label>Observações</label><textarea id="observacoes"></textarea>
+        <label>Status *</label>
+        <select id="statusParceiro">
+          <option value="ativo">Ativo</option>
+          <option value="inativo">Inativo</option>
+        </select>
+      </div>
+
+      <button type="submit" id="btnSalvar">Salvar Parceiro</button>
+      <p id="mensagemCadastro"></p>
+    </form>
+  </div>
 </div>
 
 <div class="partner-list">
@@ -129,7 +165,7 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 <table id="tabelaParceiros">
 <thead>
 <tr>
-<th>Nome</th><th>CNPJ</th><th>Telefone</th><th>E-mail</th><th>Responsável</th><th>Telefone Resp</th><th>E-mail Resp</th><th>Endereço</th>
+<th>Empresa</th><th>CNPJ</th><th>Telefone</th><th>Status</th><th>Serviços</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -139,6 +175,7 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
@@ -148,218 +185,149 @@ const firebaseConfig = {
   messagingSenderId: "230161402024",
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
-}; 
+};
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
 // Modal
-let parceiroAtual = null;
-let statusAtual = "ativo";
-
 const modal = document.getElementById("modalCadastro");
 document.getElementById("btnAbrirCadastro").onclick = ()=>{
-    modal.style.display="flex";
-    document.getElementById("modalTitle").textContent="Adicionar Parceiro";
-    parceiroAtual=null;
-    statusAtual="ativo";
+  modal.style.display="flex";
+  document.getElementById("modalTitle").textContent="Adicionar Parceiro";
 };
 document.getElementById("fecharModal").onclick = ()=>{
-    modal.style.display="none";
-    document.getElementById("formCadastro").reset();
-    document.getElementById("mensagemCadastro").textContent="";
+  modal.style.display="none"; document.getElementById("formCadastro").reset();
+  document.getElementById("mensagemCadastro").textContent="";
 };
 window.onclick = e=>{
-  if(e.target==modal){
-    modal.style.display="none"; 
-    document.getElementById("formCadastro").reset(); 
-    document.getElementById("mensagemCadastro").textContent="";
-  }
+  if(e.target==modal){ modal.style.display="none"; document.getElementById("formCadastro").reset(); document.getElementById("mensagemCadastro").textContent="";}
 };
 
-// Atualizar KPIs
-function atualizarKPIs(snapshot){
-    let total=0, ativos=0, vendas=0, combos=0, faturamento=0;
-    snapshot.forEach(doc=>{
-        const p = doc.data();
-        total++;
-        if(p.status==="ativo") ativos++;
-        vendas += p.vendas || 0;
-        combos += p.combos || 0;
-        faturamento += p.faturamento || 0;
-    });
-    document.getElementById("totalParceiros").textContent=total;
-    document.getElementById("parceirosAtivos").textContent=ativos;
-    document.getElementById("parceirosVendas").textContent=vendas;
-    document.getElementById("parceirosCombos").textContent=combos;
-    document.getElementById("parceirosFaturamento").textContent="R$ "+faturamento.toFixed(2);
-}
+// Abas
+document.querySelectorAll(".tablink").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".tablink").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    const tabId = tab.dataset.tab;
+    document.querySelectorAll(".tabcontent").forEach(tc=>tc.style.display="none");
+    document.getElementById(tabId).style.display="block";
+  });
+});
 
-// Carregar parceiros
-function atualizarTabela(snapshot){
-    const tbody=document.querySelector("#tabelaParceiros tbody");
-    tbody.innerHTML="";
-    snapshot.forEach(doc=>{
-        const p = doc.data();
-        p.id=doc.id;
-        const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${p.nome}</td><td>${p.cnpj||''}</td><td>${p.telefone||''}</td><td>${p.email||''}</td><td>${p.responsavel||''}</td>
-            <td>${p.telefoneResp||''}</td><td>${p.emailResp||''}</td><td>${p.endereco||''}</td>`;
-        tr.onclick = ()=>abrirEdicaoParceiro(p.id,p);
-        tbody.appendChild(tr);
-    });
-    atualizarKPIs(snapshot);
-}
+// Serviços Outros
+document.getElementById("outrosCheck").addEventListener("change", ()=>{
+  document.getElementById("outrosDescricao").style.display = document.getElementById("outrosCheck").checked ? "block" : "none";
+});
 
-// Abrir edição
-function abrirEdicaoParceiro(id,data){
-    parceiroAtual=id;
-    statusAtual = data.status || "ativo";
-    modal.style.display="flex";
-    document.getElementById("modalTitle").textContent="Editar Parceiro";
-    document.getElementById("nomeParceiro").value=data.nome||"";
-    document.getElementById("cnpjParceiro").value=data.cnpj||"";
-    document.getElementById("telefoneParceiro").value=data.telefone||"";
-    document.getElementById("emailParceiro").value=data.email||"";
-    document.getElementById("responsavelParceiro").value=data.responsavel||"";
-    document.getElementById("telefoneRespParceiro").value=data.telefoneResp||"";
-    document.getElementById("emailRespParceiro").value=data.emailResp||"";
-    document.getElementById("enderecoParceiro").value=data.endereco||"";
-}
+// CEP
+document.getElementById("cep").addEventListener("blur", async ()=>{
+  const cep = document.getElementById("cep").value.replace(/\D/g,'');
+  if(cep.length===8){
+    try{
+      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await res.json();
+      if(!data.erro){
+        document.getElementById("rua").value=data.logradouro;
+        document.getElementById("bairro").value=data.bairro;
+        document.getElementById("cidade").value=data.localidade;
+        document.getElementById("estado").value=data.uf;
+      }
+    }catch(err){console.error("CEP error",err);}
+  }
+});
 
 // Salvar parceiro
-document.getElementById("formCadastro").addEventListener("submit", async (e)=>{
-    e.preventDefault();
-    const nome=document.getElementById("nomeParceiro").value.trim();
-    const cnpj=document.getElementById("cnpjParceiro").value.trim();
-    const telefone=document.getElementById("telefoneParceiro").value.trim();
-    const email=document.getElementById("emailParceiro").value.trim();
-    const responsavel=document.getElementById("responsavelParceiro").value.trim();
-    const telefoneResp=document.getElementById("telefoneRespParceiro").value.trim();
-    const emailResp=document.getElementById("emailRespParceiro").value.trim();
-    const endereco=document.getElementById("enderecoParceiro").value.trim();
-    const mensagem=document.getElementById("mensagemCadastro");
-
-    if(!nome||!cnpj||!telefone||!email||!responsavel||!telefoneResp||!emailResp){
-      mensagem.style.color="red"; 
-      mensagem.textContent="Preencha todos os campos obrigatórios"; 
-      return;
-    }
-
-    try{
-        if(parceiroAtual){
-            await db.collection("parceiros").doc(parceiroAtual).update({
-                nome, cnpj, telefone, email, responsavel, telefoneResp, emailResp, endereco
-            });
-            mensagem.style.color="green";
-            mensagem.textContent="Parceiro atualizado com sucesso!";
-        }else{
-            const senha=Math.random().toString(36).slice(-8)+"A1!";
-            const userCredential=await auth.createUserWithEmailAndPassword(email,senha);
-            await db.collection("parceiros").doc(userCredential.user.uid).set({
-                nome, cnpj, telefone, email, responsavel, telefoneResp, emailResp, endereco,
-                status:"ativo", vendas:0, combos:0, faturamento:0, cadastro:new Date().toISOString()
-            });
-            mensagem.style.color="green";
-            mensagem.textContent="Parceiro cadastrado com sucesso!";
-        }
-        setTimeout(()=>{
-          modal.style.display="none"; 
-          document.getElementById("formCadastro").reset(); 
-          mensagem.textContent="";
-        },1500);
-    }catch(error){
-        console.error(error);
-        mensagem.style.color="red"; 
-        mensagem.textContent=error.message;
-    }
+document.getElementById("formCadastro").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const dadosParceiro = {
+    empresa:{
+      nome: document.getElementById("nomeEmpresa").value,
+      cnpjCpf: document.getElementById("cnpjCpf").value,
+      telefone: document.getElementById("telefoneEmpresa").value,
+      cep: document.getElementById("cep").value,
+      rua: document.getElementById("rua").value,
+      numero: document.getElementById("numero").value,
+      bairro: document.getElementById("bairro").value,
+      cidade: document.getElementById("cidade").value,
+      estado: document.getElementById("estado").value,
+      website: document.getElementById("website").value
+    },
+    servicos:[...document.querySelectorAll(".servico:checked")].map(s=>s.value),
+    outros: document.getElementById("outrosDescricao").value,
+    responsavel:{
+      nome: document.getElementById("nomeResp").value,
+      telefone: document.getElementById("telefoneResp").value,
+      email: document.getElementById("emailResp").value,
+      cargo: document.getElementById("cargoResp").value
+    },
+    financeiro:{
+      faixaFaturamento: document.getElementById("faixaFaturamento").value,
+      formasPagamento: document.getElementById("formasPagamento").value,
+      limiteCredito: document.getElementById("limiteCredito").value,
+      observacoes: document.getElementById("observacoes").value,
+      status: document.getElementById("statusParceiro").value
+    },
+    cadastro: new Date().toISOString()
+  };
+  
+  try{
+    // Criar usuário no Firebase Auth com email do responsável
+    const senha=Math.random().toString(36).slice(-8)+"A1!";
+    const userCredential=await auth.createUserWithEmailAndPassword(dadosParceiro.responsavel.email,senha);
+    await db.collection("parceiros").doc(userCredential.user.uid).set(dadosParceiro);
+    document.getElementById("mensagemCadastro").textContent="Parceiro cadastrado com sucesso!";
+    setTimeout(()=>{modal.style.display="none"; document.getElementById("formCadastro").reset(); document.getElementById("mensagemCadastro").textContent="";},1500);
+  }catch(err){console.error(err); document.getElementById("mensagemCadastro").textContent=err.message;}
 });
 
-// Snapshot
-db.collection("parceiros").onSnapshot(snapshot=>{
-    atualizarTabela(snapshot.docs);
-});
-
-// Filtro simples
-document.getElementById("btnBuscar").addEventListener("click",()=>{
-    db.collection("parceiros").get().then(snapshot=>{
-        let resultados=[];
-        snapshot.forEach(doc=>{resultados.push({...doc.data(), id:doc.id});});
-        const busca=document.getElementById("buscaParceiro").value.toLowerCase();
-        const statusSel=[...document.getElementById("filtroStatus").selectedOptions].map(o=>o.value);
-        const filtrados=resultados.filter(p=>{
-            let incluir=true;
-            if(busca && !p.nome.toLowerCase().includes(busca)) incluir=false;
-            if(statusSel.length && !statusSel.includes(p.status)) incluir=false;
-            return incluir;
-        });
-        const tbody=document.querySelector("#tabelaParceiros tbody");
-        tbody.innerHTML="";
-        filtrados.forEach(p=>{
-          const tr=document.createElement("tr");
-          tr.innerHTML=`<td>${p.nome}</td><td>${p.cnpj||''}</td><td>${p.telefone||''}</td><td>${p.email||''}</td><td>${p.responsavel||''}</td>
-            <td>${p.telefoneResp||''}</td><td>${p.emailResp||''}</td><td>${p.endereco||''}</td>`;
-          tr.onclick = ()=>abrirEdicaoParceiro(p.id,p);
-          tbody.appendChild(tr);
-        });
+// Atualizar lista
+function atualizarLista(snapshot){
+  const tbody=document.querySelector("#tabelaParceiros tbody");
+  tbody.innerHTML="";
+  const contServicos={};
+  let total=0, novos=0, ativos=0, inativos=0;
+  snapshot.forEach(doc=>{
+    const data=doc.data();
+    total++;
+    const status=data.financeiro.status;
+    if(status==="ativo") ativos++;
+    else inativos++;
+    const dataCadastro=new Date(data.cadastro);
+    const mesAtual=new Date().getMonth();
+    if(dataCadastro.getMonth()===mesAtual) novos++;
+    data.servicos.forEach(s=>{
+      if(contServicos[s]) contServicos[s]++;
+      else contServicos[s]=1;
     });
-});
+    tbody.innerHTML+=`<tr>
+      <td>${data.empresa.nome}</td>
+      <td>${data.empresa.cnpjCpf}</td>
+      <td>${data.empresa.telefone}</td>
+      <td>${data.financeiro.status}</td>
+      <td>${data.servicos.join(", ")} ${data.outros? ", "+data.outros : ""}</td>
+    </tr>`;
+  });
+  document.getElementById("totalParceiros").textContent=total;
+  document.getElementById("novosParceiros").textContent=novos;
+  document.getElementById("ativosParceiros").textContent=ativos;
+  document.getElementById("inativosParceiros").textContent=inativos;
 
-// Exportar CSV
-document.getElementById('btnExportar').addEventListener('click',()=>{
-    let csv="Nome,CNPJ,Telefone,E-mail,Responsável,Telefone Resp,E-mail Resp,Endereço\n";
-    document.querySelectorAll("#tabelaParceiros tbody tr").forEach(r=>{
-        const cols=r.querySelectorAll("td");
-        csv+=Array.from(cols).map(c=>c.textContent.replace(/,/g,";")).join(",")+"\n";
-    });
-    const blob=new Blob([csv], {type:'text/csv;charset=utf-8;'});
-    const link=document.createElement("a");
-    link.href=URL.createObjectURL(blob);
-    link.download="parceiros.csv";
-    link.click();
-});
-
-// Gráficos
-let chartVendas, chartCombos, chartFaturamento;
-
-function atualizarGraficos(snapshot){
-    const labels=[], dataVendas=[], dataCombos=[], dataFaturamento=[];
-    snapshot.forEach(doc=>{
-        const p=doc.data();
-        labels.push(p.nome);
-        dataVendas.push(p.vendas||0);
-        dataCombos.push(p.combos||0);
-        dataFaturamento.push(p.faturamento||0);
-    });
-
-    const ctxVendas=document.getElementById('graficoVendas').getContext('2d');
-    const ctxCombos=document.getElementById('graficoCombos').getContext('2d');
-    const ctxFaturamento=document.getElementById('graficoFaturamento').getContext('2d');
-
-    if(chartVendas) chartVendas.destroy();
-    if(chartCombos) chartCombos.destroy();
-    if(chartFaturamento) chartFaturamento.destroy();
-
-    chartVendas=new Chart(ctxVendas,{
-        type:'bar',
-        data:{labels, datasets:[{label:'Vendas', data:dataVendas, backgroundColor:'#1abc9c'}]},
-        options:{responsive:true, plugins:{legend:{display:false}}}
-    });
-    chartCombos=new Chart(ctxCombos,{
-        type:'bar',
-        data:{labels, datasets:[{label:'Combos Vendidos', data:dataCombos, backgroundColor:'#8e44ad'}]},
-        options:{responsive:true, plugins:{legend:{display:false}}}
-    });
-    chartFaturamento=new Chart(ctxFaturamento,{
-        type:'bar',
-        data:{labels, datasets:[{label:'Faturamento (R$)', data:dataFaturamento, backgroundColor:'#e74c3c'}]},
-        options:{responsive:true, plugins:{legend:{display:false}}}
-    });
+  // Gráfico Serviços
+  const ctx=document.getElementById("graficoServicos").getContext("2d");
+  const labels=Object.keys(contServicos);
+  const dataValues=Object.values(contServicos);
+  if(window.grafico) window.grafico.destroy();
+  window.grafico=new Chart(ctx,{
+    type:'bar',
+    data:{labels, datasets:[{label:'Serviços', data:dataValues, backgroundColor:'#2980b9'}]},
+    options:{responsive:true, plugins:{legend:{display:false}}}
+  });
 }
 
-// Atualizar gráficos em tempo real
+// Escutar mudanças no Firestore
 db.collection("parceiros").onSnapshot(snapshot=>{
-    atualizarGraficos(snapshot.docs);
+  atualizarLista(snapshot);
 });
 </script>
 </body>
