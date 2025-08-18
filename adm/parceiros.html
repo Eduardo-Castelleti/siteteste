@@ -86,21 +86,84 @@
       </div>
     </header>
 
-    <div class="card">
-      <h3>Adicionar Novo Parceiro</h3>
-      <form id="partnerForm">
-        <input type="text" id="cnpj" placeholder="CNPJ / CPF" required>
-        <input type="text" id="empresa" placeholder="Nome da Empresa" required>
-        <input type="text" id="telefoneEmpresa" placeholder="Telefone da Empresa" required>
-        <input type="email" id="emailEmpresa" placeholder="E-mail da Empresa" required>
-        <input type="text" id="responsavel" placeholder="Nome do Responsável" required>
-        <input type="text" id="telefoneResponsavel" placeholder="Telefone do Responsável" required>
-        <input type="email" id="emailResponsavel" placeholder="E-mail do Responsável" required>
-        <input type="text" id="cep" placeholder="CEP" required>
-        <input type="text" id="endereco" placeholder="Endereço Completo" required>
-        <button type="submit">Salvar Parceiro</button>
-      </form>
-    </div>
+<!-- Modal Cadastro / Edição Parceiro -->
+<div class="modal" id="modalParceiro">
+  <div class="modal-content">
+    <span class="modal-close" id="fecharModalParceiro">&times;</span>
+    <h2 id="modalTitleParceiro">Adicionar Parceiro</h2>
+    <form id="formParceiro">
+      
+      <fieldset>
+        <legend>Informações da Empresa</legend>
+        <label for="nomeEmpresa">Nome da Empresa *</label>
+        <input type="text" id="nomeEmpresa" required>
+        <label for="cnpjEmpresa">CNPJ / CPF *</label>
+        <input type="text" id="cnpjEmpresa" required>
+        <label for="telefoneEmpresa">Telefone *</label>
+        <input type="text" id="telefoneEmpresa" required>
+        <label for="cepEmpresa">CEP *</label>
+        <input type="text" id="cepEmpresa" required>
+        <label for="ruaEmpresa">Rua *</label>
+        <input type="text" id="ruaEmpresa" required>
+        <label for="numeroEmpresa">Número *</label>
+        <input type="text" id="numeroEmpresa" required>
+        <label for="bairroEmpresa">Bairro *</label>
+        <input type="text" id="bairroEmpresa" required>
+        <label for="cidadeEmpresa">Cidade *</label>
+        <input type="text" id="cidadeEmpresa" required>
+        <label for="estadoEmpresa">Estado *</label>
+        <input type="text" id="estadoEmpresa" required>
+        <label for="websiteEmpresa">Website / Redes Sociais</label>
+        <input type="text" id="websiteEmpresa" placeholder="https://">
+      </fieldset>
+
+      <fieldset>
+        <legend>Serviços Oferecidos</legend>
+        <label><input type="checkbox" name="servicos" value="Banho e Tosa"> Banho e Tosa</label><br>
+        <label><input type="checkbox" name="servicos" value="Creche"> Creche</label><br>
+        <label><input type="checkbox" name="servicos" value="Hospedagem"> Hospedagem</label><br>
+        <label><input type="checkbox" name="servicos" value="Dog Walker"> Dog Walker</label><br>
+        <label><input type="checkbox" name="servicos" value="Pet Sitter"> Pet Sitter</label><br>
+        <label><input type="checkbox" name="servicos" value="Adestramento"> Adestramento</label><br>
+        <label for="outrosServicos">Outros (opcional)</label>
+        <input type="text" id="outrosServicos" placeholder="Descrever outros serviços">
+      </fieldset>
+
+      <fieldset>
+        <legend>Informações do Responsável</legend>
+        <label for="nomeResponsavel">Nome *</label>
+        <input type="text" id="nomeResponsavel" required>
+        <label for="telefoneResponsavel">Telefone *</label>
+        <input type="text" id="telefoneResponsavel" required>
+        <label for="emailResponsavel">E-mail *</label>
+        <input type="email" id="emailResponsavel" required>
+        <label for="cargoResponsavel">Cargo / Função</label>
+        <input type="text" id="cargoResponsavel">
+      </fieldset>
+
+      <fieldset>
+        <legend>Financeiro / Observações</legend>
+        <label for="faixaFaturamento">Faixa de Faturamento</label>
+        <input type="text" id="faixaFaturamento" placeholder="Ex: R$0-5.000">
+        <label for="formasPagamento">Formas de Pagamento</label>
+        <input type="text" id="formasPagamento" placeholder="Dinheiro, Cartão, Transferência">
+        <label for="limiteCredito">Limite de Crédito</label>
+        <input type="text" id="limiteCredito" placeholder="Ex: R$5.000">
+        <label for="observacoesParceiro">Observações</label>
+        <textarea id="observacoesParceiro" rows="3" placeholder="Notas internas"></textarea>
+        <label for="statusParceiro">Status</label>
+        <select id="statusParceiro">
+          <option value="ativo">Ativo</option>
+          <option value="inativo">Inativo</option>
+          <option value="vip">VIP</option>
+        </select>
+      </fieldset>
+
+      <button type="submit" id="btnSalvarParceiro">Salvar</button>
+      <p id="mensagemCadastroParceiro"></p>
+    </form>
+  </div>
+</div>
 
     <div class="card">
       <h3>Lista de Parceiros</h3>
@@ -121,14 +184,14 @@
 
   <script>
     const firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_DOMINIO.firebaseapp.com",
-      databaseURL: "https://SEU_DATABASE.firebaseio.com",
-      projectId: "SEU_PROJECT_ID",
-      storageBucket: "SEU_BUCKET.appspot.com",
-      messagingSenderId: "SENDER_ID",
-      appId: "APP_ID"
-    };
+  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
+  authDomain: "site-f6495.firebaseapp.com",
+  projectId: "site-f6495",
+  storageBucket: "site-f6495.firebasestorage.app",
+  messagingSenderId: "230161402024",
+  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
+  measurementId: "G-51G8XF6JH0"
+};
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
