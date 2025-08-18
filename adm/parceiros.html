@@ -3,192 +3,187 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parceiros</title>
+  <title>Parceiros - Admin Pet</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { display: flex; min-height: 100vh; }
+    body { display:flex; height:100vh; background:#f4f6f9; }
 
-    /* Sidebar */
     .sidebar {
-      width: 220px; background: #2c3e50; color: #fff; padding: 20px; flex-shrink: 0;
+      width:250px; background:#2c3e50; color:#fff; display:flex; flex-direction:column; padding:20px;
     }
-    .sidebar h2 { margin-bottom: 20px; font-size: 20px; text-align: center; }
-    .sidebar ul { list-style: none; }
-    .sidebar ul li { margin: 15px 0; }
-    .sidebar ul li a {
-      text-decoration: none; color: #fff; display: block; padding: 10px; border-radius: 8px;
-      transition: background 0.3s;
+    .sidebar h2 { text-align:center; margin-bottom:30px; font-size:22px; }
+    .sidebar a {
+      color:#fff; text-decoration:none; padding:12px; display:flex; align-items:center;
+      transition:0.3s; border-radius:6px; margin-bottom:10px;
     }
-    .sidebar ul li a:hover { background: #34495e; }
+    .sidebar a:hover { background:#1a252f; }
+    .sidebar a i { margin-right:10px; }
 
-    /* Conteúdo */
-    .content {
-      flex: 1; padding: 20px; background: #f4f6f9; overflow-y: auto;
+    .main-content { flex:1; padding:20px; overflow:auto; }
+    header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+    header h1 { font-size:24px; color:#333; }
+    .search-bar {
+      display:flex; align-items:center; background:#fff; border-radius:8px; padding:6px 12px;
+      box-shadow:0 2px 5px rgba(0,0,0,0.1); width:100%; max-width:400px;
     }
-    h1 { margin-bottom: 20px; color: #2c3e50; }
+    .search-bar input {
+      border:none; outline:none; padding:8px; flex:1; font-size:14px;
+    }
+    .search-bar i { color:#888; }
 
-    /* Barra de busca */
-    .search-container {
-      margin-bottom: 20px; display: flex; justify-content: center;
+    .card {
+      background:#fff; padding:20px; border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1); margin-bottom:20px;
     }
-    .search-container input {
-      width: 100%; max-width: 400px; padding: 10px; border: 1px solid #ccc; border-radius: 8px;
-    }
+    .card h3 { margin-bottom:15px; color:#444; }
 
-    /* Formulário */
+    table {
+      width:100%; border-collapse:collapse; background:#fff; border-radius:10px; overflow:hidden;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    }
+    table th, table td {
+      padding:12px 15px; text-align:left; border-bottom:1px solid #ddd;
+    }
+    table th { background:#2c3e50; color:#fff; }
+    table tr:hover { background:#f1f1f1; }
+
     form {
-      background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-bottom: 25px;
+      display:grid; gap:12px; margin-top:15px;
+      grid-template-columns:repeat(auto-fit, minmax(250px,1fr));
     }
-    form h2 { margin-bottom: 15px; }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-    .form-group input {
-      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;
+    form input {
+      padding:10px; border:1px solid #ccc; border-radius:6px; font-size:14px;
     }
     button {
-      background: #2c3e50; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;
+      padding:10px 15px; background:#27ae60; color:#fff; border:none; border-radius:6px;
+      cursor:pointer; transition:0.3s;
     }
-    button:hover { background: #34495e; }
-
-    /* Tabela */
-    table {
-      width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1); overflow: hidden;
-    }
-    table th, table td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-    table th { background: #2c3e50; color: #fff; }
-    table tr:hover { background: #f1f1f1; }
-
-    @media (max-width: 768px) {
-      .sidebar { width: 180px; }
-      .search-container input { max-width: 100%; }
-      table { font-size: 14px; }
-    }
+    button:hover { background:#219150; }
   </style>
 </head>
 <body>
-  <!-- Menu lateral -->
   <div class="sidebar">
     <h2>Admin Pet</h2>
-    <ul>
-      <li><a href="index.html"><i class="fa fa-home"></i> Dashboard</a></li>
-      <li><a href="clientes.html"><i class="fa fa-users"></i> Clientes</a></li>
-      <li><a href="parceiros.html"><i class="fa fa-handshake"></i> Parceiros</a></li>
-      <li><a href="funcionarios.html"><i class="fa fa-user-tie"></i> Funcionários</a></li>
-      <li><a href="produtos.html"><i class="fa fa-box"></i> Produtos</a></li>
-      <li><a href="vendas.html"><i class="fa fa-cash-register"></i> Vendas</a></li>
-      <li><a href="agendamentos.html"><i class="fa fa-calendar"></i> Agendamentos</a></li>
-    </ul>
+    <a href="index.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+    <a href="clientes.html"><i class="fas fa-users"></i>Clientes</a>
+    <a href="parceiros.html"><i class="fas fa-handshake"></i>Parceiros</a>
+    <a href="funcionarios.html"><i class="fas fa-user-tie"></i>Funcionários</a>
+    <a href="produtos.html"><i class="fas fa-box"></i>Produtos</a>
+    <a href="vendas.html"><i class="fas fa-shopping-cart"></i>Vendas & Resumos</a>
+    <a href="agendamentos.html"><i class="fas fa-calendar-alt"></i>Agendamentos</a>
   </div>
 
-  <!-- Conteúdo -->
-  <div class="content">
-    <h1>Gerenciar Parceiros</h1>
+  <div class="main-content">
+    <header>
+      <h1>Gerenciar Parceiros</h1>
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Pesquisar parceiro...">
+      </div>
+    </header>
 
-    <!-- Formulário de cadastro -->
-    <form id="parceiroForm">
-      <h2>Adicionar Novo Parceiro</h2>
-      <div class="form-group"><label>CNPJ / CPF</label><input type="text" id="cnpj" required></div>
-      <div class="form-group"><label>Nome da Empresa</label><input type="text" id="empresa" required></div>
-      <div class="form-group"><label>Telefone da Empresa</label><input type="text" id="telEmpresa"></div>
-      <div class="form-group"><label>Email da Empresa</label><input type="email" id="emailEmpresa"></div>
-      <div class="form-group"><label>Nome do Responsável</label><input type="text" id="responsavel"></div>
-      <div class="form-group"><label>Telefone do Responsável</label><input type="text" id="telResponsavel"></div>
-      <div class="form-group"><label>Email do Responsável</label><input type="email" id="emailResponsavel"></div>
-      <div class="form-group"><label>Endereço</label><input type="text" id="endereco"></div>
-      <button type="submit">Salvar</button>
-    </form>
-
-    <!-- Pesquisa -->
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Buscar parceiro...">
+    <div class="card">
+      <h3>Adicionar Novo Parceiro</h3>
+      <form id="partnerForm">
+        <input type="text" id="cnpj" placeholder="CNPJ / CPF" required>
+        <input type="text" id="empresa" placeholder="Nome da Empresa" required>
+        <input type="text" id="telefoneEmpresa" placeholder="Telefone da Empresa" required>
+        <input type="email" id="emailEmpresa" placeholder="E-mail da Empresa" required>
+        <input type="text" id="responsavel" placeholder="Nome do Responsável" required>
+        <input type="text" id="telefoneResponsavel" placeholder="Telefone do Responsável" required>
+        <input type="email" id="emailResponsavel" placeholder="E-mail do Responsável" required>
+        <input type="text" id="cep" placeholder="CEP" required>
+        <input type="text" id="endereco" placeholder="Endereço Completo" required>
+        <button type="submit">Salvar Parceiro</button>
+      </form>
     </div>
 
-    <!-- Lista de parceiros -->
-    <table id="parceirosTable">
-      <thead>
-        <tr>
-          <th>Empresa</th>
-          <th>Responsável</th>
-          <th>Telefone</th>
-          <th>Email</th>
-          <th>Endereço</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="card">
+      <h3>Lista de Parceiros</h3>
+      <table id="partnersTable">
+        <thead>
+          <tr>
+            <th>Empresa</th>
+            <th>Responsável</th>
+            <th>Telefone</th>
+            <th>Email</th>
+            <th>Endereço</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
   <script>
-    // Config Firebase
     const firebaseConfig = {
-  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
-  authDomain: "site-f6495.firebaseapp.com",
-  projectId: "site-f6495",
-  storageBucket: "site-f6495.firebasestorage.app",
-  messagingSenderId: "230161402024",
-  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
-  measurementId: "G-51G8XF6JH0"
-};
-    const app = firebase.initializeApp(firebaseConfig);
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_DOMINIO.firebaseapp.com",
+      databaseURL: "https://SEU_DATABASE.firebaseio.com",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_BUCKET.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const form = document.getElementById('parceiroForm');
-    const parceirosTable = document.getElementById('parceirosTable').querySelector('tbody');
-    const searchInput = document.getElementById('searchInput');
+    const form = document.getElementById("partnerForm");
+    const tableBody = document.querySelector("#partnersTable tbody");
+    const searchInput = document.getElementById("searchInput");
 
-    // Cadastrar parceiro
-    form.addEventListener('submit', (e) => {
+    form.addEventListener("submit", function(e){
       e.preventDefault();
-      const parceiro = {
-        cnpj: document.getElementById('cnpj').value,
-        empresa: document.getElementById('empresa').value,
-        telEmpresa: document.getElementById('telEmpresa').value,
-        emailEmpresa: document.getElementById('emailEmpresa').value,
-        responsavel: document.getElementById('responsavel').value,
-        telResponsavel: document.getElementById('telResponsavel').value,
-        emailResponsavel: document.getElementById('emailResponsavel').value,
-        endereco: document.getElementById('endereco').value
+      const partner = {
+        cnpj: document.getElementById("cnpj").value,
+        empresa: document.getElementById("empresa").value,
+        telefoneEmpresa: document.getElementById("telefoneEmpresa").value,
+        emailEmpresa: document.getElementById("emailEmpresa").value,
+        responsavel: document.getElementById("responsavel").value,
+        telefoneResponsavel: document.getElementById("telefoneResponsavel").value,
+        emailResponsavel: document.getElementById("emailResponsavel").value,
+        cep: document.getElementById("cep").value,
+        endereco: document.getElementById("endereco").value,
       };
-      db.ref('parceiros').push(parceiro);
+      const newRef = db.ref("parceiros").push();
+      newRef.set(partner);
       form.reset();
     });
 
-    // Mostrar parceiros em tempo real
-    db.ref('parceiros').on('value', (snapshot) => {
-      parceirosTable.innerHTML = "";
-      snapshot.forEach((child) => {
+    function renderTable(snapshot) {
+      tableBody.innerHTML = "";
+      snapshot.forEach(child => {
         const p = child.val();
-        const row = `<tr>
-          <td>${p.empresa}</td>
-          <td>${p.responsavel}</td>
-          <td>${p.telEmpresa}</td>
-          <td>${p.emailEmpresa}</td>
-          <td>${p.endereco}</td>
-        </tr>`;
-        parceirosTable.innerHTML += row;
+        const row = `
+          <tr>
+            <td>${p.empresa}</td>
+            <td>${p.responsavel}</td>
+            <td>${p.telefoneEmpresa}</td>
+            <td>${p.emailEmpresa}</td>
+            <td>${p.endereco}</td>
+          </tr>`;
+        tableBody.innerHTML += row;
       });
-    });
+    }
 
-    // Filtro de pesquisa
-    searchInput.addEventListener('keyup', () => {
+    db.ref("parceiros").on("value", renderTable);
+
+    searchInput.addEventListener("input", function(){
       const filter = searchInput.value.toLowerCase();
-      const rows = parceirosTable.getElementsByTagName('tr');
-      for (let i = 0; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName('td');
-        let match = false;
-        for (let j = 0; j < cells.length; j++) {
+      const rows = tableBody.getElementsByTagName("tr");
+      for (let i=0; i<rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        let show = false;
+        for (let j=0; j<cells.length; j++) {
           if (cells[j].innerText.toLowerCase().includes(filter)) {
-            match = true;
-            break;
+            show = true; break;
           }
         }
-        rows[i].style.display = match ? "" : "none";
+        rows[i].style.display = show ? "" : "none";
       }
     });
   </script>
