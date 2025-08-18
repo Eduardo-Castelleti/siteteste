@@ -6,7 +6,6 @@
 <title>Admin Pet - Parceiros</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 * {margin:0; padding:0; box-sizing:border-box; font-family:'Roboto', sans-serif;}
 body {display:flex; min-height:100vh; background:#f4f6f9;}
@@ -20,33 +19,25 @@ body {display:flex; min-height:100vh; background:#f4f6f9;}
 h1 {margin-bottom:20px; color:#2c3e50; display:flex; justify-content:space-between; align-items:center;}
 h1 button {padding:8px 15px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer; transition:0.3s;}
 h1 button:hover {background:#2ecc71;}
-.cards {display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:30px;}
-.card {padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); color:white; position:relative; transition:0.3s;}
-.card h3 {margin-bottom:10px; font-size:16px;}
-.card p {font-size:20px; font-weight:700;}
-.card.total {background:#2980b9;}
-.card.ativos {background:#1abc9c;}
-.card.inativos {background:#e74c3c;}
-.card.top {background:#8e44ad;}
 .search-bar {margin-bottom:20px; display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:10px; flex-wrap:wrap;}
-.search-bar input, .search-bar select {padding:10px; border-radius:5px; border:1px solid #ccc;}
+.search-bar input {padding:10px; border-radius:5px; border:1px solid #ccc;}
 .search-bar button {padding:10px 15px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
 .search-bar button:hover {background:#3498db;}
-.graphs {display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:20px; margin-top:30px;}
-canvas {background:#fff; border-radius:10px; padding:10px;}
 .partner-list {margin-top:20px; background:#fff; border-radius:10px; padding:20px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
 .partner-list table {width:100%; border-collapse:collapse;}
 .partner-list table th, .partner-list table td {padding:10px; border-bottom:1px solid #ddd; text-align:left; cursor:pointer;}
 .partner-list table tr:hover {background:#f0f0f0;}
 .modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999;}
-.modal-content {background:#fff; padding:20px; border-radius:10px; width:450px; max-width:90%; position:relative;}
+.modal-content {background:#fff; padding:20px; border-radius:10px; width:600px; max-width:95%; position:relative; overflow-y:auto; max-height:90%;}
 .modal-content h2 {margin-bottom:15px;}
 .modal-content label {display:block; margin-top:10px;}
-.modal-content input, .modal-content select {width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc;}
+.modal-content input, .modal-content select, .modal-content textarea {width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc;}
 .modal-content button {margin-top:15px; padding:10px 15px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer;}
 .modal-content button:hover {background:#2ecc71;}
 .modal-close {position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;}
-#mensagemCadastro{margin-top:10px; font-weight:500;}
+fieldset {margin-bottom:15px; border:1px solid #ccc; padding:10px; border-radius:5px;}
+legend {font-weight:bold; padding:0 5px;}
+#mensagemCadastroParceiro{margin-top:10px; font-weight:500;}
 </style>
 </head>
 <body>
@@ -69,78 +60,108 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 </div>
 
 <div class="main-content">
-<h1>Parceiros <button id="btnAbrirCadastro">Cadastrar Parceiro</button></h1>
-
-<div class="cards">
-<div class="card total"><h3>Total de Parceiros</h3><p id="totalParceiros">0</p></div>
-<div class="card ativos"><h3>Ativos</h3><p id="parceirosAtivos">0</p></div>
-<div class="card inativos"><h3>Inativos</h3><p id="parceirosInativos">0</p></div>
-<div class="card top"><h3>Maior Faturamento</h3><p id="parceiroTop">-</p></div>
-</div>
+<h1>Parceiros <button id="btnAbrirCadastroParceiro">Cadastrar Parceiro</button></h1>
 
 <div class="search-bar">
-<input type="text" id="buscaParceiro" placeholder="Pesquisar por nome, e-mail, telefone, cidade">
-<select id="filtroTipo">
-<option value="">Todos os tipos</option>
-<option value="banho">Banho e Tosa</option>
-<option value="creche">Creche</option>
-<option value="clinica">Clínica</option>
-</select>
-<select id="filtroStatus">
-<option value="">Todos os status</option>
-<option value="ativo">Ativo</option>
-<option value="inativo">Inativo</option>
-</select>
-<button id="btnBuscar"><i class="fas fa-search"></i> Buscar</button>
-<button id="btnExportar"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+<input type="text" id="buscaParceiro" placeholder="Pesquisar por nome, CNPJ, cidade">
+<button id="btnBuscarParceiro"><i class="fas fa-search"></i> Buscar</button>
+<button id="btnExportarParceiro"><i class="fas fa-file-csv"></i> Exportar CSV</button>
 </div>
 
-<!-- Modal Cadastro / Edição -->
-<div class="modal" id="modalCadastro">
-<div class="modal-content">
-<span class="modal-close" id="fecharModal">&times;</span>
-<h2 id="modalTitle">Adicionar Parceiro</h2>
-<form id="formCadastro">
-<label for="nomeParceiro">Nome *</label>
-<input type="text" id="nomeParceiro" required>
-<label for="telefoneParceiro">Telefone *</label>
-<input type="text" id="telefoneParceiro" placeholder="(99) 99999-9999" required>
-<label for="emailParceiro">E-mail *</label>
-<input type="email" id="emailParceiro" required>
-<label for="cidadeParceiro">Cidade</label>
-<input type="text" id="cidadeParceiro">
-<label for="tipoParceiro">Tipo</label>
-<select id="tipoParceiro">
-<option value="banho">Banho e Tosa</option>
-<option value="creche">Creche</option>
-<option value="clinica">Clínica</option>
-</select>
-<label for="statusParceiro">Status</label>
-<select id="statusParceiro">
-<option value="ativo">Ativo</option>
-<option value="inativo">Inativo</option>
-</select>
-<button type="submit" id="btnSalvar">Salvar</button>
-<p id="mensagemCadastro"></p>
-</form>
-</div>
-</div>
-
-<div class="partner-list">
+<div class="partner-list" id="partnerList" style="display:none;">
 <h3>Lista de Parceiros</h3>
 <table id="tabelaParceiros">
 <thead>
 <tr>
-<th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cidade</th><th>Tipo</th><th>Status</th>
+<th>Nome</th>
+<th>CNPJ</th>
+<th>Cidade</th>
+<th>Telefone</th>
+<th>Responsável</th>
+<th>Status</th>
 </tr>
 </thead>
 <tbody></tbody>
 </table>
 </div>
 
-<div class="graphs">
-<canvas id="graficoTipo"></canvas>
-<canvas id="graficoStatus"></canvas>
+<!-- Modal Cadastro / Edição Parceiro -->
+<div class="modal" id="modalParceiro">
+  <div class="modal-content">
+    <span class="modal-close" id="fecharModalParceiro">&times;</span>
+    <h2 id="modalTitleParceiro">Adicionar Parceiro</h2>
+    <form id="formParceiro">
+      
+      <fieldset>
+        <legend>Informações da Empresa</legend>
+        <label for="nomeEmpresa">Nome da Empresa *</label>
+        <input type="text" id="nomeEmpresa" required>
+        <label for="cnpjEmpresa">CNPJ / CPF *</label>
+        <input type="text" id="cnpjEmpresa" required>
+        <label for="telefoneEmpresa">Telefone *</label>
+        <input type="text" id="telefoneEmpresa" required>
+        <label for="cepEmpresa">CEP *</label>
+        <input type="text" id="cepEmpresa" required>
+        <label for="ruaEmpresa">Rua *</label>
+        <input type="text" id="ruaEmpresa" required>
+        <label for="numeroEmpresa">Número *</label>
+        <input type="text" id="numeroEmpresa" required>
+        <label for="bairroEmpresa">Bairro *</label>
+        <input type="text" id="bairroEmpresa" required>
+        <label for="cidadeEmpresa">Cidade *</label>
+        <input type="text" id="cidadeEmpresa" required>
+        <label for="estadoEmpresa">Estado *</label>
+        <input type="text" id="estadoEmpresa" required>
+        <label for="websiteEmpresa">Website / Redes Sociais</label>
+        <input type="text" id="websiteEmpresa" placeholder="https://">
+      </fieldset>
+
+      <fieldset>
+        <legend>Serviços Oferecidos</legend>
+        <label><input type="checkbox" name="servicos" value="Banho e Tosa"> Banho e Tosa</label><br>
+        <label><input type="checkbox" name="servicos" value="Creche"> Creche</label><br>
+        <label><input type="checkbox" name="servicos" value="Hospedagem"> Hospedagem</label><br>
+        <label><input type="checkbox" name="servicos" value="Dog Walker"> Dog Walker</label><br>
+        <label><input type="checkbox" name="servicos" value="Pet Sitter"> Pet Sitter</label><br>
+        <label><input type="checkbox" name="servicos" value="Adestramento"> Adestramento</label><br>
+        <label for="outrosServicos">Outros (opcional)</label>
+        <input type="text" id="outrosServicos" placeholder="Descrever outros serviços">
+      </fieldset>
+
+      <fieldset>
+        <legend>Informações do Responsável</legend>
+        <label for="nomeResponsavel">Nome *</label>
+        <input type="text" id="nomeResponsavel" required>
+        <label for="telefoneResponsavel">Telefone *</label>
+        <input type="text" id="telefoneResponsavel" required>
+        <label for="emailResponsavel">E-mail *</label>
+        <input type="email" id="emailResponsavel" required>
+        <label for="cargoResponsavel">Cargo / Função</label>
+        <input type="text" id="cargoResponsavel">
+      </fieldset>
+
+      <fieldset>
+        <legend>Financeiro / Observações</legend>
+        <label for="faixaFaturamento">Faixa de Faturamento</label>
+        <input type="text" id="faixaFaturamento" placeholder="Ex: R$0-5.000">
+        <label for="formasPagamento">Formas de Pagamento</label>
+        <input type="text" id="formasPagamento" placeholder="Dinheiro, Cartão, Transferência">
+        <label for="limiteCredito">Limite de Crédito</label>
+        <input type="text" id="limiteCredito" placeholder="Ex: R$5.000">
+        <label for="observacoesParceiro">Observações</label>
+        <textarea id="observacoesParceiro" rows="3" placeholder="Notas internas"></textarea>
+        <label for="statusParceiro">Status</label>
+        <select id="statusParceiro">
+          <option value="ativo">Ativo</option>
+          <option value="inativo">Inativo</option>
+          <option value="vip">VIP</option>
+        </select>
+      </fieldset>
+
+      <button type="submit" id="btnSalvarParceiro">Salvar</button>
+      <p id="mensagemCadastroParceiro"></p>
+    </form>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -155,138 +176,179 @@ const firebaseConfig = {
   messagingSenderId: "230161402024",
   appId: "1:230161402024:web:462a911919ebf8a0809a9d",
   measurementId: "G-51G8XF6JH0"
-}; 
+};
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Modal
 let parceiroAtual = null;
-const modal = document.getElementById("modalCadastro");
-document.getElementById("btnAbrirCadastro").onclick = () => {
-    modal.style.display = "flex";
-    document.getElementById("modalTitle").textContent = "Adicionar Parceiro";
-    parceiroAtual = null;
+const modal = document.getElementById("modalParceiro");
+
+// Abrir e fechar modal
+document.getElementById("btnAbrirCadastroParceiro").onclick = ()=>{
+  modal.style.display="flex";
+  document.getElementById("modalTitleParceiro").textContent="Adicionar Parceiro";
+  parceiroAtual=null;
 };
-document.getElementById("fecharModal").onclick = () => {
-    modal.style.display = "none";
-    document.getElementById("formCadastro").reset();
-    document.getElementById("mensagemCadastro").textContent = "";
+document.getElementById("fecharModalParceiro").onclick = ()=>{
+  modal.style.display="none";
+  document.getElementById("formParceiro").reset();
+  document.getElementById("mensagemCadastroParceiro").textContent="";
 };
-window.onclick = e => { if(e.target == modal){modal.style.display="none"; document.getElementById("formCadastro").reset(); document.getElementById("mensagemCadastro").textContent = "";} };
+window.onclick = e => { if(e.target==modal){modal.style.display="none"; document.getElementById("formParceiro").reset(); document.getElementById("mensagemCadastroParceiro").textContent="";} };
 
-// Atualizar tabela
-function atualizarParceiros(snapshot){
-    const tbody = document.querySelector("#tabelaParceiros tbody");
-    tbody.innerHTML = "";
-    snapshot.forEach(doc => {
-        const p = doc.data();
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${p.nome}</td><td>${p.email}</td><td>${p.telefone}</td><td>${p.cidade||''}</td><td>${p.tipo}</td><td>${p.status}</td>`;
-        tr.onclick = ()=>abrirEdicaoParceiro(doc.id, p);
-        tbody.appendChild(tr);
-    });
-}
-
-// Abrir edição
-function abrirEdicaoParceiro(id,data){
-    parceiroAtual = id;
-    modal.style.display="flex";
-    document.getElementById("modalTitle").textContent="Editar Parceiro";
-    document.getElementById("nomeParceiro").value=data.nome||"";
-    document.getElementById("telefoneParceiro").value=data.telefone||"";
-    document.getElementById("emailParceiro").value=data.email||"";
-    document.getElementById("cidadeParceiro").value=data.cidade||"";
-    document.getElementById("tipoParceiro").value=data.tipo||"banho";
-    document.getElementById("statusParceiro").value=data.status||"ativo";
-}
-
-// Salvar parceiro
-document.getElementById("formCadastro").addEventListener("submit", async e=>{
-    e.preventDefault();
-    const nome=document.getElementById("nomeParceiro").value.trim();
-    const telefone=document.getElementById("telefoneParceiro").value.trim();
-    const email=document.getElementById("emailParceiro").value.trim();
-    const cidade=document.getElementById("cidadeParceiro").value.trim();
-    const tipo=document.getElementById("tipoParceiro").value;
-    const status=document.getElementById("statusParceiro").value;
-    const mensagem=document.getElementById("mensagemCadastro");
-    if(!nome||!telefone||!email){mensagem.style.color="red"; mensagem.textContent="Preencha todos os campos obrigatórios"; return;}
-
+// CEP automático
+document.getElementById("cepEmpresa").addEventListener("blur", async ()=>{
+  const cep = document.getElementById("cepEmpresa").value.replace(/\D/g,'');
+  if(cep.length === 8){
     try{
-        if(parceiroAtual){
-            await db.collection("parceiros").doc(parceiroAtual).update({nome, telefone, email, cidade, tipo, status});
-            mensagem.style.color="green"; mensagem.textContent="Parceiro atualizado com sucesso!";
-        }else{
-            await db.collection("parceiros").add({nome, telefone, email, cidade, tipo, status, cadastro:new Date().toISOString()});
-            mensagem.style.color="green"; mensagem.textContent="Parceiro cadastrado com sucesso!";
-        }
-        setTimeout(()=>{modal.style.display="none"; document.getElementById("formCadastro").reset(); mensagem.textContent=""; atualizarKPI();},1500);
-    }catch(error){mensagem.style.color="red"; mensagem.textContent=error.message;}
+      const resp = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await resp.json();
+      if(!data.erro){
+        document.getElementById("ruaEmpresa").value = data.logradouro || '';
+        document.getElementById("bairroEmpresa").value = data.bairro || '';
+        document.getElementById("cidadeEmpresa").value = data.localidade || '';
+        document.getElementById("estadoEmpresa").value = data.uf || '';
+      }
+    }catch(err){ console.error("Erro CEP", err); }
+  }
+});
+
+// Salvar / Editar parceiro
+document.getElementById("formParceiro").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const mensagem = document.getElementById("mensagemCadastroParceiro");
+  const dados = {
+    nome: document.getElementById("nomeEmpresa").value.trim(),
+    cnpj: document.getElementById("cnpjEmpresa").value.trim(),
+    telefone: document.getElementById("telefoneEmpresa").value.trim(),
+    endereco: {
+      cep: document.getElementById("cepEmpresa").value.trim(),
+      rua: document.getElementById("ruaEmpresa").value.trim(),
+      numero: document.getElementById("numeroEmpresa").value.trim(),
+      bairro: document.getElementById("bairroEmpresa").value.trim(),
+      cidade: document.getElementById("cidadeEmpresa").value.trim(),
+      estado: document.getElementById("estadoEmpresa").value.trim()
+    },
+    website: document.getElementById("websiteEmpresa").value.trim(),
+    servicos: [...document.querySelectorAll("input[name='servicos']:checked")].map(i=>i.value),
+    outrosServicos: document.getElementById("outrosServicos").value.trim(),
+    responsavel: {
+      nome: document.getElementById("nomeResponsavel").value.trim(),
+      telefone: document.getElementById("telefoneResponsavel").value.trim(),
+      email: document.getElementById("emailResponsavel").value.trim(),
+      cargo: document.getElementById("cargoResponsavel").value.trim()
+    },
+    financeiro: {
+      faixaFaturamento: document.getElementById("faixaFaturamento").value.trim(),
+      formasPagamento: document.getElementById("formasPagamento").value.trim(),
+      limiteCredito: document.getElementById("limiteCredito").value.trim(),
+      observacoes: document.getElementById("observacoesParceiro").value.trim()
+    },
+    status: document.getElementById("statusParceiro").value
+  };
+
+  if(!dados.nome || !dados.cnpj || !dados.telefone || !dados.responsavel.nome || !dados.responsavel.telefone || !dados.responsavel.email){
+    mensagem.style.color="red";
+    mensagem.textContent="Preencha todos os campos obrigatórios";
+    return;
+  }
+
+  try{
+    if(parceiroAtual){
+      await db.collection("parceiros").doc(parceiroAtual).update(dados);
+      mensagem.style.color="green";
+      mensagem.textContent="Parceiro atualizado com sucesso!";
+    } else {
+      const docRef = await db.collection("parceiros").add(dados);
+      parceiroAtual = docRef.id;
+      mensagem.style.color="green";
+      mensagem.textContent="Parceiro cadastrado com sucesso!";
+    }
+    setTimeout(()=>{
+      modal.style.display="none";
+      document.getElementById("formParceiro").reset();
+      mensagem.textContent="";
+    },1500);
+  }catch(err){
+    mensagem.style.color="red";
+    mensagem.textContent=err.message;
+  }
 });
 
 // Buscar parceiros
-document.getElementById("btnBuscar").addEventListener("click", ()=>{
-    db.collection("parceiros").get().then(snapshot=>{
-        let resultados = [];
-        snapshot.forEach(doc=>{resultados.push({...doc.data(), id:doc.id});});
-        const busca = document.getElementById("buscaParceiro").value.toLowerCase();
-        const tipoSel = document.getElementById("filtroTipo").value;
-        const statusSel = document.getElementById("filtroStatus").value;
-
-        const filtrados = resultados.filter(p=>{
-            let incluir = true;
-            if(busca && !p.nome.toLowerCase().includes(busca) && !p.email.toLowerCase().includes(busca) && !(p.telefone||'').includes(busca) && !(p.cidade||'').toLowerCase().includes(busca)) incluir=false;
-            if(tipoSel && p.tipo != tipoSel) incluir=false;
-            if(statusSel && p.status != statusSel) incluir=false;
-            return incluir;
-        });
-        atualizarParceiros(filtrados.map(p=>({id:p.id, data:p})));
+document.getElementById("btnBuscarParceiro").addEventListener("click", async ()=>{
+  const busca = document.getElementById("buscaParceiro").value.toLowerCase();
+  const tbody = document.querySelector("#tabelaParceiros tbody");
+  tbody.innerHTML = "";
+  const snapshot = await db.collection("parceiros").get();
+  let encontrados = [];
+  snapshot.forEach(doc=>{
+    const p = doc.data();
+    if(p.nome.toLowerCase().includes(busca) || p.cnpj.toLowerCase().includes(busca) || p.endereco.cidade.toLowerCase().includes(busca)){
+      encontrados.push({id: doc.id, data: p});
+    }
+  });
+  if(encontrados.length){
+    document.getElementById("partnerList").style.display="block";
+    encontrados.forEach(p=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${p.data.nome}</td><td>${p.data.cnpj}</td><td>${p.data.endereco.cidade}</td><td>${p.data.telefone}</td><td>${p.data.responsavel.nome}</td><td>${p.data.status}</td>`;
+      tr.onclick = ()=>abrirEdicaoParceiro(p.id, p.data);
+      tbody.appendChild(tr);
     });
+  } else {
+    document.getElementById("partnerList").style.display="none";
+  }
 });
 
-// Exportar CSV
-document.getElementById('btnExportar').addEventListener('click',()=>{
-    let csv="Nome,E-mail,Telefone,Cidade,Tipo,Status\n";
-    document.querySelectorAll("#tabelaParceiros tbody tr").forEach(r=>{
-        const cols=r.querySelectorAll("td");
-        csv+=Array.from(cols).map(c=>c.textContent.replace(/,/g,";")).join(",")+"\n";
-    });
-    const blob=new Blob([csv], {type:'text/csv;charset=utf-8;'});
-    const link=document.createElement("a");
-    link.href=URL.createObjectURL(blob);
-    link.download="parceiros.csv";
-    link.click();
-});
-
-// KPI cards
-function atualizarKPI(){
-    db.collection("parceiros").get().then(snapshot=>{
-        const dados = snapshot.docs.map(d=>d.data());
-        document.getElementById("totalParceiros").textContent=dados.length;
-        document.getElementById("parceirosAtivos").textContent=dados.filter(p=>p.status=="ativo").length;
-        document.getElementById("parceirosInativos").textContent=dados.filter(p=>p.status=="inativo").length;
-        // Maior faturamento placeholder
-        document.getElementById("parceiroTop").textContent=dados.length ? dados[0].nome : "-";
-
-        // Gráfico Tipo
-        const tipos = {banho:0, creche:0, clinica:0};
-        dados.forEach(p=>{if(tipos[p.tipo]!=undefined) tipos[p.tipo]++;});
-        const ctxTipo = document.getElementById("graficoTipo").getContext("2d");
-        new Chart(ctxTipo,{type:'pie',data:{labels:Object.keys(tipos), datasets:[{data:Object.values(tipos), backgroundColor:['#2980b9','#1abc9c','#8e44ad']}]}});
-
-        // Gráfico Status
-        const status = {ativo:0, inativo:0};
-        dados.forEach(p=>{if(status[p.status]!=undefined) status[p.status]++;});
-        const ctxStatus = document.getElementById("graficoStatus").getContext("2d");
-        new Chart(ctxStatus,{type:'doughnut',data:{labels:Object.keys(status), datasets:[{data:Object.values(status), backgroundColor:['#1abc9c','#e74c3c']}]}});
-
-        // Ocultar tabela se não buscou
-        document.querySelector(".partner-list").style.display = "none";
-    });
+// Abrir edição
+function abrirEdicaoParceiro(id,data){
+  parceiroAtual = id;
+  modal.style.display="flex";
+  document.getElementById("modalTitleParceiro").textContent="Editar Parceiro";
+  document.getElementById("nomeEmpresa").value = data.nome || "";
+  document.getElementById("cnpjEmpresa").value = data.cnpj || "";
+  document.getElementById("telefoneEmpresa").value = data.telefone || "";
+  document.getElementById("cepEmpresa").value = data.endereco?.cep || "";
+  document.getElementById("ruaEmpresa").value = data.endereco?.rua || "";
+  document.getElementById("numeroEmpresa").value = data.endereco?.numero || "";
+  document.getElementById("bairroEmpresa").value = data.endereco?.bairro || "";
+  document.getElementById("cidadeEmpresa").value = data.endereco?.cidade || "";
+  document.getElementById("estadoEmpresa").value = data.endereco?.estado || "";
+  document.getElementById("websiteEmpresa").value = data.website || "";
+  document.querySelectorAll("input[name='servicos']").forEach(cb=>{
+    cb.checked = data.servicos?.includes(cb.value);
+  });
+  document.getElementById("outrosServicos").value = data.outrosServicos || "";
+  document.getElementById("nomeResponsavel").value = data.responsavel?.nome || "";
+  document.getElementById("telefoneResponsavel").value = data.responsavel?.telefone || "";
+  document.getElementById("emailResponsavel").value = data.responsavel?.email || "";
+  document.getElementById("cargoResponsavel").value = data.responsavel?.cargo || "";
+  document.getElementById("faixaFaturamento").value = data.financeiro?.faixaFaturamento || "";
+  document.getElementById("formasPagamento").value = data.financeiro?.formasPagamento || "";
+  document.getElementById("limiteCredito").value = data.financeiro?.limiteCredito || "";
+  document.getElementById("observacoesParceiro").value = data.financeiro?.observacoes || "";
+  document.getElementById("statusParceiro").value = data.status || "ativo";
 }
 
-atualizarKPI();
+// Exportar CSV
+document.getElementById("btnExportarParceiro").addEventListener("click", async ()=>{
+  const snapshot = await db.collection("parceiros").get();
+  let csv = "Nome,CNPJ,Cidade,Telefone,Responsável,Status\n";
+  snapshot.forEach(doc=>{
+    const p = doc.data();
+    csv += `"${p.nome}","${p.cnpj}","${p.endereco?.cidade || ''}","${p.telefone}","${p.responsavel?.nome || ''}","${p.status}"\n`;
+  });
+  const blob = new Blob([csv], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "parceiros.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+});
 </script>
+
+</div>
 </body>
 </html>
