@@ -19,14 +19,17 @@ body {display:flex; min-height:100vh; background:#f4f6f9;}
 h1 {margin-bottom:20px; color:#2c3e50; display:flex; justify-content:space-between; align-items:center;}
 h1 button {padding:8px 15px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer; transition:0.3s;}
 h1 button:hover {background:#2ecc71;}
+
 .search-bar {margin-bottom:20px; display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:10px; flex-wrap:wrap;}
 .search-bar input {padding:10px; border-radius:5px; border:1px solid #ccc;}
 .search-bar button {padding:10px 15px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
 .search-bar button:hover {background:#3498db;}
+
 .partner-list {margin-top:20px; background:#fff; border-radius:10px; padding:20px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
 .partner-list table {width:100%; border-collapse:collapse;}
 .partner-list table th, .partner-list table td {padding:10px; border-bottom:1px solid #ddd; text-align:left; cursor:pointer;}
 .partner-list table tr:hover {background:#f0f0f0;}
+
 .modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999;}
 .modal-content {background:#fff; padding:20px; border-radius:10px; width:600px; max-width:95%; position:relative; overflow-y:auto; max-height:90%;}
 .modal-content h2 {margin-bottom:15px;}
@@ -38,130 +41,160 @@ h1 button:hover {background:#2ecc71;}
 fieldset {margin-bottom:15px; border:1px solid #ccc; padding:10px; border-radius:5px;}
 legend {font-weight:bold; padding:0 5px;}
 #mensagemCadastroParceiro{margin-top:10px; font-weight:500;}
+
+/* KPI CARDS */
+.kpis {display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:15px; margin-bottom:20px;}
+.kpi-card {background:#fff; border-radius:10px; padding:20px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+.kpi-card h3 {font-size:16px; color:#7f8c8d; margin-bottom:10px;}
+.kpi-card p {font-size:20px; font-weight:bold; color:#2c3e50;}
 </style>
 </head>
 <body>
 
 <div class="sidebar">
-<h2>Admin Pet</h2>
-<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
-<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
-<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
-<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
-<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
-<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
-<a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
-<a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
-<a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
-<a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
-<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
-<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
+  <h2>Admin Pet</h2>
+  <a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+  <a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
+  <a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
+  <a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
+  <a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
+  <a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+  <a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
+  <a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
+  <a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
+  <a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
+  <a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
+  <a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
+  <a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
 </div>
 
 <div class="main-content">
-<h1>Parceiros <button id="btnAbrirCadastroParceiro">Cadastrar Parceiro</button></h1>
+  <h1>Parceiros <button id="btnAbrirCadastroParceiro">Cadastrar Parceiro</button></h1>
 
-<div class="search-bar">
-<input type="text" id="buscaParceiro" placeholder="Pesquisar por nome, CNPJ, cidade">
-<button id="btnBuscarParceiro"><i class="fas fa-search"></i> Buscar</button>
-<button id="btnExportarParceiro"><i class="fas fa-file-csv"></i> Exportar CSV</button>
-</div>
-
-<div class="partner-list" id="partnerList" style="display:none;">
-<h3>Lista de Parceiros</h3>
-<table id="tabelaParceiros">
-<thead>
-<tr>
-<th>Nome</th>
-<th>CNPJ</th>
-<th>Cidade</th>
-<th>Telefone</th>
-<th>Responsável</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
-
-<!-- Modal Cadastro / Edição Parceiro -->
-<div class="modal" id="modalParceiro">
-  <div class="modal-content">
-    <span class="modal-close" id="fecharModalParceiro">&times;</span>
-    <h2 id="modalTitleParceiro">Adicionar Parceiro</h2>
-    <form id="formParceiro">
-      
-      <fieldset>
-        <legend>Informações da Empresa</legend>
-        <label for="nomeEmpresa">Nome da Empresa *</label>
-        <input type="text" id="nomeEmpresa" required>
-        <label for="cnpjEmpresa">CNPJ / CPF *</label>
-        <input type="text" id="cnpjEmpresa" required>
-        <label for="telefoneEmpresa">Telefone *</label>
-        <input type="text" id="telefoneEmpresa" required>
-        <label for="cepEmpresa">CEP *</label>
-        <input type="text" id="cepEmpresa" required>
-        <label for="ruaEmpresa">Rua *</label>
-        <input type="text" id="ruaEmpresa" required>
-        <label for="numeroEmpresa">Número *</label>
-        <input type="text" id="numeroEmpresa" required>
-        <label for="bairroEmpresa">Bairro *</label>
-        <input type="text" id="bairroEmpresa" required>
-        <label for="cidadeEmpresa">Cidade *</label>
-        <input type="text" id="cidadeEmpresa" required>
-        <label for="estadoEmpresa">Estado *</label>
-        <input type="text" id="estadoEmpresa" required>
-        <label for="websiteEmpresa">Website / Redes Sociais</label>
-        <input type="text" id="websiteEmpresa" placeholder="https://">
-      </fieldset>
-
-      <fieldset>
-        <legend>Serviços Oferecidos</legend>
-        <label><input type="checkbox" name="servicos" value="Banho e Tosa"> Banho e Tosa</label><br>
-        <label><input type="checkbox" name="servicos" value="Creche"> Creche</label><br>
-        <label><input type="checkbox" name="servicos" value="Hospedagem"> Hospedagem</label><br>
-        <label><input type="checkbox" name="servicos" value="Dog Walker"> Dog Walker</label><br>
-        <label><input type="checkbox" name="servicos" value="Pet Sitter"> Pet Sitter</label><br>
-        <label><input type="checkbox" name="servicos" value="Adestramento"> Adestramento</label><br>
-        <label for="outrosServicos">Outros (opcional)</label>
-        <input type="text" id="outrosServicos" placeholder="Descrever outros serviços">
-      </fieldset>
-
-      <fieldset>
-        <legend>Informações do Responsável</legend>
-        <label for="nomeResponsavel">Nome *</label>
-        <input type="text" id="nomeResponsavel" required>
-        <label for="telefoneResponsavel">Telefone *</label>
-        <input type="text" id="telefoneResponsavel" required>
-        <label for="emailResponsavel">E-mail *</label>
-        <input type="email" id="emailResponsavel" required>
-        <label for="cargoResponsavel">Cargo / Função</label>
-        <input type="text" id="cargoResponsavel">
-      </fieldset>
-
-      <fieldset>
-        <legend>Financeiro / Observações</legend>
-        <label for="faixaFaturamento">Faixa de Faturamento</label>
-        <input type="text" id="faixaFaturamento" placeholder="Ex: R$0-5.000">
-        <label for="formasPagamento">Formas de Pagamento</label>
-        <input type="text" id="formasPagamento" placeholder="Dinheiro, Cartão, Transferência">
-        <label for="limiteCredito">Limite de Crédito</label>
-        <input type="text" id="limiteCredito" placeholder="Ex: R$5.000">
-        <label for="observacoesParceiro">Observações</label>
-        <textarea id="observacoesParceiro" rows="3" placeholder="Notas internas"></textarea>
-        <label for="statusParceiro">Status</label>
-        <select id="statusParceiro">
-          <option value="ativo">Ativo</option>
-          <option value="inativo">Inativo</option>
-          <option value="vip">VIP</option>
-        </select>
-      </fieldset>
-
-      <button type="submit" id="btnSalvarParceiro">Salvar</button>
-      <p id="mensagemCadastroParceiro"></p>
-    </form>
+  <!-- KPI CARDS -->
+  <div class="kpis">
+    <div class="kpi-card">
+      <h3>Total Ativos</h3>
+      <p id="kpiAtivos">0</p>
+    </div>
+    <div class="kpi-card">
+      <h3>Total Inativos</h3>
+      <p id="kpiInativos">0</p>
+    </div>
+    <div class="kpi-card">
+      <h3>Total VIP</h3>
+      <p id="kpiVip">0</p>
+    </div>
+    <div class="kpi-card">
+      <h3>Faturamento Médio</h3>
+      <p id="kpiFaturamento">R$ 0,00</p>
+    </div>
   </div>
+
+  <!-- Barra de busca -->
+  <div class="search-bar">
+    <input type="text" id="buscaParceiro" placeholder="Pesquisar por nome, CNPJ, cidade">
+    <button id="btnBuscarParceiro"><i class="fas fa-search"></i> Buscar</button>
+    <button id="btnExportarParceiro"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+  </div>
+
+  <!-- Lista de Parceiros -->
+  <div class="partner-list" id="partnerList" style="display:none;">
+    <h3>Lista de Parceiros</h3>
+    <table id="tabelaParceiros">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>CNPJ</th>
+          <th>Cidade</th>
+          <th>Telefone</th>
+          <th>Responsável</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Modal Cadastro / Edição Parceiro -->
+  <div class="modal" id="modalParceiro">
+    <div class="modal-content">
+      <span class="modal-close" id="fecharModalParceiro">&times;</span>
+      <h2 id="modalTitleParceiro">Adicionar Parceiro</h2>
+      <form id="formParceiro">
+        
+        <fieldset>
+          <legend>Informações da Empresa</legend>
+          <label for="nomeEmpresa">Nome da Empresa *</label>
+          <input type="text" id="nomeEmpresa" required>
+          <label for="cnpjEmpresa">CNPJ / CPF *</label>
+          <input type="text" id="cnpjEmpresa" required>
+          <label for="telefoneEmpresa">Telefone *</label>
+          <input type="text" id="telefoneEmpresa" required>
+          <label for="cepEmpresa">CEP *</label>
+          <input type="text" id="cepEmpresa" required>
+          <label for="ruaEmpresa">Rua *</label>
+          <input type="text" id="ruaEmpresa" required>
+          <label for="numeroEmpresa">Número *</label>
+          <input type="text" id="numeroEmpresa" required>
+          <label for="bairroEmpresa">Bairro *</label>
+          <input type="text" id="bairroEmpresa" required>
+          <label for="cidadeEmpresa">Cidade *</label>
+          <input type="text" id="cidadeEmpresa" required>
+          <label for="estadoEmpresa">Estado *</label>
+          <input type="text" id="estadoEmpresa" required>
+          <label for="websiteEmpresa">Website / Redes Sociais</label>
+          <input type="text" id="websiteEmpresa" placeholder="https://">
+        </fieldset>
+
+        <fieldset>
+          <legend>Serviços Oferecidos</legend>
+          <label><input type="checkbox" name="servicos" value="Banho e Tosa"> Banho e Tosa</label><br>
+          <label><input type="checkbox" name="servicos" value="Creche"> Creche</label><br>
+          <label><input type="checkbox" name="servicos" value="Hospedagem"> Hospedagem</label><br>
+          <label><input type="checkbox" name="servicos" value="Dog Walker"> Dog Walker</label><br>
+          <label><input type="checkbox" name="servicos" value="Pet Sitter"> Pet Sitter</label><br>
+          <label><input type="checkbox" name="servicos" value="Adestramento"> Adestramento</label><br>
+          <label for="outrosServicos">Outros (opcional)</label>
+          <input type="text" id="outrosServicos" placeholder="Descrever outros serviços">
+        </fieldset>
+
+        <fieldset>
+          <legend>Informações do Responsável</legend>
+          <label for="nomeResponsavel">Nome *</label>
+          <input type="text" id="nomeResponsavel" required>
+          <label for="telefoneResponsavel">Telefone *</label>
+          <input type="text" id="telefoneResponsavel" required>
+          <label for="emailResponsavel">E-mail *</label>
+          <input type="email" id="emailResponsavel" required>
+          <label for="cargoResponsavel">Cargo / Função</label>
+          <input type="text" id="cargoResponsavel">
+        </fieldset>
+
+        <fieldset>
+          <legend>Financeiro / Observações</legend>
+          <label for="faixaFaturamento">Faixa de Faturamento</label>
+          <input type="text" id="faixaFaturamento" placeholder="Ex: R$0-5.000">
+          <label for="formasPagamento">Formas de Pagamento</label>
+          <input type="text" id="formasPagamento" placeholder="Dinheiro, Cartão, Transferência">
+          <label for="limiteCredito">Limite de Crédito</label>
+          <input type="text" id="limiteCredito" placeholder="Ex: R$5.000">
+          <label for="observacoesParceiro">Observações</label>
+          <textarea id="observacoesParceiro" rows="3" placeholder="Notas internas"></textarea>
+          <label for="statusParceiro">Status</label>
+          <select id="statusParceiro">
+            <option value="ativo">Ativo</option>
+            <option value="inativo">Inativo</option>
+            <option value="vip">VIP</option>
+          </select>
+        </fieldset>
+
+        <button type="submit" id="btnSalvarParceiro">Salvar</button>
+        <p id="mensagemCadastroParceiro"></p>
+      </form>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -267,6 +300,7 @@ document.getElementById("formParceiro").addEventListener("submit", async e=>{
       modal.style.display="none";
       document.getElementById("formParceiro").reset();
       mensagem.textContent="";
+      atualizarKPIs();
     },1500);
   }catch(err){
     mensagem.style.color="red";
@@ -275,79 +309,4 @@ document.getElementById("formParceiro").addEventListener("submit", async e=>{
 });
 
 // Buscar parceiros
-document.getElementById("btnBuscarParceiro").addEventListener("click", async ()=>{
-  const busca = document.getElementById("buscaParceiro").value.toLowerCase();
-  const tbody = document.querySelector("#tabelaParceiros tbody");
-  tbody.innerHTML = "";
-  const snapshot = await db.collection("parceiros").get();
-  let encontrados = [];
-  snapshot.forEach(doc=>{
-    const p = doc.data();
-    if(p.nome.toLowerCase().includes(busca) || p.cnpj.toLowerCase().includes(busca) || p.endereco.cidade.toLowerCase().includes(busca)){
-      encontrados.push({id: doc.id, data: p});
-    }
-  });
-  if(encontrados.length){
-    document.getElementById("partnerList").style.display="block";
-    encontrados.forEach(p=>{
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${p.data.nome}</td><td>${p.data.cnpj}</td><td>${p.data.endereco.cidade}</td><td>${p.data.telefone}</td><td>${p.data.responsavel.nome}</td><td>${p.data.status}</td>`;
-      tr.onclick = ()=>abrirEdicaoParceiro(p.id, p.data);
-      tbody.appendChild(tr);
-    });
-  } else {
-    document.getElementById("partnerList").style.display="none";
-  }
-});
-
-// Abrir edição
-function abrirEdicaoParceiro(id,data){
-  parceiroAtual = id;
-  modal.style.display="flex";
-  document.getElementById("modalTitleParceiro").textContent="Editar Parceiro";
-  document.getElementById("nomeEmpresa").value = data.nome || "";
-  document.getElementById("cnpjEmpresa").value = data.cnpj || "";
-  document.getElementById("telefoneEmpresa").value = data.telefone || "";
-  document.getElementById("cepEmpresa").value = data.endereco?.cep || "";
-  document.getElementById("ruaEmpresa").value = data.endereco?.rua || "";
-  document.getElementById("numeroEmpresa").value = data.endereco?.numero || "";
-  document.getElementById("bairroEmpresa").value = data.endereco?.bairro || "";
-  document.getElementById("cidadeEmpresa").value = data.endereco?.cidade || "";
-  document.getElementById("estadoEmpresa").value = data.endereco?.estado || "";
-  document.getElementById("websiteEmpresa").value = data.website || "";
-  document.querySelectorAll("input[name='servicos']").forEach(cb=>{
-    cb.checked = data.servicos?.includes(cb.value);
-  });
-  document.getElementById("outrosServicos").value = data.outrosServicos || "";
-  document.getElementById("nomeResponsavel").value = data.responsavel?.nome || "";
-  document.getElementById("telefoneResponsavel").value = data.responsavel?.telefone || "";
-  document.getElementById("emailResponsavel").value = data.responsavel?.email || "";
-  document.getElementById("cargoResponsavel").value = data.responsavel?.cargo || "";
-  document.getElementById("faixaFaturamento").value = data.financeiro?.faixaFaturamento || "";
-  document.getElementById("formasPagamento").value = data.financeiro?.formasPagamento || "";
-  document.getElementById("limiteCredito").value = data.financeiro?.limiteCredito || "";
-  document.getElementById("observacoesParceiro").value = data.financeiro?.observacoes || "";
-  document.getElementById("statusParceiro").value = data.status || "ativo";
-}
-
-// Exportar CSV
-document.getElementById("btnExportarParceiro").addEventListener("click", async ()=>{
-  const snapshot = await db.collection("parceiros").get();
-  let csv = "Nome,CNPJ,Cidade,Telefone,Responsável,Status\n";
-  snapshot.forEach(doc=>{
-    const p = doc.data();
-    csv += `"${p.nome}","${p.cnpj}","${p.endereco?.cidade || ''}","${p.telefone}","${p.responsavel?.nome || ''}","${p.status}"\n`;
-  });
-  const blob = new Blob([csv], {type:"text/csv"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "parceiros.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-});
-</script>
-
-</div>
-</body>
-</html>
+document.getElementById("btnBuscarParceiro").
