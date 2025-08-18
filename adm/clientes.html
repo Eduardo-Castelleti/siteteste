@@ -114,7 +114,7 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 <input type="text" id="cpfCliente" placeholder="000.000.000-00">
 <label for="nascimentoCliente">Data de Nascimento</label>
 <input type="date" id="nascimentoCliente">
-</select>
+<!-- (removido </select> que estava sobrando aqui) -->
 <button type="submit" id="btnSalvar">Salvar</button>
 <p id="mensagemCadastro"></p>
 </form>
@@ -161,19 +161,28 @@ function calcularIdade(nasc){
 }
 
 // Modal
-let clienteAtual=null;
+let clienteAtual = null;
+let statusAtual = "ativo"; // mantém o status do cliente em edição (fallback quando não existe campo no modal)
+
 const modal = document.getElementById("modalCadastro");
 document.getElementById("btnAbrirCadastro").onclick = ()=>{
     modal.style.display="flex";
     document.getElementById("modalTitle").textContent="Adicionar Cliente";
     clienteAtual=null;
+    statusAtual="ativo";
 };
 document.getElementById("fecharModal").onclick = ()=>{
     modal.style.display="none";
     document.getElementById("formCadastro").reset();
     document.getElementById("mensagemCadastro").textContent="";
 };
-window.onclick = e=>{if(e.target==modal){modal.style.display="none"; document.getElementById("formCadastro").reset(); document.getElementById("mensagemCadastro").textContent="";}};
+window.onclick = e=>{
+  if(e.target==modal){
+    modal.style.display="none"; 
+    document.getElementById("formCadastro").reset(); 
+    document.getElementById("mensagemCadastro").textContent="";
+  }
+};
 
 // Carregar clientes na tabela
 function atualizarClientes(snapshot){
@@ -195,6 +204,7 @@ db.collection("clientes").onSnapshot(snapshot=>{
 // Abrir edição
 function abrirEdicaoCliente(id,data){
     clienteAtual=id;
+    statusAtual = data.status || "ativo"; // guarda o status atual para usar no submit
     modal.style.display="flex";
     document.getElementById("modalTitle").textContent="Editar Cliente";
     document.getElementById("nomeCliente").value=data.nome||"";
@@ -202,22 +212,30 @@ function abrirEdicaoCliente(id,data){
     document.getElementById("emailCliente").value=data.email||"";
     document.getElementById("cpfCliente").value=data.cpf||"";
     document.getElementById("nascimentoCliente").value=data.nascimento||"";
-    document.getElementById("statusCliente").value=data.status||"ativo";
+    // (não existe campo statusCliente no modal; por isso não tentamos setá-lo)
 }
 
-// Salvar alterações
-document.getElementById("formCadastro").addEventListener("submit", async e=>{
+// Salvar (novo/edição)
+document.getElementById("formCadastro").addEventListener("submit", async (e)=>{
     e.preventDefault();
     const nome=document.getElementById("nomeCliente").value.trim();
     const telefone=document.getElementById("telefoneCliente").value.trim();
     const email=document.getElementById("emailCliente").value.trim();
     const cpf=document.getElementById("cpfCliente").value.trim();
     const nascimento=document.getElementById("nascimentoCliente").value;
-    const status=document.getElementById("statusCliente").value;
     const mensagem=document.getElementById("mensagemCadastro");
-    if(!nome||!telefone||!email){mensagem.style.color="red"; mensagem.textContent="Preencha todos os campos obrigatórios"; return;}
+
+    if(!nome||!telefone||!email){
+      mensagem.style.color="red"; 
+      mensagem.textContent="Preencha todos os campos obrigatórios"; 
+      return;
+    }
 
     try{
+        // Se um dia você adicionar <select id="statusCliente"> no modal, o código abaixo já captura
+        const statusEl = document.getElementById("statusCliente");
+        const status = statusEl ? statusEl.value : (clienteAtual ? statusAtual : "ativo");
+
         if(clienteAtual){
             // Atualizar cliente existente
             await db.collection("clientes").doc(clienteAtual).update({
@@ -226,17 +244,26 @@ document.getElementById("formCadastro").addEventListener("submit", async e=>{
             mensagem.style.color="green";
             mensagem.textContent="Cliente atualizado com sucesso!";
         }else{
-            // Novo cliente
+            // Novo cliente (Auth + Firestore)
             const senha=Math.random().toString(36).slice(-8)+"A1!";
             const userCredential=await auth.createUserWithEmailAndPassword(email,senha);
             await db.collection("clientes").doc(userCredential.user.uid).set({
-                nome, telefone, email, cpf:cpf||null, nascimento:nascimento||null, cadastro:new Date().toISOString(), status:"ativo", vip:false, fidelizado:false, assinaturas:[]
+                nome, telefone, email, cpf:cpf||null, nascimento:nascimento||null,
+                cadastro:new Date().toISOString(), status:"ativo", vip:false, fidelizado:false, assinaturas:[]
             });
             mensagem.style.color="green";
             mensagem.textContent="Cliente cadastrado com sucesso!";
         }
-        setTimeout(()=>{modal.style.display="none"; document.getElementById("formCadastro").reset(); mensagem.textContent="";},1500);
-    }catch(error){mensagem.style.color="red"; mensagem.textContent=error.message;}
+        setTimeout(()=>{
+          modal.style.display="none"; 
+          document.getElementById("formCadastro").reset(); 
+          mensagem.textContent="";
+        },1500);
+    }catch(error){
+        console.error(error);
+        mensagem.style.color="red"; 
+        mensagem.textContent=error.message;
+    }
 });
 
 // Filtro simples
@@ -265,7 +292,17 @@ document.getElementById("btnBuscar").addEventListener("click",()=>{
             }
             return incluir;
         });
-        atualizarClientes(filtrados.map(c=>({id:c.id, data:c})));
+
+        // reaproveita a mesma função de render passando um "mock" de docs
+        const tbody=document.querySelector("#tabelaClientes tbody");
+        tbody.innerHTML="";
+        filtrados.forEach(c=>{
+          const tr=document.createElement("tr");
+          const idade=calcularIdade(c.nascimento);
+          tr.innerHTML=`<td>${c.nome}</td><td>${c.email}</td><td>${c.telefone}</td><td>${c.cpf||''}</td><td>${c.status}</td><td>${idade}</td>`;
+          tr.onclick = ()=>abrirEdicaoCliente(c.id,c);
+          tbody.appendChild(tr);
+        });
     });
 });
 
