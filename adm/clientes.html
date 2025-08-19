@@ -1,436 +1,194 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Pet - Clientes</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-  * {margin:0; padding:0; box-sizing:border-box; font-family:'Roboto', sans-serif;}
-  body {display:flex; min-height:100vh; background:#f4f6f9;}
-  .sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
-  .sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
-  .sidebar a {padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none; border-bottom:1px solid #34495e; transition:0.3s;}
-  .sidebar a:hover {background:#34495e;}
-  .sidebar a i {margin-right:15px;}
-  .badge {background:red; color:white; border-radius:50%; padding:2px 8px; font-size:12px; margin-left:auto;}
-  .main-content {flex:1; padding:20px; overflow-y:auto;}
-  h1 {margin-bottom:20px; color:#2c3e50; display:flex; justify-content:space-between; align-items:center;}
-  h1 button {padding:8px 15px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer; transition:0.3s;}
-  h1 button:hover {background:#2ecc71;}
-  .cards {display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:30px;}
-  .card {padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); color:white; position:relative; transition:0.3s;}
-  .card h3 {margin-bottom:10px; font-size:16px;}
-  .card p {font-size:20px; font-weight:700;}
-  .card.total {background:#2980b9;}
-  .card.novos {background:#1abc9c;}
-  .card.fidelizados {background:#27ae60;}
-  .card.vip {background:#8e44ad;}
-  .card.alerta {background:#e74c3c;}
-  .search-bar {margin-bottom:20px; display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:10px; flex-wrap:wrap;}
-  .search-bar input, .search-bar select {padding:10px; border-radius:5px; border:1px solid #ccc;}
-  .search-bar button {padding:10px 15px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
-  .search-bar button:hover {background:#3498db;}
-  .graphs {display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:20px; margin-top:30px;}
-  canvas {background:#fff; border-radius:10px; padding:10px;}
-  .client-list {margin-top:20px; background:#fff; border-radius:10px; padding:20px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
-  .client-list table {width:100%; border-collapse:collapse;}
-  .client-list table th, .client-list table td {padding:10px; border-bottom:1px solid #ddd; text-align:left; cursor:pointer;}
-  .client-list table tr:hover {background:#f0f0f0;}
-  .modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999;}
-  .modal-content {background:#fff; padding:20px; border-radius:10px; width:420px; max-width:90%; position:relative;}
-  .modal-content h2 {margin-bottom:15px;}
-  .modal-content label {display:block; margin-top:10px;}
-  .modal-content input, .modal-content select {width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc;}
-  .modal-content button {margin-top:15px; padding:10px 15px; border:none; border-radius:5px; background:#27ae60; color:white; cursor:pointer;}
-  .modal-content button:hover {background:#2ecc71;}
-  .modal-close {position:absolute; top:10px; right:15px; cursor:pointer; font-size:18px;}
-  #mensagemCadastro{margin-top:10px; font-weight:500;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Clientes</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f8f9fa; }
+    h1 { margin-bottom: 20px; }
+    .kpi-container { display: flex; gap: 20px; margin-bottom: 20px; }
+    .kpi { flex: 1; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); text-align: center; }
+    .kpi h2 { margin: 0; font-size: 24px; color: #007bff; }
+    .kpi p { margin: 5px 0 0; color: #555; }
+    button { padding: 10px 15px; border: none; border-radius: 6px; background: #007bff; color: #fff; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+    th { background: #007bff; color: #fff; }
+    tr:nth-child(even) { background: #f2f2f2; }
+    #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+    #modalContent { background: #fff; padding: 20px; border-radius: 8px; width: 400px; }
+    .modal-actions { display:flex; justify-content: space-between; margin-top: 15px; }
+  </style>
 </head>
 <body>
+  <h1>Gestão de Clientes</h1>
 
-  <div class="sidebar">
-    <h2>Admin Pet</h2>
-    <a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-    <a href="clientes.html" class="active"><i class="fas fa-user"></i> Clientes</a>
-    <a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
-    <a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
-    <a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
-    <a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
-    <a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
-    <a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
-    <a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
-    <a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
-    <a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
-    <a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
-    <a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
+  <div class="kpi-container">
+    <div class="kpi"><h2 id="totalClientes">0</h2><p>Total Clientes</p></div>
+    <div class="kpi"><h2 id="novosMes">0</h2><p>Novos no Mês</p></div>
+    <div class="kpi"><h2 id="fidelizados">0</h2><p>Fidelizados</p></div>
+    <div class="kpi"><h2 id="vip">0</h2><p>VIP</p></div>
+    <div class="kpi"><h2 id="aniversarios">0</h2><p>Aniversários 30d</p></div>
   </div>
 
-  <div class="main-content">
-    <h1>Clientes <button id="btnAbrirCadastro">Cadastrar Cliente</button></h1>
+  <button onclick="abrirCadastro()"><i class="fa fa-plus"></i> Cadastrar Cliente</button>
+  <button onclick="exportarCSV()"><i class="fa fa-file-csv"></i> Exportar CSV</button>
 
-    <div class="cards">
-      <div class="card total"><h3>Total de Clientes</h3><p id="totalClientes">0</p></div>
-      <div class="card novos"><h3>Novos no Mês</h3><p id="clientesNovos">0</p></div>
-      <div class="card fidelizados"><h3>Fidelizados</h3><p id="clientesFidelizados">0</p></div>
-      <div class="card vip"><h3>VIP</h3><p id="clientesVIP">0</p></div>
-      <div class="card alerta"><h3>Aniversário Próximo</h3><p id="clientesAniversario">0</p></div>
-    </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th><th>Telefone</th><th>Status</th><th>Cadastro</th>
+      </tr>
+    </thead>
+    <tbody id="listaClientes"></tbody>
+  </table>
 
-    <div class="search-bar">
-      <input type="text" id="buscaCliente" placeholder="Pesquisar por nome, e-mail, telefone, CPF">
-      <select id="filtroStatus" multiple>
-        <option value="ativo">Ativo</option>
-        <option value="inativo">Inativo</option>
+  <!-- Modal Cadastro/Edição -->
+  <div id="modal">
+    <div id="modalContent">
+      <h2 id="modalTitle">Cadastrar Cliente</h2>
+      <input type="hidden" id="clienteId" />
+      <label>Nome</label><br>
+      <input type="text" id="nome" style="width:100%"><br>
+      <label>Telefone</label><br>
+      <input type="text" id="telefone" style="width:100%"><br>
+      <label>Status</label><br>
+      <select id="status" style="width:100%">
+        <option value="Novo">Novo</option>
+        <option value="Fidelizado">Fidelizado</option>
         <option value="VIP">VIP</option>
-        <option value="fidelizado">Fidelizado</option>
-      </select>
-      <select id="filtroIdade" multiple>
-        <option value="0-1">0-1 anos</option>
-        <option value="2-5">2-5 anos</option>
-        <option value="6-10">6-10 anos</option>
-        <option value="11+">11+ anos</option>
-      </select>
-      <button id="btnBuscar"><i class="fas fa-search"></i> Buscar</button>
-      <button id="btnExportar"><i class="fas fa-file-csv"></i> Exportar CSV</button>
-    </div>
-
-    <!-- Modal Cadastro / Edição -->
-    <div class="modal" id="modalCadastro">
-      <div class="modal-content">
-        <span class="modal-close" id="fecharModal">&times;</span>
-        <h2 id="modalTitle">Adicionar Cliente</h2>
-        <form id="formCadastro">
-          <label for="nomeCliente">Nome *</label>
-          <input type="text" id="nomeCliente" required>
-
-          <label for="telefoneCliente">Telefone *</label>
-          <input type="text" id="telefoneCliente" placeholder="(99) 99999-9999" required>
-
-          <label for="emailCliente">E-mail *</label>
-          <input type="email" id="emailCliente" required>
-
-          <label for="cpfCliente">CPF (opcional)</label>
-          <input type="text" id="cpfCliente" placeholder="000.000.000-00">
-
-          <label for="nascimentoCliente">Data de Nascimento</label>
-          <input type="date" id="nascimentoCliente">
-
-          <!-- Caso queira expor o status no futuro, basta descomentar: -->
-          <!--
-          <label for="statusCliente">Status</label>
-          <select id="statusCliente">
-            <option value="ativo" selected>Ativo</option>
-            <option value="inativo">Inativo</option>
-            <option value="fidelizado">Fidelizado</option>
-            <option value="VIP">VIP</option>
-          </select>
-          -->
-
-          <button type="submit" id="btnSalvar">Salvar</button>
-          <p id="mensagemCadastro"></p>
-        </form>
+      </select><br>
+      <label>Aniversário</label><br>
+      <input type="date" id="aniversario" style="width:100%"><br>
+      <p id="infoCadastro"></p>
+      <div class="modal-actions">
+        <button onclick="salvarCliente()">Salvar</button>
+        <button style="background:#dc3545" onclick="excluirCliente()">Excluir</button>
+        <button style="background:#6c757d" onclick="fecharModal()">Cancelar</button>
       </div>
     </div>
-
-    <div class="client-list">
-      <h3>Lista de Clientes</h3>
-      <table id="tabelaClientes">
-        <thead>
-          <tr>
-            <th>Nome</th><th>E-mail</th><th>Telefone</th><th>CPF</th><th>Status</th><th>Idade</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
   </div>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
-      authDomain: "site-f6495.firebaseapp.com",
-      projectId: "site-f6495",
-      storageBucket: "site-f6495.firebasestorage.app",
-      messagingSenderId: "230161402024",
-      appId: "1:230161402024:web:462a911919ebf8a0809a9d",
-      measurementId: "G-51G8XF6JH0"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
+  authDomain: "site-f6495.firebaseapp.com",
+  projectId: "site-f6495",
+  storageBucket: "site-f6495.firebasestorage.app",
+  messagingSenderId: "230161402024",
+  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
+  measurementId: "G-51G8XF6JH0"
+};
+    const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Utilitário para lidar com datas tanto em string, number quanto Firestore Timestamp
-    function parseToDate(value){
-      if(!value) return null;
-      if (typeof value === 'string' || typeof value === 'number') return new Date(value);
-      if (value && typeof value.toDate === 'function') return value.toDate(); // Firestore Timestamp
-      return null;
+    const lista = document.getElementById("listaClientes");
+    let clientesCache = [];
+
+    function abrirCadastro(){
+      document.getElementById("clienteId").value = "";
+      document.getElementById("nome").value = "";
+      document.getElementById("telefone").value = "";
+      document.getElementById("status").value = "Novo";
+      document.getElementById("aniversario").value = "";
+      document.getElementById("infoCadastro").innerText = "";
+      document.getElementById("modalTitle").innerText = "Cadastrar Cliente";
+      document.getElementById("modal").style.display="flex";
     }
 
-    function calcularIdade(nasc){
-      const data = parseToDate(nasc);
-      if(!data || isNaN(data)) return "";
-      const hoje = new Date();
-      let idade = hoje.getFullYear() - data.getFullYear();
-      const m = hoje.getMonth() - data.getMonth();
-      if(m < 0 || (m === 0 && hoje.getDate() < data.getDate())) idade--;
-      return idade;
+    function abrirEdicao(cliente){
+      document.getElementById("clienteId").value = cliente.id;
+      document.getElementById("nome").value = cliente.nome;
+      document.getElementById("telefone").value = cliente.telefone;
+      document.getElementById("status").value = cliente.status || "Novo";
+      document.getElementById("aniversario").value = cliente.aniversario || "";
+      let cadastro = cliente.cadastro ? formatarData(cliente.cadastro) : "";
+      document.getElementById("infoCadastro").innerText = cadastro ? `Cadastrado em: ${cadastro}` : "";
+      document.getElementById("modalTitle").innerText = "Editar Cliente";
+      document.getElementById("modal").style.display="flex";
     }
 
-    // Modal
-    let clienteAtual = null;
-    let statusAtual = "ativo"; // fallback quando o campo não existe no formulário
+    function fecharModal(){ document.getElementById("modal").style.display="none"; }
 
-    const modal = document.getElementById("modalCadastro");
-    document.getElementById("btnAbrirCadastro").onclick = ()=>{
-      modal.style.display = "flex";
-      document.getElementById("modalTitle").textContent = "Adicionar Cliente";
-      clienteAtual = null;
-      statusAtual = "ativo";
-    };
-    document.getElementById("fecharModal").onclick = ()=>{
-      modal.style.display = "none";
-      document.getElementById("formCadastro").reset();
-      document.getElementById("mensagemCadastro").textContent = "";
-    };
-    window.onclick = (e)=>{
-      if(e.target === modal){
-        modal.style.display = "none";
-        document.getElementById("formCadastro").reset();
-        document.getElementById("mensagemCadastro").textContent = "";
+    async function salvarCliente(){
+      const id = document.getElementById("clienteId").value;
+      const nome = document.getElementById("nome").value;
+      const telefone = document.getElementById("telefone").value;
+      const status = document.getElementById("status").value;
+      const aniversario = document.getElementById("aniversario").value;
+      if(!nome) return alert("Nome obrigatório");
+
+      if(id){
+        await db.collection("clientes").doc(id).update({nome, telefone, status, aniversario});
+      } else {
+        await db.collection("clientes").add({
+          nome, telefone, status, aniversario,
+          cadastro: firebase.firestore.FieldValue.serverTimestamp()
+        });
       }
-    };
-
-    // Render da tabela
-    function atualizarClientes(snapshotDocs){
-      const tbody = document.querySelector("#tabelaClientes tbody");
-      tbody.innerHTML = "";
-      snapshotDocs.forEach(doc =>{
-        const c = doc.data();
-        const idade = calcularIdade(c.nascimento);
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${c.nome || ''}</td>
-          <td>${c.email || ''}</td>
-          <td>${c.telefone || ''}</td>
-          <td>${c.cpf || ''}</td>
-          <td>${c.status || ''}</td>
-          <td>${idade}</td>
-        `;
-        tr.onclick = ()=>abrirEdicaoCliente(doc.id, c);
-        tbody.appendChild(tr);
-      });
+      fecharModal();
     }
 
-    // KPIs em tempo real
-    function atualizarKPIs(snapshotDocs){
-      const total = snapshotDocs.length;
+    async function excluirCliente(){
+      const id = document.getElementById("clienteId").value;
+      if(!id) return fecharModal();
+      if(confirm("Deseja realmente excluir este cliente?")){
+        await db.collection("clientes").doc(id).delete();
+        fecharModal();
+      }
+    }
 
+    function formatarData(valor){
+      if(!valor) return "";
+      let d;
+      if(valor.toDate) d = valor.toDate();
+      else d = new Date(valor);
+      return d.toLocaleString();
+    }
+
+    function atualizarKPIs(clientes){
+      document.getElementById("totalClientes").innerText = clientes.length;
       const agora = new Date();
-      const mesAtual = agora.getMonth();
-      const anoAtual = agora.getFullYear();
-
-      let novos = 0, fidelizados = 0, vip = 0, aniversarios = 0;
-
-      snapshotDocs.forEach(doc =>{
-        const c = doc.data();
-
-        // Novos no mês (aceita string, number ou Firestore Timestamp)
-        const dc = parseToDate(c.cadastro);
-        if(dc && !isNaN(dc)){
-          if(dc.getMonth() === mesAtual && dc.getFullYear() === anoAtual){
-            novos++;
-          }
-        }
-
-        // Fidelizados
-        const status = (c.status || '').toString().toLowerCase();
-        if (c.fidelizado === true || status === 'fidelizado') fidelizados++;
-
-        // VIP
-        if (c.vip === true || status === 'vip') vip++;
-
-        // Aniversários nos próximos 30 dias
-        const dn = parseToDate(c.nascimento);
-        if(dn && !isNaN(dn)){
-          // próximo aniversário considerando ano atual
-          let proxAniv = new Date(agora.getFullYear(), dn.getMonth(), dn.getDate());
-          // Se já passou neste ano, joga para o próximo
-          if(proxAniv < new Date(agora.getFullYear(), agora.getMonth(), agora.getDate())){
-            proxAniv.setFullYear(agora.getFullYear() + 1);
-          }
-          const diffDias = (proxAniv - agora) / (1000*60*60*24);
-          if(diffDias >= 0 && diffDias <= 30) aniversarios++;
-        }
-      });
-
-      document.getElementById("totalClientes").textContent = total;
-      document.getElementById("clientesNovos").textContent = novos;
-      document.getElementById("clientesFidelizados").textContent = fidelizados;
-      document.getElementById("clientesVIP").textContent = vip;
-      document.getElementById("clientesAniversario").textContent = aniversarios;
+      const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+      const novos = clientes.filter(c=> c.cadastro && (c.cadastro.toDate ? c.cadastro.toDate() : new Date(c.cadastro)) >= inicioMes);
+      document.getElementById("novosMes").innerText = novos.length;
+      document.getElementById("fidelizados").innerText = clientes.filter(c=>c.status==="Fidelizado").length;
+      document.getElementById("vip").innerText = clientes.filter(c=>c.status==="VIP").length;
+      const limite = new Date(); limite.setDate(limite.getDate()+30);
+      const anivers = clientes.filter(c=> c.aniversario && new Date(c.aniversario) >= agora && new Date(c.aniversario) <= limite);
+      document.getElementById("aniversarios").innerText = anivers.length;
     }
 
-    // Snapshot em tempo real
-    const unsubscribe = db.collection("clientes").onSnapshot(snapshot =>{
-      const docs = snapshot.docs;
-      atualizarClientes(docs);
-      atualizarKPIs(docs);
-    }, (err)=>{
-      console.error('Erro no onSnapshot:', err);
-    });
-
-    // Abrir edição
-    function abrirEdicaoCliente(id, data){
-      clienteAtual = id;
-      statusAtual = data.status || "ativo";
-      modal.style.display = "flex";
-      document.getElementById("modalTitle").textContent = "Editar Cliente";
-      document.getElementById("nomeCliente").value = data.nome || "";
-      document.getElementById("telefoneCliente").value = data.telefone || "";
-      document.getElementById("emailCliente").value = data.email || "";
-      document.getElementById("cpfCliente").value = data.cpf || "";
-      const nasc = parseToDate(data.nascimento);
-      document.getElementById("nascimentoCliente").value = nasc && !isNaN(nasc) ? new Date(+nasc - (nasc.getTimezoneOffset()*60000)).toISOString().slice(0,10) : "";
+    function renderTabela(){
+      lista.innerHTML = "";
+      clientesCache.forEach(c => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${c.nome}</td><td>${c.telefone||""}</td><td>${c.status||""}</td><td>${formatarData(c.cadastro)}</td>`;
+        tr.onclick = ()=>abrirEdicao(c);
+        lista.appendChild(tr);
+      });
     }
 
-    // Salvar cliente (novo/edição)
-    document.getElementById("formCadastro").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const nome = document.getElementById("nomeCliente").value.trim();
-      const telefone = document.getElementById("telefoneCliente").value.trim();
-      const email = document.getElementById("emailCliente").value.trim();
-      const cpf = document.getElementById("cpfCliente").value.trim();
-      const nascimento = document.getElementById("nascimentoCliente").value; // yyyy-mm-dd
-      const mensagem = document.getElementById("mensagemCadastro");
-
-      if(!nome || !telefone || !email){
-        mensagem.style.color = "red";
-        mensagem.textContent = "Preencha todos os campos obrigatórios";
-        return;
-      }
-
-      try{
-        const statusEl = document.getElementById("statusCliente");
-        const status = statusEl ? statusEl.value : (clienteAtual ? statusAtual : "ativo");
-
-        if(clienteAtual){
-          await db.collection("clientes").doc(clienteAtual).update({
-            nome,
-            telefone,
-            email,
-            cpf: cpf || null,
-            nascimento: nascimento || null,
-            status
-          });
-          mensagem.style.color = "green";
-          mensagem.textContent = "Cliente atualizado com sucesso!";
-        } else {
-          // Gera uma senha provisória forte
-          const senha = Math.random().toString(36).slice(-8) + "A1!";
-          // Cria usuário de autenticação (pode falhar se e-mail já existir)
-          const cred = await auth.createUserWithEmailAndPassword(email, senha);
-          // Salva dados no Firestore (usa serverTimestamp para melhor consistência)
-          await db.collection("clientes").doc(cred.user.uid).set({
-            nome,
-            telefone,
-            email,
-            cpf: cpf || null,
-            nascimento: nascimento || null,
-            cadastro: firebase.firestore.FieldValue.serverTimestamp(),
-            status: "ativo",
-            vip: false,
-            fidelizado: false,
-            assinaturas: []
-          });
-          mensagem.style.color = "green";
-          mensagem.textContent = "Cliente cadastrado com sucesso!";
-        }
-
-        setTimeout(()=>{
-          modal.style.display = "none";
-          document.getElementById("formCadastro").reset();
-          mensagem.textContent = "";
-        }, 1200);
-      } catch(error){
-        console.error(error);
-        mensagem.style.color = "red";
-        mensagem.textContent = error && error.message ? error.message : 'Erro ao salvar cliente';
-      }
-    });
-
-    // Filtro simples (lado cliente)
-    document.getElementById("btnBuscar").addEventListener("click", ()=>{
-      db.collection("clientes").get().then(snapshot =>{
-        const resultados = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        const busca = document.getElementById("buscaCliente").value.toLowerCase();
-        const statusSel = [...document.getElementById("filtroStatus").selectedOptions].map(o=>o.value.toLowerCase());
-        const idadeSel = [...document.getElementById("filtroIdade").selectedOptions].map(o=>o.value);
-
-        const filtrados = resultados.filter(c =>{
-          let incluir = true;
-          if (busca) {
-            const alvo = `${c.nome||''} ${c.email||''} ${c.telefone||''} ${c.cpf||''}`.toLowerCase();
-            if(!alvo.includes(busca)) incluir = false;
-          }
-          if (incluir && statusSel.length){
-            const st = (c.status||'').toLowerCase();
-            if(!statusSel.includes(st)) incluir = false;
-          }
-          if (incluir && idadeSel.length){
-            const idade = calcularIdade(c.nascimento);
-            let ok = false;
-            idadeSel.forEach(f =>{
-              if(f === "0-1" && idade >= 0 && idade <= 1) ok = true;
-              if(f === "2-5" && idade >= 2 && idade <= 5) ok = true;
-              if(f === "6-10" && idade >= 6 && idade <= 10) ok = true;
-              if(f === "11+" && idade >= 11) ok = true;
-            });
-            if(!ok) incluir = false;
-          }
-          return incluir;
-        });
-
-        const tbody = document.querySelector("#tabelaClientes tbody");
-        tbody.innerHTML = "";
-        filtrados.forEach(c =>{
-          const tr = document.createElement("tr");
-          const idade = calcularIdade(c.nascimento);
-          tr.innerHTML = `
-            <td>${c.nome || ''}</td>
-            <td>${c.email || ''}</td>
-            <td>${c.telefone || ''}</td>
-            <td>${c.cpf || ''}</td>
-            <td>${c.status || ''}</td>
-            <td>${isNaN(idade) ? '' : idade}</td>
-          `;
-          tr.onclick = ()=>abrirEdicaoCliente(c.id, c);
-          tbody.appendChild(tr);
-        });
+    function exportarCSV(){
+      let csv = "Nome,Telefone,Status,Cadastro\n";
+      clientesCache.forEach(c=>{
+        csv += `${c.nome},${c.telefone||""},${c.status||""},${formatarData(c.cadastro)}\n`;
       });
-    });
+      const blob = new Blob([csv],{type:"text/csv"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href=url; a.download="clientes.csv"; a.click();
+    }
 
-    // Exportar CSV (linhas atualmente exibidas na tabela)
-    document.getElementById('btnExportar').addEventListener('click', ()=>{
-      let csv = "Nome,E-mail,Telefone,CPF,Status,Idade\n";
-      document.querySelectorAll('#tabelaClientes tbody tr').forEach(r =>{
-        const cols = r.querySelectorAll('td');
-        csv += Array.from(cols).map(c => (c.textContent || '').replace(/,/g, ';')).join(',') + "\n";
-      });
-      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'clientes.csv';
-      link.click();
+    db.collection("clientes").onSnapshot(snap=>{
+      clientesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+      atualizarKPIs(clientesCache);
+      renderTabela();
     });
   </script>
 </body>
