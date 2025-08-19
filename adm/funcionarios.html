@@ -111,14 +111,15 @@
     function openModal(edit = false, funcionario = null) {
       modal.style.display = "block";
       document.getElementById("modalTitle").innerText = edit ? "Editar Funcionário" : "Cadastrar Funcionário";
+
       if(edit && funcionario){
         document.getElementById("funcionarioId").value = funcionario.id;
         document.getElementById("nome").value = funcionario.nome;
         document.getElementById("cargo").value = funcionario.cargo;
         document.getElementById("status").value = funcionario.status;
         document.getElementById("admissao").value = funcionario.admissao;
-        document.getElementById("servicos").value = funcionario.servicos;
-        document.getElementById("faturamento").value = funcionario.faturamento;
+        document.getElementById("servicos").value = funcionario.servicos || 0;
+        document.getElementById("faturamento").value = funcionario.faturamento || 0;
       } else {
         document.getElementById("funcionarioId").value = "";
         document.getElementById("nome").value = "";
@@ -129,6 +130,7 @@
         document.getElementById("faturamento").value = 0;
       }
     }
+
     function closeModal(){ modal.style.display = "none"; }
 
     async function saveFuncionario() {
@@ -173,7 +175,7 @@
           <td>${data.servicos || 0}</td>
           <td>R$ ${(data.faturamento || 0).toFixed(2)}</td>
           <td class="actions">
-            <button class="edit" onclick='openModal(true, ${JSON.stringify({id: docSnap.id, ...data})})'>Editar</button>
+            <button class="edit" onclick="editFuncionario('${docSnap.id}', ${JSON.stringify(data)})">Editar</button>
             <button class="delete" onclick="deleteFuncionario('${docSnap.id}')">Excluir</button>
           </td>
         `;
@@ -185,6 +187,10 @@
       document.getElementById("totalFaturamento").innerText = `R$ ${totalFat.toFixed(2)}`;
     }
 
+    function editFuncionario(id, data){
+      openModal(true, {id, ...data});
+    }
+
     async function deleteFuncionario(id){
       if(confirm("Deseja realmente excluir este funcionário?")){
         await deleteDoc(doc(db, "funcionarios", id));
@@ -192,6 +198,7 @@
       }
     }
 
+    // Carrega a lista ao abrir a página
     loadFuncionarios();
   </script>
 </body>
