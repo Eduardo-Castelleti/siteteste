@@ -43,6 +43,9 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 </style>
 </head>
 <body>
+</style>
+</head>
+<body>
 
 <div class="sidebar">
 <h2>Admin Pet</h2>
@@ -57,8 +60,10 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 <a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
 <a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
 <a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
+<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
+<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
 </div>
-
+  
 <div class="main-content">
 <h1>Clientes</h1>
 <button id="btnCadastrar">Cadastrar Cliente</button>
@@ -117,7 +122,7 @@ const firebaseConfig = {
   storageBucket: "petdudis-db2b2.firebasestorage.app",
   messagingSenderId: "410321083813",
   appId: "1:410321083813:web:eaf0082878a8281eab5c4c"
-};
+}; 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
@@ -183,6 +188,80 @@ document.getElementById('formCliente').addEventListener('submit', async e => {
     console.error(err);
     alert("Erro ao cadastrar cliente: " + err.message);
   }
+});
+
+// Cards
+const ativosEl = document.getElementById('ativos');
+const vipEl = document.getElementById('vip');
+const vipEmergentesEl = document.getElementById('vipEmergentes');
+const potenciaisEl = document.getElementById('potenciaisVIP');
+const ticketEl = document.getElementById('ticketMedio');
+const frequenciaEl = document.getElementById('frequenciaMedia');
+
+// Gráfico evolução
+const graficoEvolucao = new Chart(document.getElementById('graficoEvolucao'), {
+    type:'line',
+    data:{labels:[], datasets:[
+        {label:'Ativos', data:[], borderColor:'#2980b9', fill:false},
+        {label:'Novos', data:[], borderColor:'#1abc9c', fill:false}
+    ]},
+    options:{responsive:true, plugins:{legend:{position:'top'}}}
+});
+
+// Atualização automática
+db.collection("clientes").onSnapshot(snapshot => {
+    let ativos=0, vip=0, vipEmergentes=0, potenciaisVIP=0, totalCompras=0, totalFreq=0;
+
+    const hoje = new Date();
+
+    snapshot.forEach(doc=>{
+        const c = doc.data();
+        const compras = c.historicoCompras || []; // array de objetos {data:..., valor:...}
+        const totalCliente = compras.reduce((sum,v)=>sum+v.valor,0);
+        const freqCliente = compras.length;
+
+        totalCompras += totalCliente;
+        totalFreq += freqCliente;
+
+        if(c.ativo) ativos++;
+        if(c.tipo === "VIP") vip++;
+
+        // VIP Emergentes: compraram mais que X nos últimos 3 meses
+        const tresMeses = new Date(hoje.getFullYear(), hoje.getMonth()-3, 1);
+        const comprasUlt3Meses = compras.filter(x=>new Date(x.data)>=tresMeses);
+        if(comprasUlt3Meses.reduce((sum,v)=>sum+v.valor,0) > 500 && c.tipo !== "VIP") vipEmergentes++;
+
+        // Potenciais VIPs: se mantiverem ritmo, podem virar VIP
+        const mediaMensal = comprasUlt3Meses.reduce((sum,v)=>sum+v.valor,0)/3;
+        if(mediaMensal > 300 && c.tipo !== "VIP") potenciaisVIP++;
+    });
+
+    ativosEl.textContent = ativos;
+    vipEl.textContent = vip;
+    vipEmergentesEl.textContent = vipEmergentes;
+    potenciaisEl.textContent = potenciaisVIP;
+    ticketEl.textContent = "R$ "+(ativos>0? (totalCompras/ativos).toFixed(2):0);
+    frequenciaEl.textContent = (ativos>0? (totalFreq/ativos).toFixed(1):0);
+
+    // Gráfico evolução últimos 6 meses
+    const labels=[], ativosMes=[], novosMes=[];
+    for(let i=5;i>=0;i--){
+        const dataMes = new Date(hoje.getFullYear(), hoje.getMonth()-i,1);
+        labels.push(dataMes.toLocaleString('pt-BR',{month:'short',year:'2-digit'}));
+        let ativosCount=0, novosCount=0;
+        snapshot.forEach(doc=>{
+            const c = doc.data();
+            const cadastro = new Date(c.cadastro);
+            if(c.ativo && cadastro <= new Date(dataMes.getFullYear(),dataMes.getMonth()+1,0)) ativosCount++;
+            if(cadastro >= dataMes && cadastro < new Date(dataMes.getFullYear(),dataMes.getMonth()+1,0)) novosCount++;
+        });
+        ativosMes.push(ativosCount);
+        novosMes.push(novosCount);
+    }
+    graficoEvolucao.data.labels = labels;
+    graficoEvolucao.data.datasets[0].data = ativosMes;
+    graficoEvolucao.data.datasets[1].data = novosMes;
+    graficoEvolucao.update();
 });
 </script>
 </body>
