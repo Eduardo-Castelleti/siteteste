@@ -58,7 +58,7 @@ button:hover {background:#3498db;}
 <h1>Funcionários</h1>
 
 <div class="top-bar">
-<button onclick="window.location.href='cadastrar_funcionario.html'"><i class="fas fa-plus"></i> Cadastrar Funcionário</button>
+  <button onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Funcionário</button>
 </div>
 
 <div class="cards">
@@ -72,19 +72,75 @@ button:hover {background:#3498db;}
 <div class="graph"><canvas id="graficoProdutividade"></canvas></div>
 <div class="graph"><canvas id="graficoEvolucao"></canvas></div>
 
+<!-- Modal de cadastro -->
+<div id="modalFuncionario">
+  <div class="modal-content">
+    <h2>Cadastrar Funcionário</h2>
+    <span onclick="fecharModal()">X</span>
+    <form id="formFuncionario">
+      <label>Foto:</label>
+      <input type="file" id="fotoFuncionario" accept="image/*"><br>
+      <label>Nome:</label>
+      <input type="text" id="nomeFuncionario" required><br>
+      <label>Telefone:</label>
+      <input type="text" id="telefoneFuncionario" required><br>
+      <label>CPF:</label>
+      <input type="text" id="cpfFuncionario" required><br>
+      <label>Data de Nascimento:</label>
+      <input type="date" id="nascimentoFuncionario"><br>
+      <label>Cargo:</label>
+      <input type="text" id="cargoFuncionario" required><br>
+      <label>Situação:</label>
+      <select id="statusFuncionario">
+        <option value="ativo">Ativo</option>
+        <option value="ferias">Férias</option>
+        <option value="desligado">Desligado</option>
+      </select><br>
+      <button type="submit">Salvar</button>
+    </form>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "SEU_SENDER_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyCLBni8BY6zjHGMuoybZ06SBK4U9c1BhyE",
+  authDomain: "petdudis-db2b2.firebaseapp.com",
+  projectId: "petdudis-db2b2",
+  storageBucket: "petdudis-db2b2.firebasestorage.app",
+  messagingSenderId: "410321083813",
+  appId: "1:410321083813:web:eaf0082878a8281eab5c4c"
 };
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
+// Abrir e fechar modal
+function abrirModal(){ document.getElementById('modalFuncionario').style.display='flex'; }
+function fecharModal(){ document.getElementById('modalFuncionario').style.display='none'; }
+
+// Salvar funcionário
+document.getElementById('formFuncionario').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const funcionario = {
+    nome: document.getElementById('nomeFuncionario').value,
+    telefone: document.getElementById('telefoneFuncionario').value,
+    cpf: document.getElementById('cpfFuncionario').value,
+    nascimento: document.getElementById('nascimentoFuncionario').value,
+    cargo: document.getElementById('cargoFuncionario').value,
+    status: document.getElementById('statusFuncionario').value,
+    dataCadastro: new Date().toISOString()
+  };
+  try {
+    await db.collection("funcionarios").add(funcionario);
+    alert("Funcionário cadastrado com sucesso!");
+    fecharModal();
+    document.getElementById('formFuncionario').reset();
+  } catch (err) {
+    alert("Erro ao cadastrar funcionário: " + err.message);
+  }
+});
 
 // Cards
 const totalEl = document.getElementById('totalFuncionarios');
