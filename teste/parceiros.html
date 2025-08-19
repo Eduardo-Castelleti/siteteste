@@ -18,19 +18,21 @@ body {display:flex; min-height:100vh; background:#f4f6f9;}
 .badge {background:#e74c3c; color:white; border-radius:12px; padding:2px 8px; font-size:12px; margin-left:auto;}
 .main-content {flex:1; padding:20px; overflow-y:auto;}
 h1 {margin-bottom:20px; color:#2c3e50;}
-button {padding:10px 20px; background:#2980b9; color:white; border:none; border-radius:5px; cursor:pointer; margin-bottom:20px;}
-button:hover {background:#3498db;}
-.cards {display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:30px;}
-.card {padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); color:white; position:relative;}
-.card h3 {margin-bottom:10px; font-size:16px;}
-.card p {font-size:20px; font-weight:700;}
-.card.ativos {background:#2980b9;}
-.card.top {background:#16a085;}
-.card.baixo {background:#c0392b;}
-.card.faturamento {background:#27ae60;}
-.card.agendamentos {background:#f39c12;}
+.cards {display:grid; grid-template-columns: repeat(auto-fit,minmax(250px,1fr)); gap:20px; margin-bottom:30px;}
+.card {padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); color:white; position:relative; transition:0.3s;}
+.card h3 {margin-bottom:10px; font-size:18px;}
+.card p {font-size:24px; font-weight:700;}
+.card.total {background:#2980b9;}
+.card.vip {background:#16a085;}
+.card.novos {background:#f39c12;}
+.card.emergentes {background:#8e44ad;}
+.card.alertaVIP {background:#c0392b;}
+.card.alerta {box-shadow:0 0 15px 3px rgba(255,0,0,0.5);}
 .graph {height:300px; background:#ecf0f1; border-radius:10px; display:flex; justify-content:center; align-items:center; color:#7f8c8d; font-size:18px; margin-bottom:30px; padding:10px;}
 canvas {background:#fff; border-radius:10px; padding:10px;}
+button {padding:10px 20px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
+button:hover {background:#3498db;}
+.top-bar {display:flex; justify-content:flex-end; margin-bottom:20px;}
 </style>
 </head>
 <body>
@@ -48,26 +50,27 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 <a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
 <a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
 <a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
+<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
+<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
 </div>
 
 <div class="main-content">
 <h1>Parceiros</h1>
+
+<div class="top-bar">
 <button onclick="window.location.href='cadastrar_parceiro.html'"><i class="fas fa-plus"></i> Cadastrar Parceiro</button>
+</div>
 
 <div class="cards">
-  <div class="card ativos"><h3>Parceiros Ativos</h3><p id="ativos">0</p></div>
-  <div class="card top"><h3>Top Vendas</h3><p id="topVendas">0</p></div>
-  <div class="card baixo"><h3>Baixo Desempenho</h3><p id="baixoDesempenho">0</p></div>
-  <div class="card faturamento"><h3>Faturamento Total</h3><p id="faturamentoTotal">R$ 0,00</p></div>
-  <div class="card agendamentos"><h3>Agendamentos Atendidos</h3><p id="agendamentosRealizados">0</p></div>
+  <div class="card total"><h3>Total de Parceiros</h3><p id="totalParceiros">0</p></div>
+  <div class="card vip"><h3>Parceiros VIP</h3><p id="parceirosVIP">0</p></div>
+  <div class="card novos"><h3>Novos Parceiros (Último Mês)</h3><p id="novosParceiros">0</p></div>
+  <div class="card emergentes"><h3>Parceiros Emergentes</h3><p id="emergentesParceiros">0</p></div>
+  <div class="card alertaVIP"><h3>Próximos VIPs</h3><p id="proximosVIPs">0</p></div>
 </div>
 
-<div class="graph">
-  <canvas id="graficoVendasParceiros"></canvas>
-</div>
-<div class="graph">
-  <canvas id="graficoAgendamentosParceiros"></canvas>
-</div>
+<div class="graph"><canvas id="graficoCategorias"></canvas></div>
+<div class="graph"><canvas id="graficoCrescimento"></canvas></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -79,65 +82,86 @@ const firebaseConfig = {
   storageBucket: "SEU_PROJETO.appspot.com",
   messagingSenderId: "SEU_SENDER_ID",
   appId: "SEU_APP_ID"
-};
+}; 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // Cards
-const ativosEl = document.getElementById('ativos');
-const topEl = document.getElementById('topVendas');
-const baixoEl = document.getElementById('baixoDesempenho');
-const faturamentoEl = document.getElementById('faturamentoTotal');
-const agendamentosEl = document.getElementById('agendamentosRealizados');
+const totalEl = document.getElementById('totalParceiros');
+const vipEl = document.getElementById('parceirosVIP');
+const novosEl = document.getElementById('novosParceiros');
+const emergentesEl = document.getElementById('emergentesParceiros');
 
 // Gráficos
-const graficoVendasParceiros = new Chart(document.getElementById('graficoVendasParceiros'), {
-  type:'bar',
-  data:{labels:[], datasets:[{label:'Vendas', data:[], backgroundColor:[]} ]},
-  options:{responsive:true, plugins:{legend:{display:false}}}
+const graficoCategorias = new Chart(document.getElementById('graficoCategorias'), {
+    type:'doughnut',
+    data:{labels:[], datasets:[{data:[], backgroundColor:[]} ] },
+    options:{responsive:true}
 });
-const graficoAgendamentosParceiros = new Chart(document.getElementById('graficoAgendamentosParceiros'), {
-  type:'bar',
-  data:{labels:[], datasets:[{label:'Agendamentos', data:[], backgroundColor:[]} ]},
-  options:{responsive:true, plugins:{legend:{display:false}}}
+const graficoCrescimento = new Chart(document.getElementById('graficoCrescimento'), {
+    type:'bar',
+    data:{labels:[], datasets:[{label:'Compras Últimos Meses', data:[], backgroundColor:[]} ] },
+    options:{responsive:true, plugins:{legend:{display:false}}}
 });
 
-db.collection("parceiros").onSnapshot(snapshot=>{
-  let ativos=0, topVendas=0, baixo=0, faturamentoTotal=0, agendamentosTotais=0;
-  const vendasPorParceiro = {};
-  const agendamentosPorParceiro = {};
+// Dados Parceiros
+db.collection("parceiros").onSnapshot(snapshot => {
+  const total = snapshot.size;
+  const hoje = new Date();
+  let vip = 0, novos = 0;
+  let emergentes = 0;
+  let proximosVIP = 0;
+  let categorias = {};
+  
+  let labelsCrescimento = [];
+  let dataCrescimento = [];
+  let backgroundCrescimento = [];
 
-  snapshot.forEach(doc=>{
+  snapshot.forEach(doc => {
     const p = doc.data();
-    if(p.ativo) ativos++;
-    const vendas = p.vendas || [];
-    const totalVendas = vendas.reduce((sum,v)=>sum+v.valor,0);
-    faturamentoTotal += totalVendas;
-    if(totalVendas>1000) topVendas++;
-    if(totalVendas<200) baixo++;
-    vendas.forEach(v=>vendasPorParceiro[p.nome] = (vendasPorParceiro[p.nome]||0)+v.valor);
-    const agendamentos = p.agendamentos || [];
-    agendamentosTotais += agendamentos.length;
-    agendamentos.forEach(a=>agendamentosPorParceiro[p.nome] = (agendamentosPorParceiro[p.nome]||0)+1);
+    const nome = p.nome || "Sem Nome";
+
+    // VIP
+    if(p.tipo==='VIP') vip++;
+
+    // Novos último mês
+    const cadastro = p.cadastro.toDate ? p.cadastro.toDate() : new Date(p.cadastro);
+    if(cadastro >= new Date(new Date().setMonth(new Date().getMonth()-1))) novos++;
+
+    // Emergentes: compras recentes >= 80% do VIP
+    const totalCompras = p.comprasUltimosMeses ? p.comprasUltimosMeses.reduce((a,b)=>a+b,0) : 0;
+    if(totalCompras >= 0.8 * (p.comprasVIP || 1000)) emergentes++;
+    if(totalCompras >= 0.6 * (p.comprasVIP || 1000) && totalCompras < (p.comprasVIP || 1000)) proximosVIP++;
+
+    // Categorias
+    const cat = p.categoria || "Outros";
+    categorias[cat] = (categorias[cat] || 0)+1;
+
+    // Gráfico crescimento
+    labelsCrescimento.push(nome);
+    dataCrescimento.push(totalCompras);
+    if(totalCompras >= (p.comprasVIP || 1000)) backgroundCrescimento.push('#16a085'); // VIP
+    else if(totalCompras >= 0.6*(p.comprasVIP||1000)) backgroundCrescimento.push('#f39c12'); // Próximo VIP
+    else backgroundCrescimento.push('#2980b9'); // Normal
   });
 
-  ativosEl.textContent = ativos;
-  topEl.textContent = topVendas;
-  baixoEl.textContent = baixo;
-  faturamentoEl.textContent = "R$ "+faturamentoTotal.toFixed(2);
-  agendamentosEl.textContent = agendamentosTotais;
+  totalEl.textContent = total;
+  vipEl.textContent = vip;
+  novosEl.textContent = novos;
+  emergentesEl.textContent = emergentes;
+  document.getElementById('proximosVIPs').textContent = proximosVIP;
 
-  // Atualiza gráfico vendas
-  graficoVendasParceiros.data.labels = Object.keys(vendasPorParceiro);
-  graficoVendasParceiros.data.datasets[0].data = Object.values(vendasPorParceiro);
-  graficoVendasParceiros.data.datasets[0].backgroundColor = Object.values(vendasPorParceiro).map(v=>v<200?'#c0392b':'#16a085');
-  graficoVendasParceiros.update();
+  // Atualiza gráfico categorias
+  graficoCategorias.data.labels = Object.keys(categorias);
+  graficoCategorias.data.datasets[0].data = Object.values(categorias);
+  graficoCategorias.data.datasets[0].backgroundColor = Object.keys(categorias).map((v,i)=>`hsl(${i*60},70%,50%)`);
+  graficoCategorias.update();
 
-  // Atualiza gráfico agendamentos
-  graficoAgendamentosParceiros.data.labels = Object.keys(agendamentosPorParceiro);
-  graficoAgendamentosParceiros.data.datasets[0].data = Object.values(agendamentosPorParceiro);
-  graficoAgendamentosParceiros.data.datasets[0].backgroundColor = Object.values(agendamentosPorParceiro).map(v=>v<5?'#c0392b':'#f39c12');
-  graficoAgendamentosParceiros.update();
+  // Atualiza gráfico crescimento
+  graficoCrescimento.data.labels = labelsCrescimento;
+  graficoCrescimento.data.datasets[0].data = dataCrescimento;
+  graficoCrescimento.data.datasets[0].backgroundColor = backgroundCrescimento;
+  graficoCrescimento.update();
 });
 </script>
 </body>
