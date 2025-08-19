@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Pet - Configurações</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Roboto',sans-serif;}
+body {display:flex; min-height:100vh; background:#f4f6f9;}
+.sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
+.sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
+.sidebar a {padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none; border-bottom:1px solid #34495e; transition:0.3s;}
+.sidebar a:hover {background:#34495e;}
+.sidebar a i {margin-right:15px;}
+.badge {background:#e74c3c; color:white; border-radius:12px; padding:2px 8px; font-size:12px; margin-left:auto;}
+.main-content {flex:1; padding:20px; overflow-y:auto;}
+h1 {margin-bottom:20px; color:#2c3e50;}
+section {background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); margin-bottom:20px;}
+section h2 {margin-bottom:15px; font-size:20px; color:#2c3e50;}
+label {display:block; margin-bottom:5px; font-weight:500;}
+input, select {width:100%; padding:8px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;}
+button {padding:10px 20px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s; margin-right:10px;}
+button:hover {background:#3498db;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<h2>Admin Pet</h2>
+<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
+<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
+<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
+<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
+<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
+<a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
+<a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
+<a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
+<a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
+<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
+<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
+</div>
+
+<div class="main-content">
+<h1>Configurações do Sistema</h1>
+
+<section>
+<h2>Metas e Limites</h2>
+<label for="metaFaturamento">Meta de Faturamento Mensal (R$)</label>
+<input type="number" id="metaFaturamento" placeholder="10000">
+<label for="limiteProdutosFalta">Limite de Produtos em Falta</label>
+<input type="number" id="limiteProdutosFalta" placeholder="5">
+<label for="limiteVendasPendentes">Limite de Vendas Pendentes</label>
+<input type="number" id="limiteVendasPendentes" placeholder="10">
+</section>
+
+<section>
+<h2>Parâmetros de Clientes VIP</h2>
+<label for="valorVIP">Valor mínimo de compras para VIP (R$)</label>
+<input type="number" id="valorVIP" placeholder="2000">
+<label for="frequenciaVIP">Frequência mínima de compras / mês</label>
+<input type="number" id="frequenciaVIP" placeholder="3">
+</section>
+
+<section>
+<h2>Gerenciamento de Categorias</h2>
+<label for="novaCategoria">Adicionar nova categoria de produtos</label>
+<input type="text" id="novaCategoria" placeholder="Ex: Brinquedos">
+<button onclick="adicionarCategoria()">Adicionar</button>
+<select id="categoriasExistentes" style="margin-top:10px;"></select>
+</section>
+
+<section>
+<h2>Outros Parâmetros</h2>
+<label for="conversaoMinima">Taxa de conversão mínima para campanhas (%)</label>
+<input type="number" id="conversaoMinima" placeholder="20">
+</section>
+
+<div>
+<button onclick="salvarConfiguracoes()">Salvar Configurações</button>
+<button onclick="restaurarPadrao()">Restaurar Padrões</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.appspot.com",
+  messagingSenderId: "SEU_SENDER_ID",
+  appId: "SEU_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Salvar configurações
+function salvarConfiguracoes() {
+  const config = {
+    metaFaturamento: parseFloat(document.getElementById('metaFaturamento').value),
+    limiteProdutosFalta: parseInt(document.getElementById('limiteProdutosFalta').value),
+    limiteVendasPendentes: parseInt(document.getElementById('limiteVendasPendentes').value),
+    valorVIP: parseFloat(document.getElementById('valorVIP').value),
+    frequenciaVIP: parseInt(document.getElementById('frequenciaVIP').value),
+    conversaoMinima: parseFloat(document.getElementById('conversaoMinima').value),
+    atualizadoEm: new Date()
+  };
+  db.collection('configuracoes').doc('parametros').set(config)
+  .then(()=>alert('Configurações salvas com sucesso!'))
+  .catch(err=>alert('Erro ao salvar configurações: '+err));
+}
+
+// Restaurar padrões
+function restaurarPadrao() {
+  if(confirm('Deseja realmente restaurar os padrões?')) {
+    document.getElementById('metaFaturamento').value = 10000;
+    document.getElementById('limiteProdutosFalta').value = 5;
+    document.getElementById('limiteVendasPendentes').value = 10;
+    document.getElementById('valorVIP').value = 2000;
+    document.getElementById('frequenciaVIP').value = 3;
+    document.getElementById('conversaoMinima').value = 20;
+    alert('Padrões restaurados. Não se esqueça de salvar.');
+  }
+}
+
+// Categorias
+function adicionarCategoria() {
+  const cat = document.getElementById('novaCategoria').value.trim();
+  if(cat===''){alert('Informe uma categoria!'); return;}
+  db.collection('categorias').doc(cat).set({nome:cat})
+  .then(()=>{
+    alert('Categoria adicionada com sucesso!');
+    document.getElementById('categoriasExistentes').append(new Option(cat,cat));
+    document.getElementById('novaCategoria').value='';
+  }).catch(err=>alert('Erro ao adicionar categoria: '+err));
+}
+
+// Carregar categorias existentes
+db.collection('categorias').get().then(snapshot=>{
+  snapshot.forEach(doc=>{
+    const c = doc.data().nome;
+    document.getElementById('categoriasExistentes').append(new Option(c,c));
+  });
+});
+</script>
+</body>
+</html>
