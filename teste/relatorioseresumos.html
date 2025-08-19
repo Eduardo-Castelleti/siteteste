@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Pet - Relatórios / Resumos</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Roboto',sans-serif;}
+body {display:flex; min-height:100vh; background:#f4f6f9;}
+.sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
+.sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
+.sidebar a {padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none; border-bottom:1px solid #34495e; transition:0.3s;}
+.sidebar a:hover {background:#34495e;}
+.sidebar a i {margin-right:15px;}
+.badge {background:#e74c3c; color:white; border-radius:12px; padding:2px 8px; font-size:12px; margin-left:auto;}
+.main-content {flex:1; padding:20px; overflow-y:auto;}
+h1 {margin-bottom:20px; color:#2c3e50;}
+.cards {display:grid; grid-template-columns: repeat(auto-fit,minmax(250px,1fr)); gap:20px; margin-bottom:30px;}
+.card {padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); color:white; position:relative; transition:0.3s;}
+.card h3 {margin-bottom:10px; font-size:18px;}
+.card p {font-size:24px; font-weight:700;}
+.card.faturamento {background:#27ae60;}
+.card.clientes {background:#2980b9;}
+.card.vip {background:#16a085;}
+.card.produtosFalta {background:#c0392b;}
+.card.vendasPendentes {background:#f39c12;}
+.card.marketingBaixa {background:#8e44ad;}
+.card.alerta {box-shadow:0 0 15px 3px rgba(255,0,0,0.5);}
+.graph {height:300px; background:#ecf0f1; border-radius:10px; display:flex; justify-content:center; align-items:center; color:#7f8c8d; font-size:18px; margin-bottom:30px; padding:10px;}
+canvas {background:#fff; border-radius:10px; padding:10px;}
+button {padding:10px 20px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s; margin-right:10px;}
+button:hover {background:#3498db;}
+.top-bar {display:flex; justify-content:flex-end; margin-bottom:20px;}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<h2>Admin Pet</h2>
+<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
+<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
+<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
+<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
+<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
+<a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
+<a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
+<a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
+<a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
+<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
+<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
+</div>
+
+<div class="main-content">
+<h1>Relatórios / Resumos</h1>
+
+<div class="top-bar">
+<button onclick="exportRelatorio()">Exportar Relatório</button>
+<button onclick="atualizarDados()">Atualizar Dados</button>
+</div>
+
+<div class="cards">
+  <div class="card faturamento"><h3>Faturamento do Mês</h3><p id="faturamento">R$ 0,00</p></div>
+  <div class="card clientes"><h3>Clientes Ativos</h3><p id="clientesAtivos">0</p></div>
+  <div class="card vip"><h3>Clientes VIP</h3><p id="clientesVIP">0</p></div>
+  <div class="card produtosFalta"><h3>Produtos em Falta</h3><p id="produtosFalta">0</p></div>
+  <div class="card vendasPendentes"><h3>Vendas Pendentes</h3><p id="vendasPendentes">0</p></div>
+  <div class="card marketingBaixa"><h3>Campanhas Baixa Conversão</h3><p id="campanhasBaixa">0</p></div>
+</div>
+
+<div class="graph"><canvas id="graficoFaturamento"></canvas></div>
+<div class="graph"><canvas id="graficoClientes"></canvas></div>
+<div class="graph"><canvas id="graficoProdutos"></canvas></div>
+<div class="graph"><canvas id="graficoMarketing"></canvas></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.appspot.com",
+  messagingSenderId: "SEU_SENDER_ID",
+  appId: "SEU_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Cards
+const faturamentoEl = document.getElementById('faturamento');
+const clientesEl = document.getElementById('clientesAtivos');
+const vipEl = document.getElementById('clientesVIP');
+const produtosFaltaEl = document.getElementById('produtosFalta');
+const vendasPendentesEl = document.getElementById('vendasPendentes');
+const campanhasBaixaEl = document.getElementById('campanhasBaixa');
+
+// Gráficos
+const graficoFaturamento = new Chart(document.getElementById('graficoFaturamento'), {type:'line', data:{labels:[], datasets:[{label:'Faturamento', data:[], borderColor:'#27ae60', fill:false} ] }, options:{responsive:true}});
+const graficoClientes = new Chart(document.getElementById('graficoClientes'), {type:'bar', data:{labels:[], datasets:[{label:'Clientes', data:[], backgroundColor:'#2980b9'}]}, options:{responsive:true}});
+const graficoProdutos = new Chart(document.getElementById('graficoProdutos'), {type:'bar', data:{labels:[], datasets:[{label:'Produtos', data:[], backgroundColor:'#c0392b'}]}, options:{responsive:true}});
+const graficoMarketing = new Chart(document.getElementById('graficoMarketing'), {type:'bar', data:{labels:[], datasets:[{label:'Conversão %', data:[], backgroundColor:'#8e44ad'}]}, options:{responsive:true}});
+
+// Funções para exportar/atualizar
+function exportRelatorio(){alert('Funcionalidade de exportar em construção');}
+function atualizarDados(){alert('Dados atualizados manualmente');}
+
+// Dados consolidados
+function carregarDados(){
+  // Faturamento
+  db.collection("vendas").get().then(snapshot=>{
+    let total=0, pendentes=0;
+    let faturamentoSemanas={};
+    snapshot.forEach(doc=>{
+      const v=doc.data();
+      total += v.valor ||0;
+      if(v.statusPagamento==='pendente') pendentes++;
+      const semana = new Date(v.data).getWeek(); 
+      faturamentoSemanas[semana]=(faturamentoSemanas[semana]||0)+(v.valor||0);
+    });
+    faturamentoEl.textContent='R$ '+total.toFixed(2);
+    vendasPendentesEl.textContent=pendentes;
+    graficoFaturamento.data.labels=Object.keys(faturamentoSemanas);
+    graficoFaturamento.data.datasets[0].data=Object.values(faturamentoSemanas);
+    graficoFaturamento.update();
+  });
+
+  // Clientes
+  db.collection("clientes").get().then(snapshot=>{
+    let ativos=0, vip=0, novos=0;
+    snapshot.forEach(doc=>{
+      const c=doc.data();
+      if(c.ativo) ativos++;
+      if(c.tipo==='VIP') vip++;
+      if(new Date(c.cadastro)>=new Date(new Date().setMonth(new Date().getMonth()-1))) novos++;
+    });
+    clientesEl.textContent=ativos;
+    vipEl.textContent=vip;
+    graficoClientes.data.labels=['Ativos','Novos'];
+    graficoClientes.data.datasets[0].data=[ativos,novos];
+    graficoClientes.update();
+  });
+
+  // Produtos
+  db.collection("produtos").get().then(snapshot=>{
+    let falta=0;
+    let categorias={};
+    snapshot.forEach(doc=>{
+      const p=doc.data();
+      if(p.quantidade<(p.minimo||1)) falta++;
+      const cat=p.categoria||'Outros';
+      categorias[cat]=(categorias[cat]||0)+p.quantidade;
+    });
+    produtosFaltaEl.textContent=falta;
+    graficoProdutos.data.labels=Object.keys(categorias);
+    graficoProdutos.data.datasets[0].data=Object.values(categorias);
+    graficoProdutos.update();
+  });
+
+  // Marketing
+  db.collection("campanhas").get().then(snapshot=>{
+    let baixa=0;
+    let conv={};
+    snapshot.forEach(doc=>{
+      const c=doc.data();
+      if(c.conversao<20) baixa++;
+      conv[c.nome||'Campanha']=c.conversao||0;
+    });
+    campanhasBaixaEl.textContent=baixa;
+    graficoMarketing.data.labels=Object.keys(conv);
+    graficoMarketing.data.datasets[0].data=Object.values(conv);
+    graficoMarketing.update();
+  });
+}
+
+carregarDados();
+
+// Helper para semana do ano
+Date.prototype.getWeek = function() {
+  const oneJan = new Date(this.getFullYear(),0,1);
+  return Math.ceil((((this - oneJan) / 86400000) + oneJan.getDay()+1)/7);
+}
+</script>
+</body>
+</html>
