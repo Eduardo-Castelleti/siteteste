@@ -11,19 +11,6 @@
 * {margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif;}
 body {display:flex; min-height:100vh; background:#f4f6f9;}
 .sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
-.sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Pet - Parceiros</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-* {margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif;}
-body {display:flex; min-height:100vh; background:#f4f6f9;}
-.sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
 .sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
 .sidebar a {padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none; border-bottom:1px solid #34495e; transition:0.3s;}
 .sidebar a:hover {background:#34495e;}
@@ -46,111 +33,146 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 button {padding:10px 20px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
 button:hover {background:#3498db;}
 .top-bar {display:flex; justify-content:flex-end; margin-bottom:20px;}
-.modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;}
-.modal-content {background:#fff; padding:20px; border-radius:10px; width:80%; max-height:90vh; overflow-y:auto;}
-.modal-header {display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; margin-bottom:10px;}
-.modal-footer {display:flex; justify-content:flex-end; margin-top:20px;}
-.nav-tabs {display:flex; border-bottom:1px solid #ddd; margin-bottom:15px;}
-.nav-tabs button {flex:1; padding:10px; border:none; cursor:pointer; background:#eee;}
+
+/* ====== Modal ====== */
+.modal {display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;}
+.modal-content {background:#fff; width:95%; max-width:900px; max-height:92vh; overflow:auto; border-radius:10px; padding:20px;}
+.modal-header {display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+.close {background:#c0392b; color:#fff; border:none; border-radius:6px; padding:6px 10px; cursor:pointer;}
+.nav-tabs {display:flex; border-bottom:1px solid #ddd; margin:6px 0 16px;}
+.nav-tabs button {flex:1; padding:10px; background:#ecf0f1; border:none; cursor:pointer;}
 .nav-tabs button.active {background:#2980b9; color:#fff;}
-.tab-content {display:none;}
-.tab-content.active {display:block;}
+.tab {display:none;}
+.tab.active {display:block;}
+.form-grid {display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:12px;}
+.input, .select, .textarea {width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;}
+.section-title {margin:10px 0 6px; color:#2c3e50;}
+.checkline {display:flex; flex-wrap:wrap; gap:12px; margin-top:6px;}
+.footer-actions {display:flex; justify-content:flex-end; gap:10px; margin-top:16px;}
 </style>
 </head>
 <body>
 
 <div class="sidebar">
-  <h2>Admin Pet</h2>
-  <a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-  <a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
-  <a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
-  <a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
-  <a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
-  <a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
-  <a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
-  <a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
-  <a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
-  <a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
-  <a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
-  <a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
-  <a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
+<h2>Admin Pet</h2>
+<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
+<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
+<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
+<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
+<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
+<a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
+<a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
+<a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
+<a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
+<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
+<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
 </div>
 
 <div class="main-content">
-  <h1>Parceiros</h1>
+<h1>Parceiros</h1>
 
-  <div class="top-bar">
-    <button onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Parceiro</button>
-  </div>
-
-  <div class="cards">
-    <div class="card total"><h3>Total de Parceiros</h3><p id="totalParceiros">0</p></div>
-    <div class="card vip"><h3>Parceiros VIP</h3><p id="parceirosVIP">0</p></div>
-    <div class="card novos"><h3>Novos Parceiros (Último Mês)</h3><p id="novosParceiros">0</p></div>
-    <div class="card emergentes"><h3>Parceiros Emergentes</h3><p id="emergentesParceiros">0</p></div>
-    <div class="card alertaVIP"><h3>Próximos VIPs</h3><p id="proximosVIPs">0</p></div>
-  </div>
-
-  <div class="graph"><canvas id="graficoCategorias"></canvas></div>
-  <div class="graph"><canvas id="graficoCrescimento"></canvas></div>
+<div class="top-bar">
+  <!-- Alterado: abre o modal -->
+  <button onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Parceiro</button>
 </div>
 
-<!-- Modal -->
+<div class="cards">
+  <div class="card total"><h3>Total de Parceiros</h3><p id="totalParceiros">0</p></div>
+  <div class="card vip"><h3>Parceiros VIP</h3><p id="parceirosVIP">0</p></div>
+  <div class="card novos"><h3>Novos Parceiros (Último Mês)</h3><p id="novosParceiros">0</p></div>
+  <div class="card emergentes"><h3>Parceiros Emergentes</h3><p id="emergentesParceiros">0</p></div>
+  <div class="card alertaVIP"><h3>Próximos VIPs</h3><p id="proximosVIPs">0</p></div>
+</div>
+
+<div class="graph"><canvas id="graficoCategorias"></canvas></div>
+<div class="graph"><canvas id="graficoCrescimento"></canvas></div>
+</div>
+
+<!-- ====== MODAL: Cadastro de Parceiro ====== -->
 <div class="modal" id="modalParceiro">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>Cadastrar Parceiro</h2>
-      <button onclick="fecharModal()">X</button>
+      <h2>Novo Parceiro</h2>
+      <button class="close" onclick="fecharModal()">Fechar</button>
     </div>
+
     <div class="nav-tabs">
-      <button class="active" onclick="abrirAba(event,'empresa')">Empresa</button>
-      <button onclick="abrirAba(event,'servicos')">Serviços</button>
-      <button onclick="abrirAba(event,'responsavel')">Responsável</button>
-      <button onclick="abrirAba(event,'financeiro')">Financeiro</button>
+      <button class="tabBtn active" data-tab="tab-empresa">Empresa</button>
+      <button class="tabBtn" data-tab="tab-servicos">Serviços</button>
+      <button class="tabBtn" data-tab="tab-responsavel">Responsável</button>
+      <button class="tabBtn" data-tab="tab-financeiro">Financeiro</button>
     </div>
-    <div id="empresa" class="tab-content active">
-      <label>Nome da Empresa</label><input id="nomeEmpresa" class="form-control"><br>
-      <label>CNPJ/CPF</label><input id="cnpjCpf"><br>
-      <label>Telefone</label><input id="telefoneEmpresa"><br>
-      <label>CEP</label><input id="cep" onblur="buscarCEP()"><br>
-      <label>Rua</label><input id="rua"><br>
-      <label>Número</label><input id="numero"><br>
-      <label>Bairro</label><input id="bairro"><br>
-      <label>Cidade</label><input id="cidade"><br>
-      <label>Estado</label><input id="estado"><br>
-      <label>Website/Redes Sociais</label><input id="website">
-    </div>
-    <div id="servicos" class="tab-content">
-      <label><input type="checkbox" id="banhoTosa"> Banho & Tosa</label><br>
-      <label><input type="checkbox" id="creche"> Creche</label><br>
-      <label><input type="checkbox" id="hospedagem"> Hospedagem</label><br>
-      <label><input type="checkbox" id="dogWalker"> Dog Walker</label><br>
-      <label><input type="checkbox" id="petSitter"> Pet Sitter</label><br>
-      <label><input type="checkbox" id="adestramento"> Adestramento</label><br>
-      <label><input type="checkbox" id="outrosServicos"> Outros</label><br>
-      <input id="descricaoOutros" placeholder="Descreva outros serviços">
-    </div>
-    <div id="responsavel" class="tab-content">
-      <label>Nome</label><input id="nomeResponsavel"><br>
-      <label>Telefone</label><input id="telefoneResponsavel"><br>
-      <label>Email</label><input id="emailResponsavel"><br>
-      <label>Cargo/Função</label><input id="cargoResponsavel">
-    </div>
-    <div id="financeiro" class="tab-content">
-      <label>Faixa de Faturamento</label><input id="faturamento"><br>
-      <label>Formas de Pagamento</label><input id="formasPagamento"><br>
-      <label>Limite de Crédito</label><input id="limiteCredito"><br>
-      <label>Observações</label><textarea id="observacoes"></textarea><br>
-      <label>Status</label>
-      <select id="statusParceiro">
-        <option>Ativo</option>
-        <option>Inativo</option>
-      </select>
-    </div>
-    <div class="modal-footer">
-      <button onclick="fecharModal()">Cancelar</button>
-      <button onclick="salvarParceiro()">Salvar Parceiro</button>
-    </div>
+
+    <form id="formParceiro">
+      <!-- Empresa -->
+      <div class="tab active" id="tab-empresa">
+        <div class="section-title">Dados da Empresa</div>
+        <div class="form-grid">
+          <input class="input" id="nomeEmpresa" placeholder="Nome da Empresa *" required>
+          <input class="input" id="cnpjCpf" placeholder="CNPJ / CPF *" required>
+          <input class="input" id="telefoneEmpresa" placeholder="Telefone">
+          <input class="input" id="website" placeholder="Website / Redes sociais">
+        </div>
+
+        <div class="section-title" style="margin-top:10px;">Endereço</div>
+        <div class="form-grid">
+          <input class="input" id="cep" placeholder="CEP *" maxlength="9" onblur="buscarCEP()" required>
+          <input class="input" id="rua" placeholder="Rua">
+          <input class="input" id="numero" placeholder="Número">
+          <input class="input" id="bairro" placeholder="Bairro">
+          <input class="input" id="cidade" placeholder="Cidade">
+          <input class="input" id="estado" placeholder="Estado">
+        </div>
+      </div>
+
+      <!-- Serviços -->
+      <div class="tab" id="tab-servicos">
+        <div class="section-title">Serviços oferecidos (marque quantos quiser)</div>
+        <div class="checkline">
+          <label><input type="checkbox" id="srvBanhoTosa"> Banho & Tosa</label>
+          <label><input type="checkbox" id="srvCreche"> Creche</label>
+          <label><input type="checkbox" id="srvHospedagem"> Hospedagem</label>
+          <label><input type="checkbox" id="srvDogWalker"> Dog Walker</label>
+          <label><input type="checkbox" id="srvPetSitter"> Pet Sitter</label>
+          <label><input type="checkbox" id="srvAdestramento"> Adestramento</label>
+          <label><input type="checkbox" id="srvOutros"> Outros</label>
+        </div>
+        <input class="input" id="descricaoOutros" placeholder="Descrever outros serviços (opcional)">
+      </div>
+
+      <!-- Responsável -->
+      <div class="tab" id="tab-responsavel">
+        <div class="section-title">Responsável</div>
+        <div class="form-grid">
+          <input class="input" id="respNome" placeholder="Nome">
+          <input class="input" id="respTelefone" placeholder="Telefone">
+          <input class="input" id="respEmail" type="email" placeholder="E-mail">
+          <input class="input" id="respCargo" placeholder="Cargo / Função">
+        </div>
+      </div>
+
+      <!-- Financeiro -->
+      <div class="tab" id="tab-financeiro">
+        <div class="section-title">Financeiro</div>
+        <div class="form-grid">
+          <input class="input" id="faixaFaturamento" placeholder="Faixa de Faturamento">
+          <input class="input" id="formasPagamento" placeholder="Formas de pagamento">
+          <input class="input" id="limiteCredito" placeholder="Limite de Crédito">
+          <select class="select" id="statusParceiro">
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+        </div>
+        <textarea class="textarea" id="observacoes" rows="3" placeholder="Observações"></textarea>
+      </div>
+
+      <div class="footer-actions">
+        <button type="button" onclick="fecharModal()">Cancelar</button>
+        <button type="submit"><i class="fas fa-save"></i> Salvar Parceiro</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -164,80 +186,190 @@ const firebaseConfig = {
   storageBucket: "petdudis-db2b2.firebasestorage.app",
   messagingSenderId: "410321083813",
   appId: "1:410321083813:web:eaf0082878a8281eab5c4c"
-};
+}; 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Modal
-function abrirModal(){document.getElementById("modalParceiro").style.display="flex";}
-function fecharModal(){document.getElementById("modalParceiro").style.display="none";}
-function abrirAba(evt, id){
-  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
-  document.querySelectorAll(".nav-tabs button").forEach(b=>b.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  evt.target.classList.add("active");
-}
+// Cards
+const totalEl = document.getElementById('totalParceiros');
+const vipEl = document.getElementById('parceirosVIP');
+const novosEl = document.getElementById('novosParceiros');
+const emergentesEl = document.getElementById('emergentesParceiros');
+
+// Gráficos
+const graficoCategorias = new Chart(document.getElementById('graficoCategorias'), {
+    type:'doughnut',
+    data:{labels:[], datasets:[{data:[], backgroundColor:[]} ] },
+    options:{responsive:true}
+});
+const graficoCrescimento = new Chart(document.getElementById('graficoCrescimento'), {
+    type:'bar',
+    data:{labels:[], datasets:[{label:'Compras Últimos Meses', data:[], backgroundColor:[]} ] },
+    options:{responsive:true, plugins:{legend:{display:false}}}
+});
+
+// Dados Parceiros
+db.collection("parceiros").onSnapshot(snapshot => {
+  const total = snapshot.size;
+  const hoje = new Date();
+  let vip = 0, novos = 0;
+  let emergentes = 0;
+  let proximosVIP = 0;
+  let categorias = {};
+  
+  let labelsCrescimento = [];
+  let dataCrescimento = [];
+  let backgroundCrescimento = [];
+
+  snapshot.forEach(doc => {
+    const p = doc.data();
+    const nome = p.nome || "Sem Nome";
+
+    // VIP
+    if(p.tipo==='VIP') vip++;
+
+    // Novos último mês
+    const cadastro = p.cadastro && p.cadastro.toDate ? p.cadastro.toDate() : (p.cadastro ? new Date(p.cadastro) : null);
+    if(cadastro && cadastro >= new Date(new Date().setMonth(new Date().getMonth()-1))) novos++;
+
+    // Emergentes: compras recentes >= 80% do VIP
+    const totalCompras = p.comprasUltimosMeses ? p.comprasUltimosMeses.reduce((a,b)=>a+b,0) : 0;
+    if(totalCompras >= 0.8 * (p.comprasVIP || 1000)) emergentes++;
+    if(totalCompras >= 0.6 * (p.comprasVIP || 1000) && totalCompras < (p.comprasVIP || 1000)) proximosVIP++;
+
+    // Categorias
+    const cat = p.categoria || "Outros";
+    categorias[cat] = (categorias[cat] || 0)+1;
+
+    // Gráfico crescimento
+    labelsCrescimento.push(nome);
+    dataCrescimento.push(totalCompras);
+    if(totalCompras >= (p.comprasVIP || 1000)) backgroundCrescimento.push('#16a085'); // VIP
+    else if(totalCompras >= 0.6*(p.comprasVIP||1000)) backgroundCrescimento.push('#f39c12'); // Próximo VIP
+    else backgroundCrescimento.push('#2980b9'); // Normal
+  });
+
+  totalEl.textContent = total;
+  vipEl.textContent = vip;
+  novosEl.textContent = novos;
+  emergentesEl.textContent = emergentes;
+  document.getElementById('proximosVIPs').textContent = proximosVIP;
+
+  // Atualiza gráfico categorias
+  graficoCategorias.data.labels = Object.keys(categorias);
+  graficoCategorias.data.datasets[0].data = Object.values(categorias);
+  graficoCategorias.data.datasets[0].backgroundColor = Object.keys(categorias).map((v,i)=>`hsl(${i*60},70%,50%)`);
+  graficoCategorias.update();
+
+  // Atualiza gráfico crescimento
+  graficoCrescimento.data.labels = labelsCrescimento;
+  graficoCrescimento.data.datasets[0].data = dataCrescimento;
+  graficoCrescimento.data.datasets[0].backgroundColor = backgroundCrescimento;
+  graficoCrescimento.update();
+});
+
+/* ====== Funções do Modal / Form ====== */
+function abrirModal(){ document.getElementById('modalParceiro').style.display='flex'; }
+function fecharModal(){ document.getElementById('modalParceiro').style.display='none'; }
+
+// Tabs
+document.querySelectorAll('.tabBtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tabBtn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
 
 // ViaCEP
 function buscarCEP(){
-  const cep = document.getElementById("cep").value.replace(/\D/g,'');
-  if(cep.length!==8) return;
+  const cepInput = document.getElementById('cep');
+  const cep = (cepInput.value || '').replace(/\D/g,'');
+  if(cep.length !== 8) return;
   fetch(`https://viacep.com.br/ws/${cep}/json/`)
-    .then(r=>r.json()).then(d=>{
-      if(d.erro) return alert("CEP não encontrado!");
-      document.getElementById("rua").value = d.logradouro;
-      document.getElementById("bairro").value = d.bairro;
-      document.getElementById("cidade").value = d.localidade;
-      document.getElementById("estado").value = d.uf;
-    });
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.erro) { alert('CEP não encontrado'); return; }
+      document.getElementById('rua').value = d.logradouro || '';
+      document.getElementById('bairro').value = d.bairro || '';
+      document.getElementById('cidade').value = d.localidade || '';
+      document.getElementById('estado').value = d.uf || '';
+    })
+    .catch(()=> alert('Erro ao buscar CEP'));
 }
 
 // Salvar no Firestore
-function salvarParceiro(){
-  const parceiro = {
-    nomeEmpresa: document.getElementById("nomeEmpresa").value,
-    cnpjCpf: document.getElementById("cnpjCpf").value,
-    telefoneEmpresa: document.getElementById("telefoneEmpresa").value,
-    endereco:{
-      cep: document.getElementById("cep").value,
-      rua: document.getElementById("rua").value,
-      numero: document.getElementById("numero").value,
-      bairro: document.getElementById("bairro").value,
-      cidade: document.getElementById("cidade").value,
-      estado: document.getElementById("estado").value
-    },
-    website: document.getElementById("website").value,
-    servicos:{
-      banhoTosa: document.getElementById("banhoTosa").checked,
-      creche: document.getElementById("creche").checked,
-      hospedagem: document.getElementById("hospedagem").checked,
-      dogWalker: document.getElementById("dogWalker").checked,
-      petSitter: document.getElementById("petSitter").checked,
-      adestramento: document.getElementById("adestramento").checked,
-      outros: document.getElementById("outrosServicos").checked ? document.getElementById("descricaoOutros").value : ""
-    },
-    responsavel:{
-      nome: document.getElementById("nomeResponsavel").value,
-      telefone: document.getElementById("telefoneResponsavel").value,
-      email: document.getElementById("emailResponsavel").value,
-      cargo: document.getElementById("cargoResponsavel").value
-    },
-    financeiro:{
-      faturamento: document.getElementById("faturamento").value,
-      formasPagamento: document.getElementById("formasPagamento").value,
-      limiteCredito: document.getElementById("limiteCredito").value,
-      observacoes: document.getElementById("observacoes").value,
-      status: document.getElementById("statusParceiro").value
-    },
-    cadastro: new Date()
+document.getElementById('formParceiro').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+
+  const nomeEmpresa = document.getElementById('nomeEmpresa').value.trim();
+  const cnpjCpf = document.getElementById('cnpjCpf').value.trim();
+  const telefoneEmpresa = document.getElementById('telefoneEmpresa').value.trim();
+  const website = document.getElementById('website').value.trim();
+
+  const cep = document.getElementById('cep').value.trim();
+  const rua = document.getElementById('rua').value.trim();
+  const numero = document.getElementById('numero').value.trim();
+  const bairro = document.getElementById('bairro').value.trim();
+  const cidade = document.getElementById('cidade').value.trim();
+  const estado = document.getElementById('estado').value.trim();
+
+  const servicos = {
+    banhoTosa: document.getElementById('srvBanhoTosa').checked,
+    creche: document.getElementById('srvCreche').checked,
+    hospedagem: document.getElementById('srvHospedagem').checked,
+    dogWalker: document.getElementById('srvDogWalker').checked,
+    petSitter: document.getElementById('srvPetSitter').checked,
+    adestramento: document.getElementById('srvAdestramento').checked,
+    outros: document.getElementById('srvOutros').checked,
+    outrosDescricao: document.getElementById('descricaoOutros').value.trim()
   };
-  db.collection("parceiros").add(parceiro).then(()=>{
-    alert("Parceiro salvo com sucesso!");
+
+  const responsavel = {
+    nome: document.getElementById('respNome').value.trim(),
+    telefone: document.getElementById('respTelefone').value.trim(),
+    email: document.getElementById('respEmail').value.trim(),
+    cargo: document.getElementById('respCargo').value.trim()
+  };
+
+  const financeiro = {
+    faixaFaturamento: document.getElementById('faixaFaturamento').value.trim(),
+    formasPagamento: document.getElementById('formasPagamento').value.trim(),
+    limiteCredito: document.getElementById('limiteCredito').value.trim(),
+    observacoes: document.getElementById('observacoes').value.trim(),
+    status: document.getElementById('statusParceiro').value
+  };
+
+  if(!nomeEmpresa || !cnpjCpf || !cep){
+    alert('Preencha ao menos Nome da Empresa, CNPJ/CPF e CEP.');
+    return;
+  }
+
+  const parceiro = {
+    nomeEmpresa,            // para listagens futuras
+    nome: nomeEmpresa,      // compatível com seus gráficos (p.nome)
+    cnpjCpf,
+    telefoneEmpresa,
+    website,
+    endereco: { cep, rua, numero, bairro, cidade, estado },
+    servicos,
+    responsavel,
+    financeiro,
+    cadastro: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try{
+    await db.collection('parceiros').add(parceiro);
+    alert('Parceiro salvo com sucesso!');
+    e.target.reset();
+    // volta para primeira aba
+    document.querySelectorAll('.tabBtn')[0].click();
     fecharModal();
-  }).catch(err=>{
-    alert("Erro ao salvar: "+err);
-  });
-}
+  }catch(err){
+    alert('Erro ao salvar: ' + err.message);
+  }
+});
 </script>
 </body>
 </html>
