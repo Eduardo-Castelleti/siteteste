@@ -19,14 +19,19 @@ body {display:flex; min-height:100vh; background:#f4f6f9;}
 .badge {background:#e74c3c; color:white; border-radius:12px; padding:2px 8px; font-size:12px; margin-left:auto;}
 .main-content {flex:1; padding:20px; overflow-y:auto;}
 h1 {margin-bottom:20px; color:#2c3e50;}
-.cards, .kpis {display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:30px;}
-.kpi {padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); color:white; position:relative;}
-.kpi h3 {margin-bottom:10px; font-size:16px;}
-.kpi p {font-size:20px; font-weight:700;}
+
+/* KPIs estilo Dashboard */
+.kpis {display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:30px;}
+.kpi {padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); color:white; position:relative; display:flex; align-items:center;}
+.kpi i {font-size:24px; margin-right:15px;}
 .kpi.total {background:#2980b9;}
 .kpi.confirmado {background:#27ae60;}
 .kpi.pendente {background:#f39c12;}
 .kpi.cancelado {background:#e74c3c;}
+.kpi h3 {font-size:16px; margin-bottom:5px;}
+.kpi p {font-size:20px; font-weight:700;}
+
+/* Filtro e calendário */
 .filter {margin-bottom:20px;}
 #calendar {background:#fff; padding:20px; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
 </style>
@@ -54,10 +59,10 @@ h1 {margin-bottom:20px; color:#2c3e50;}
   <h1>Agendamentos</h1>
 
   <div class="kpis">
-    <div class="kpi total" id="kpiTotal"><h3>Total do Mês</h3><p>0</p></div>
-    <div class="kpi confirmado" id="kpiConfirmados"><h3>Confirmados</h3><p>0</p></div>
-    <div class="kpi pendente" id="kpiPendentes"><h3>Pendentes</h3><p>0</p></div>
-    <div class="kpi cancelado" id="kpiCancelados"><h3>Cancelados</h3><p>0</p></div>
+    <div class="kpi total"><i class="fas fa-calendar"></i><div><h3>Total do Mês</h3><p id="kpiTotal">0</p></div></div>
+    <div class="kpi confirmado"><i class="fas fa-check-circle"></i><div><h3>Confirmados</h3><p id="kpiConfirmados">0</p></div></div>
+    <div class="kpi pendente"><i class="fas fa-hourglass-half"></i><div><h3>Pendentes</h3><p id="kpiPendentes">0</p></div></div>
+    <div class="kpi cancelado"><i class="fas fa-times-circle"></i><div><h3>Cancelados</h3><p id="kpiCancelados">0</p></div></div>
   </div>
 
   <div class="filter">
@@ -86,7 +91,6 @@ document.addEventListener("DOMContentLoaded", function() {
   const calendarEl = document.getElementById("calendar");
   const parceiroSelect = document.getElementById("parceiroSelect");
 
-  // Inicializa o FullCalendar
   const calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     locale: 'pt-br',
@@ -95,7 +99,6 @@ document.addEventListener("DOMContentLoaded", function() {
   });
   calendar.render();
 
-  // Carrega parceiros no select
   async function carregarParceiros() {
     const snapshot = await db.collection("parceiros").get();
     snapshot.forEach(doc => {
@@ -106,7 +109,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // Carrega agendamentos e atualiza KPIs
   async function carregarAgendamentos(parceiroId = '') {
     let query = db.collection("agendamentos");
     if (parceiroId) query = query.where("parceiroId", "==", parceiroId);
@@ -133,11 +135,10 @@ document.addEventListener("DOMContentLoaded", function() {
     calendar.removeAllEvents();
     calendar.addEventSource(eventos);
 
-    // Atualiza KPIs
-    document.querySelector("#kpiTotal p").textContent = total;
-    document.querySelector("#kpiConfirmados p").textContent = confirmados;
-    document.querySelector("#kpiPendentes p").textContent = pendentes;
-    document.querySelector("#kpiCancelados p").textContent = cancelados;
+    document.getElementById("kpiTotal").textContent = total;
+    document.getElementById("kpiConfirmados").textContent = confirmados;
+    document.getElementById("kpiPendentes").textContent = pendentes;
+    document.getElementById("kpiCancelados").textContent = cancelados;
   }
 
   carregarParceiros().then(() => carregarAgendamentos());
