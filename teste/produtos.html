@@ -3,36 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Pet - Produtos</title>
+<title>Admin Pet - Cadastrar Produto</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-* {margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif;}
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Roboto',sans-serif;}
 body {display:flex; min-height:100vh; background:#f4f6f9;}
 .sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
 .sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
 .sidebar a {padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none; border-bottom:1px solid #34495e; transition:0.3s;}
 .sidebar a:hover {background:#34495e;}
 .sidebar a i {margin-right:15px;}
-.badge {background:#e74c3c; color:white; border-radius:12px; padding:2px 8px; font-size:12px; margin-left:auto;}
 .main-content {flex:1; padding:20px; overflow-y:auto;}
 h1 {margin-bottom:20px; color:#2c3e50;}
-.cards {display:grid; grid-template-columns: repeat(auto-fit,minmax(250px,1fr)); gap:20px; margin-bottom:30px;}
-.card {padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); color:white; position:relative; transition:0.3s;}
-.card h3 {margin-bottom:10px; font-size:18px;}
-.card p {font-size:24px; font-weight:700;}
-.card.total {background:#2980b9;}
-.card.estoque {background:#16a085;}
-.card.falta {background:#c0392b;}
-.card.maisVendidos {background:#f39c12;}
-.card.maiorMargem {background:#8e44ad;}
-.card.alerta {box-shadow:0 0 15px 3px rgba(255,0,0,0.5);}
-.graph {height:300px; background:#ecf0f1; border-radius:10px; display:flex; justify-content:center; align-items:center; color:#7f8c8d; font-size:18px; margin-bottom:30px; padding:10px;}
-canvas {background:#fff; border-radius:10px; padding:10px;}
-button {padding:10px 20px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
+form {background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+form h2 {margin-bottom:15px;}
+input, select, textarea, button {width:100%; margin-bottom:15px; padding:10px; border:1px solid #ccc; border-radius:5px; font-size:16px;}
+button {background:#2980b9; color:#fff; border:none; cursor:pointer; transition:0.3s;}
 button:hover {background:#3498db;}
-.top-bar {display:flex; justify-content:flex-end; margin-bottom:20px;}
+.tab {display:none;}
+.tab.active {display:block;}
+.tab-buttons {display:flex; margin-bottom:20px; gap:10px;}
+.tab-buttons button {flex:1; background:#bdc3c7; color:#2c3e50; font-weight:500;}
+.tab-buttons button.active {background:#2980b9; color:#fff;}
+.table-container {overflow-x:auto;}
+table {width:100%; border-collapse:collapse; margin-bottom:15px;}
+table th, table td {padding:10px; border:1px solid #ccc; text-align:left;}
+.add-variation {width:auto; background:#16a085;}
+.add-variation:hover {background:#1abc9c;}
 </style>
 </head>
 <body>
@@ -44,34 +42,88 @@ button:hover {background:#3498db;}
 <a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
 <a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
 <a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
-<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
-<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
-<a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
-<a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
-<a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
-<a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
-<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
-<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
 </div>
 
 <div class="main-content">
-<h1>Produtos</h1>
+<h1>Cadastrar Produto</h1>
 
-<div class="top-bar">
-<button onclick="window.location.href='cadastrar_produto.html'"><i class="fas fa-plus"></i> Cadastrar Produto</button>
-</div>
+<form id="produtoForm">
+  <div class="tab-buttons">
+    <button type="button" class="active" onclick="showTab(0)">Geral</button>
+    <button type="button" onclick="showTab(1)">Composição</button>
+    <button type="button" onclick="showTab(2)">Variações</button>
+    <button type="button" onclick="showTab(3)">Troca & Garantia</button>
+  </div>
 
-<div class="cards">
-  <div class="card total"><h3>Total de Produtos</h3><p id="totalProdutos">0</p></div>
-  <div class="card estoque"><h3>Produtos em Estoque</h3><p id="produtosEstoque">0</p></div>
-  <div class="card falta"><h3>Produtos em Falta</h3><p id="produtosFalta">0</p></div>
-  <div class="card maisVendidos"><h3>Mais Vendidos</h3><p id="maisVendidos">0</p></div>
-  <div class="card maiorMargem"><h3>Maior Margem</h3><p id="maiorMargem">0</p></div>
-</div>
+  <!-- Aba Geral -->
+  <div class="tab active">
+    <h2>Informações Básicas</h2>
+    <input type="text" id="nome" placeholder="Nome do Produto" required>
+    <input type="text" id="marca" placeholder="Marca" required>
+    <select id="categoria" required>
+      <option value="">Selecione a Categoria</option>
+      <option value="ração">Ração</option>
+      <option value="petisco">Petisco</option>
+      <option value="acessório">Acessório</option>
+    </select>
+    <select id="animal" required>
+      <option value="">Selecione o Animal</option>
+      <option value="cachorro">Cachorro</option>
+      <option value="gato">Gato</option>
+      <option value="passaro">Pássaro</option>
+      <option value="coelho">Coelho</option>
+      <option value="outro">Outro</option>
+    </select>
+    <input type="url" id="imagem" placeholder="URL da Imagem">
+    <textarea id="descricao" placeholder="Descrição do Produto"></textarea>
+  </div>
 
-<div class="graph"><canvas id="graficoMaisVendidos"></canvas></div>
-<div class="graph"><canvas id="graficoCategorias"></canvas></div>
-<div class="graph"><canvas id="graficoEstoqueCritico"></canvas></div>
+  <!-- Aba Composição -->
+  <div class="tab">
+    <h2>Composição e Ingredientes</h2>
+    <textarea id="composicao" placeholder="Composição nutricional"></textarea>
+    <textarea id="ingredientes" placeholder="Ingredientes"></textarea>
+  </div>
+
+  <!-- Aba Variações -->
+  <div class="tab">
+    <h2>Variações (Peso, Preço, Validade)</h2>
+    <div class="table-container">
+      <table id="variacoesTable">
+        <thead>
+          <tr>
+            <th>Peso</th>
+            <th>Valor de Compra</th>
+            <th>Valor de Venda</th>
+            <th>Validade</th>
+            <th>Quantidade</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <button type="button" class="add-variation" onclick="addVariacao()">+ Adicionar Variação</button>
+  </div>
+
+  <!-- Aba Troca & Garantia -->
+  <div class="tab">
+    <h2>Troca & Garantia</h2>
+    <select id="trocaPermitida">
+      <option value="nao">Troca Não Permitida</option>
+      <option value="sim">Troca Permitida</option>
+    </select>
+    <textarea id="instrucaoTroca" placeholder="Instruções de Troca"></textarea>
+    <select id="garantiaFabrica">
+      <option value="nao">Sem Garantia de Fábrica</option>
+      <option value="sim">Com Garantia de Fábrica</option>
+    </select>
+    <input type="number" id="porcentagemGarantia" placeholder="% de Garantia" min="0" max="100">
+    <input type="number" id="porcentagemTroca" placeholder="% restante para Troca" min="0" max="100">
+  </div>
+
+  <button type="submit">Salvar Produto</button>
+</form>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -87,89 +139,73 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Cards
-const totalEl = document.getElementById('totalProdutos');
-const estoqueEl = document.getElementById('produtosEstoque');
-const faltaEl = document.getElementById('produtosFalta');
-const maisVendidosEl = document.getElementById('maisVendidos');
-const maiorMargemEl = document.getElementById('maiorMargem');
+// Função abas
+const tabs = document.querySelectorAll('.tab');
+const tabButtons = document.querySelectorAll('.tab-buttons button');
+function showTab(index){
+  tabs.forEach(t=>t.classList.remove('active'));
+  tabs[index].classList.add('active');
+  tabButtons.forEach(b=>b.classList.remove('active'));
+  tabButtons[index].classList.add('active');
+}
 
-// Gráficos
-const graficoMaisVendidos = new Chart(document.getElementById('graficoMaisVendidos'), {
-    type:'bar',
-    data:{labels:[], datasets:[{label:'Vendas', data:[], backgroundColor:[]} ] },
-    options:{responsive:true, plugins:{legend:{display:false}}}
-});
-const graficoCategorias = new Chart(document.getElementById('graficoCategorias'), {
-    type:'doughnut',
-    data:{labels:[], datasets:[{data:[], backgroundColor:[]} ] },
-    options:{responsive:true}
-});
-const graficoEstoqueCritico = new Chart(document.getElementById('graficoEstoqueCritico'), {
-    type:'bar',
-    data:{labels:[], datasets:[{label:'Estoque Crítico', data:[], backgroundColor:[]} ] },
-    options:{responsive:true, plugins:{legend:{display:false}}}
-});
+// Adicionar variação
+function addVariacao(){
+  const tbody = document.querySelector('#variacoesTable tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" placeholder="Peso"></td>
+    <td><input type="number" placeholder="Valor de Compra" step="0.01"></td>
+    <td><input type="number" placeholder="Valor de Venda" step="0.01"></td>
+    <td><input type="date"></td>
+    <td><input type="number" placeholder="Quantidade"></td>
+    <td><button type="button" onclick="this.closest('tr').remove()">Remover</button></td>
+  `;
+  tbody.appendChild(tr);
+}
 
-// Dados Produtos
-db.collection("produtos").onSnapshot(snapshot => {
-  const total = snapshot.size;
-  let estoqueTotal = 0, faltaTotal = 0, maisVendidos = {}, maiorMargem = 0;
+// Salvar produto
+document.getElementById('produtoForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  
+  const produto = {
+    nome: document.getElementById('nome').value,
+    marca: document.getElementById('marca').value,
+    categoria: document.getElementById('categoria').value,
+    animal: document.getElementById('animal').value,
+    imagem: document.getElementById('imagem').value,
+    descricao: document.getElementById('descricao').value,
+    composicao: document.getElementById('composicao').value,
+    ingredientes: document.getElementById('ingredientes').value,
+    trocaPermitida: document.getElementById('trocaPermitida').value,
+    instrucaoTroca: document.getElementById('instrucaoTroca').value,
+    garantiaFabrica: document.getElementById('garantiaFabrica').value,
+    porcentagemGarantia: Number(document.getElementById('porcentagemGarantia').value || 0),
+    porcentagemTroca: Number(document.getElementById('porcentagemTroca').value || 0),
+    variacoes: []
+  };
 
-  let labelsVendidos=[], dataVendidos=[], bgVendidos=[];
-  let labelsCategorias=[], dataCategorias=[], bgCategorias=[];
-  let labelsCritico=[], dataCritico=[], bgCritico=[];
-
-  snapshot.forEach(doc => {
-    const p = doc.data();
-    estoqueTotal += p.quantidade || 0;
-    if(p.quantidade < (p.minimo || 1)) {
-      faltaTotal++;
-      labelsCritico.push(p.nome);
-      dataCritico.push(p.quantidade);
-      bgCritico.push('#c0392b');
-    }
-
-    // Mais vendidos
-    if(p.vendas) maisVendidos[p.nome] = p.vendas;
-
-    // Maior margem
-    const margem = ((p.preco_venda - p.preco_custo) / (p.preco_custo || 1))*100;
-    if(margem > maiorMargem) maiorMargem = margem;
-
-    // Categoria
-    if(p.categoria){
-      const idx = labelsCategorias.indexOf(p.categoria);
-      if(idx>=0) dataCategorias[idx]+=p.vendas || 0;
-      else {labelsCategorias.push(p.categoria); dataCategorias.push(p.vendas || 0);}
-    }
+  // Coletar variações
+  document.querySelectorAll('#variacoesTable tbody tr').forEach(tr=>{
+    const tds = tr.querySelectorAll('input');
+    produto.variacoes.push({
+      peso: tds[0].value,
+      valorCompra: Number(tds[1].value || 0),
+      valorVenda: Number(tds[2].value || 0),
+      validade: tds[3].value,
+      quantidade: Number(tds[4].value || 0)
+    });
   });
 
-  totalEl.textContent = total;
-  estoqueEl.textContent = estoqueTotal;
-  faltaEl.textContent = faltaTotal;
-  maisVendidosEl.textContent = Object.keys(maisVendidos).length;
-  maiorMargemEl.textContent = maiorMargem.toFixed(2) + '%';
-
-  // Gráfico mais vendidos
-  const topVendidos = Object.entries(maisVendidos).sort((a,b)=>b[1]-a[1]).slice(0,10);
-  graficoMaisVendidos.data.labels = topVendidos.map(i=>i[0]);
-  graficoMaisVendidos.data.datasets[0].data = topVendidos.map(i=>i[1]);
-  graficoMaisVendidos.data.datasets[0].backgroundColor = topVendidos.map(()=>'#f39c12');
-  graficoMaisVendidos.update();
-
-  // Gráfico categorias
-  graficoCategorias.data.labels = labelsCategorias;
-  graficoCategorias.data.datasets[0].data = dataCategorias;
-  graficoCategorias.data.datasets[0].backgroundColor = labelsCategorias.map(()=>['#2980b9','#16a085','#f39c12','#8e44ad','#c0392b'][Math.floor(Math.random()*5)]);
-  graficoCategorias.update();
-
-  // Gráfico estoque crítico
-  graficoEstoqueCritico.data.labels = labelsCritico;
-  graficoEstoqueCritico.data.datasets[0].data = dataCritico;
-  graficoEstoqueCritico.data.datasets[0].backgroundColor = bgCritico;
-  graficoEstoqueCritico.update();
+  try{
+    await db.collection('produtos').add(produto);
+    alert('Produto salvo com sucesso!');
+    location.reload();
+  }catch(err){
+    alert('Erro ao salvar: '+err.message);
+  }
 });
 </script>
+
 </body>
 </html>
