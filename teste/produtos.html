@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Pet - Cadastrar Produto</title>
+<title>Admin Pet - Produtos</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -16,11 +16,17 @@ body {display:flex; min-height:100vh; background:#f4f6f9;}
 .sidebar a i {margin-right:15px;}
 .main-content {flex:1; padding:20px; overflow-y:auto;}
 h1 {margin-bottom:20px; color:#2c3e50;}
-form {background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
-form h2 {margin-bottom:15px;}
-input, select, textarea, button {width:100%; margin-bottom:15px; padding:10px; border:1px solid #ccc; border-radius:5px; font-size:16px;}
-button {background:#2980b9; color:#fff; border:none; cursor:pointer; transition:0.3s;}
+button {padding:10px 20px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
 button:hover {background:#3498db;}
+.top-bar {display:flex; justify-content:flex-end; margin-bottom:20px;}
+
+/* Modal */
+#modalProduto {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000;}
+.modal-content {background:#fff; padding:20px; border-radius:10px; width:90%; max-width:900px; max-height:90%; overflow-y:auto; position:relative;}
+#closeModal {position:absolute; top:10px; right:15px; cursor:pointer; font-size:24px;}
+form {display:flex; flex-direction:column;}
+input, select, textarea {width:100%; margin-bottom:15px; padding:10px; border:1px solid #ccc; border-radius:5px; font-size:16px;}
+textarea {resize:vertical;}
 .tab {display:none;}
 .tab.active {display:block;}
 .tab-buttons {display:flex; margin-bottom:20px; gap:10px;}
@@ -45,88 +51,99 @@ table th, table td {padding:10px; border:1px solid #ccc; text-align:left;}
 </div>
 
 <div class="main-content">
-<h1>Cadastrar Produto</h1>
+<h1>Produtos</h1>
+<div class="top-bar">
+  <button id="openModal"><i class="fas fa-plus"></i> Cadastrar Produto</button>
+</div>
 
-<form id="produtoForm">
-  <div class="tab-buttons">
-    <button type="button" class="active" onclick="showTab(0)">Geral</button>
-    <button type="button" onclick="showTab(1)">Composição</button>
-    <button type="button" onclick="showTab(2)">Variações</button>
-    <button type="button" onclick="showTab(3)">Troca & Garantia</button>
+<!-- Modal -->
+<div id="modalProduto">
+  <div class="modal-content">
+    <span id="closeModal">&times;</span>
+    <h1>Cadastrar Produto</h1>
+    <form id="produtoForm">
+      <div class="tab-buttons">
+        <button type="button" class="active" onclick="showTab(0)">Geral</button>
+        <button type="button" onclick="showTab(1)">Composição</button>
+        <button type="button" onclick="showTab(2)">Variações</button>
+        <button type="button" onclick="showTab(3)">Troca & Garantia</button>
+      </div>
+
+      <!-- Aba Geral -->
+      <div class="tab active">
+        <h2>Informações Básicas</h2>
+        <input type="text" id="nome" placeholder="Nome do Produto" required>
+        <input type="text" id="marca" placeholder="Marca" required>
+        <select id="categoria" required>
+          <option value="">Selecione a Categoria</option>
+          <option value="ração">Ração</option>
+          <option value="petisco">Petisco</option>
+          <option value="acessório">Acessório</option>
+        </select>
+        <select id="animal" required>
+          <option value="">Selecione o Animal</option>
+          <option value="cachorro">Cachorro</option>
+          <option value="gato">Gato</option>
+          <option value="passaro">Pássaro</option>
+          <option value="coelho">Coelho</option>
+          <option value="outro">Outro</option>
+        </select>
+        <input type="file" id="imagem" accept="image/*">
+        <textarea id="descricao" placeholder="Descrição do Produto"></textarea>
+      </div>
+
+      <!-- Aba Composição -->
+      <div class="tab">
+        <h2>Composição e Ingredientes</h2>
+        <textarea id="composicao" placeholder="Composição nutricional"></textarea>
+        <textarea id="ingredientes" placeholder="Ingredientes"></textarea>
+      </div>
+
+      <!-- Aba Variações -->
+      <div class="tab">
+        <h2>Variações (Peso, Preço, Validade)</h2>
+        <div class="table-container">
+          <table id="variacoesTable">
+            <thead>
+              <tr>
+                <th>Peso</th>
+                <th>Valor de Compra</th>
+                <th>Valor de Venda</th>
+                <th>Validade</th>
+                <th>Quantidade</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button type="button" class="add-variation" onclick="addVariacao()">+ Adicionar Variação</button>
+      </div>
+
+      <!-- Aba Troca & Garantia -->
+      <div class="tab">
+        <h2>Troca & Garantia</h2>
+        <select id="trocaPermitida">
+          <option value="nao">Troca Não Permitida</option>
+          <option value="sim">Troca Permitida</option>
+        </select>
+        <textarea id="instrucaoTroca" placeholder="Instruções de Troca"></textarea>
+        <select id="garantiaFabrica">
+          <option value="nao">Sem Garantia de Fábrica</option>
+          <option value="sim">Com Garantia de Fábrica</option>
+        </select>
+        <input type="number" id="porcentagemGarantia" placeholder="% de Garantia" min="0" max="100">
+        <input type="number" id="porcentagemTroca" placeholder="% restante para Troca" min="0" max="100">
+      </div>
+
+      <button type="submit">Salvar Produto</button>
+    </form>
   </div>
-
-  <!-- Aba Geral -->
-  <div class="tab active">
-    <h2>Informações Básicas</h2>
-    <input type="text" id="nome" placeholder="Nome do Produto" required>
-    <input type="text" id="marca" placeholder="Marca" required>
-    <select id="categoria" required>
-      <option value="">Selecione a Categoria</option>
-      <option value="ração">Ração</option>
-      <option value="petisco">Petisco</option>
-      <option value="acessório">Acessório</option>
-    </select>
-    <select id="animal" required>
-      <option value="">Selecione o Animal</option>
-      <option value="cachorro">Cachorro</option>
-      <option value="gato">Gato</option>
-      <option value="passaro">Pássaro</option>
-      <option value="coelho">Coelho</option>
-      <option value="outro">Outro</option>
-    </select>
-    <input type="url" id="imagem" placeholder="URL da Imagem">
-    <textarea id="descricao" placeholder="Descrição do Produto"></textarea>
-  </div>
-
-  <!-- Aba Composição -->
-  <div class="tab">
-    <h2>Composição e Ingredientes</h2>
-    <textarea id="composicao" placeholder="Composição nutricional"></textarea>
-    <textarea id="ingredientes" placeholder="Ingredientes"></textarea>
-  </div>
-
-  <!-- Aba Variações -->
-  <div class="tab">
-    <h2>Variações (Peso, Preço, Validade)</h2>
-    <div class="table-container">
-      <table id="variacoesTable">
-        <thead>
-          <tr>
-            <th>Peso</th>
-            <th>Valor de Compra</th>
-            <th>Valor de Venda</th>
-            <th>Validade</th>
-            <th>Quantidade</th>
-            <th>Ação</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <button type="button" class="add-variation" onclick="addVariacao()">+ Adicionar Variação</button>
-  </div>
-
-  <!-- Aba Troca & Garantia -->
-  <div class="tab">
-    <h2>Troca & Garantia</h2>
-    <select id="trocaPermitida">
-      <option value="nao">Troca Não Permitida</option>
-      <option value="sim">Troca Permitida</option>
-    </select>
-    <textarea id="instrucaoTroca" placeholder="Instruções de Troca"></textarea>
-    <select id="garantiaFabrica">
-      <option value="nao">Sem Garantia de Fábrica</option>
-      <option value="sim">Com Garantia de Fábrica</option>
-    </select>
-    <input type="number" id="porcentagemGarantia" placeholder="% de Garantia" min="0" max="100">
-    <input type="number" id="porcentagemTroca" placeholder="% restante para Troca" min="0" max="100">
-  </div>
-
-  <button type="submit">Salvar Produto</button>
-</form>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
 const firebaseConfig = {
   apiKey: "SUA_API_KEY",
@@ -138,8 +155,15 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const storage = firebase.storage();
 
-// Função abas
+// Modal
+const modal = document.getElementById('modalProduto');
+document.getElementById('openModal').onclick = () => modal.style.display = 'flex';
+document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
+window.onclick = e => { if(e.target == modal) modal.style.display = 'none'; }
+
+// Abas
 const tabs = document.querySelectorAll('.tab');
 const tabButtons = document.querySelectorAll('.tab-buttons button');
 function showTab(index){
@@ -167,13 +191,21 @@ function addVariacao(){
 // Salvar produto
 document.getElementById('produtoForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  
+
+  const arquivo = document.getElementById('imagem').files[0];
+  let urlImagem = '';
+  if(arquivo){
+    const storageRef = storage.ref().child('produtos/'+arquivo.name);
+    await storageRef.put(arquivo);
+    urlImagem = await storageRef.getDownloadURL();
+  }
+
   const produto = {
     nome: document.getElementById('nome').value,
     marca: document.getElementById('marca').value,
     categoria: document.getElementById('categoria').value,
     animal: document.getElementById('animal').value,
-    imagem: document.getElementById('imagem').value,
+    imagem: urlImagem,
     descricao: document.getElementById('descricao').value,
     composicao: document.getElementById('composicao').value,
     ingredientes: document.getElementById('ingredientes').value,
@@ -185,7 +217,6 @@ document.getElementById('produtoForm').addEventListener('submit', async (e)=>{
     variacoes: []
   };
 
-  // Coletar variações
   document.querySelectorAll('#variacoesTable tbody tr').forEach(tr=>{
     const tds = tr.querySelectorAll('input');
     produto.variacoes.push({
@@ -200,12 +231,12 @@ document.getElementById('produtoForm').addEventListener('submit', async (e)=>{
   try{
     await db.collection('produtos').add(produto);
     alert('Produto salvo com sucesso!');
+    modal.style.display = 'none';
     location.reload();
   }catch(err){
     alert('Erro ao salvar: '+err.message);
   }
 });
 </script>
-
 </body>
 </html>
