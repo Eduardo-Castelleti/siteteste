@@ -74,7 +74,6 @@ button:hover {background:#3498db;}
 <h1>Parceiros</h1>
 
 <div class="top-bar">
-  <!-- Alterado: abre o modal -->
   <button onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Parceiro</button>
 </div>
 
@@ -90,7 +89,7 @@ button:hover {background:#3498db;}
 <div class="graph"><canvas id="graficoCrescimento"></canvas></div>
 </div>
 
-<!-- ====== MODAL: Cadastro de Parceiro ====== -->
+<!-- ====== MODAL ====== -->
 <div class="modal" id="modalParceiro">
   <div class="modal-content">
     <div class="modal-header">
@@ -106,7 +105,6 @@ button:hover {background:#3498db;}
     </div>
 
     <form id="formParceiro">
-      <!-- Empresa -->
       <div class="tab active" id="tab-empresa">
         <div class="section-title">Dados da Empresa</div>
         <div class="form-grid">
@@ -115,7 +113,6 @@ button:hover {background:#3498db;}
           <input class="input" id="telefoneEmpresa" placeholder="Telefone">
           <input class="input" id="website" placeholder="Website / Redes sociais">
         </div>
-
         <div class="section-title" style="margin-top:10px;">Endereço</div>
         <div class="form-grid">
           <input class="input" id="cep" placeholder="CEP *" maxlength="9" onblur="buscarCEP()" required>
@@ -127,7 +124,6 @@ button:hover {background:#3498db;}
         </div>
       </div>
 
-      <!-- Serviços -->
       <div class="tab" id="tab-servicos">
         <div class="section-title">Serviços oferecidos (marque quantos quiser)</div>
         <div class="checkline">
@@ -142,18 +138,16 @@ button:hover {background:#3498db;}
         <input class="input" id="descricaoOutros" placeholder="Descrever outros serviços (opcional)">
       </div>
 
-      <!-- Responsável -->
       <div class="tab" id="tab-responsavel">
         <div class="section-title">Responsável</div>
         <div class="form-grid">
-          <input class="input" id="respNome" placeholder="Nome">
-          <input class="input" id="respTelefone" placeholder="Telefone">
-          <input class="input" id="respEmail" type="email" placeholder="E-mail">
+          <input class="input" id="respNome" placeholder="Nome *">
+          <input class="input" id="respTelefone" placeholder="Telefone *">
+          <input class="input" id="respEmail" type="email" placeholder="E-mail *">
           <input class="input" id="respCargo" placeholder="Cargo / Função">
         </div>
       </div>
 
-      <!-- Financeiro -->
       <div class="tab" id="tab-financeiro">
         <div class="section-title">Financeiro</div>
         <div class="form-grid">
@@ -191,7 +185,6 @@ const firebaseConfig = {
 }; 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const auth = firebase.auth();
 
 // Cards
 const totalEl = document.getElementById('totalParceiros');
@@ -211,45 +204,35 @@ const graficoCrescimento = new Chart(document.getElementById('graficoCrescimento
     options:{responsive:true, plugins:{legend:{display:false}}}
 });
 
-// Dados Parceiros
+// Atualiza lista de parceiros e gráficos
 db.collection("parceiros").onSnapshot(snapshot => {
   const total = snapshot.size;
   const hoje = new Date();
-  let vip = 0, novos = 0;
-  let emergentes = 0;
-  let proximosVIP = 0;
+  let vip = 0, novos = 0, emergentes = 0, proximosVIP = 0;
   let categorias = {};
-  
-  let labelsCrescimento = [];
-  let dataCrescimento = [];
-  let backgroundCrescimento = [];
+  let labelsCrescimento = [], dataCrescimento = [], backgroundCrescimento = [];
 
   snapshot.forEach(doc => {
     const p = doc.data();
     const nome = p.nome || "Sem Nome";
 
-    // VIP
     if(p.tipo==='VIP') vip++;
 
-    // Novos último mês
     const cadastro = p.cadastro && p.cadastro.toDate ? p.cadastro.toDate() : (p.cadastro ? new Date(p.cadastro) : null);
     if(cadastro && cadastro >= new Date(new Date().setMonth(new Date().getMonth()-1))) novos++;
 
-    // Emergentes: compras recentes >= 80% do VIP
     const totalCompras = p.comprasUltimosMeses ? p.comprasUltimosMeses.reduce((a,b)=>a+b,0) : 0;
     if(totalCompras >= 0.8 * (p.comprasVIP || 1000)) emergentes++;
     if(totalCompras >= 0.6 * (p.comprasVIP || 1000) && totalCompras < (p.comprasVIP || 1000)) proximosVIP++;
 
-    // Categorias
     const cat = p.categoria || "Outros";
     categorias[cat] = (categorias[cat] || 0)+1;
 
-    // Gráfico crescimento
     labelsCrescimento.push(nome);
     dataCrescimento.push(totalCompras);
-    if(totalCompras >= (p.comprasVIP || 1000)) backgroundCrescimento.push('#16a085'); // VIP
-    else if(totalCompras >= 0.6*(p.comprasVIP||1000)) backgroundCrescimento.push('#f39c12'); // Próximo VIP
-    else backgroundCrescimento.push('#2980b9'); // Normal
+    if(totalCompras >= (p.comprasVIP || 1000)) backgroundCrescimento.push('#16a085');
+    else if(totalCompras >= 0.6*(p.comprasVIP||1000)) backgroundCrescimento.push('#f39c12');
+    else backgroundCrescimento.push('#2980b9');
   });
 
   totalEl.textContent = total;
@@ -258,20 +241,18 @@ db.collection("parceiros").onSnapshot(snapshot => {
   emergentesEl.textContent = emergentes;
   document.getElementById('proximosVIPs').textContent = proximosVIP;
 
-  // Atualiza gráfico categorias
   graficoCategorias.data.labels = Object.keys(categorias);
   graficoCategorias.data.datasets[0].data = Object.values(categorias);
   graficoCategorias.data.datasets[0].backgroundColor = Object.keys(categorias).map((v,i)=>`hsl(${i*60},70%,50%)`);
   graficoCategorias.update();
 
-  // Atualiza gráfico crescimento
   graficoCrescimento.data.labels = labelsCrescimento;
   graficoCrescimento.data.datasets[0].data = dataCrescimento;
   graficoCrescimento.data.datasets[0].backgroundColor = backgroundCrescimento;
   graficoCrescimento.update();
 });
 
-/* ====== Funções do Modal / Form ====== */
+// Modal
 function abrirModal(){ document.getElementById('modalParceiro').style.display='flex'; }
 function fecharModal(){ document.getElementById('modalParceiro').style.display='none'; }
 
@@ -302,7 +283,7 @@ function buscarCEP(){
     .catch(()=> alert('Erro ao buscar CEP'));
 }
 
-// Salvar no Firestore
+// Salvar parceiro
 document.getElementById('formParceiro').addEventListener('submit', async (e)=>{
   e.preventDefault();
 
@@ -350,8 +331,8 @@ document.getElementById('formParceiro').addEventListener('submit', async (e)=>{
   }
 
   const parceiro = {
-    nomeEmpresa,            // para listagens futuras
-    nome: nomeEmpresa,      // compatível com seus gráficos (p.nome)
+    nomeEmpresa,
+    nome: nomeEmpresa,
     cnpjCpf,
     telefoneEmpresa,
     website,
@@ -366,8 +347,7 @@ document.getElementById('formParceiro').addEventListener('submit', async (e)=>{
     await db.collection('parceiros').add(parceiro);
     alert('Parceiro salvo com sucesso!');
     e.target.reset();
-    // volta para primeira aba
-    document.querySelectorAll('.tabBtn')[0].click();
+    document.querySelectorAll('.tabBtn')[0].click(); // volta para aba Empresa
     fecharModal();
   }catch(err){
     alert('Erro ao salvar: ' + err.message);
