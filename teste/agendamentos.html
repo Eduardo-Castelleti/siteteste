@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Pet - Agendamentos</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
-<style>
-* {margin:0; padding:0; box-sizing:border-box; font-family: 'Roboto', sans-serif;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Pet - Agendamentos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      height: 100vh;
+      background: #f4f6f8;
+    }
 body {display:flex; min-height:100vh; background:#f4f6f9;}
 .sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
 .sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
@@ -17,136 +23,153 @@ body {display:flex; min-height:100vh; background:#f4f6f9;}
 .sidebar a:hover {background:#34495e;}
 .sidebar a i {margin-right:15px;}
 .badge {background:#e74c3c; color:white; border-radius:12px; padding:2px 8px; font-size:12px; margin-left:auto;}
-.main-content {flex:1; padding:20px; overflow-y:auto;}
-h1 {margin-bottom:20px; color:#2c3e50;}
+.main-content {flex:1; padding:20px; overflow-y:auto;}    
 
-/* KPIs estilo Dashboard */
-.kpis {display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-bottom:30px;}
-.kpi {padding:20px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.1); color:white; position:relative; display:flex; align-items:center;}
-.kpi i {font-size:24px; margin-right:15px;}
-.kpi.total {background:#2980b9;}
-.kpi.confirmado {background:#27ae60;}
-.kpi.pendente {background:#f39c12;}
-.kpi.cancelado {background:#e74c3c;}
-.kpi h3 {font-size:16px; margin-bottom:5px;}
-.kpi p {font-size:20px; font-weight:700;}
-
-/* Filtro e calendário */
-.filter {margin-bottom:20px;}
-#calendar {background:#fff; padding:20px; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
-</style>
+      .main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .kpi {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .kpi:hover { transform: scale(1.05); }
+    .kpi h3 { margin: 0; font-size: 18px; }
+    .kpi p { font-size: 24px; margin: 10px 0 0; font-weight: bold; }
+    .filter {
+      margin-bottom: 20px;
+    }
+    #calendar {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
 </head>
 <body>
-
-<div class="sidebar">
-  <h2>Admin Pet</h2>
-  <a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-  <a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
-  <a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
-  <a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
-  <a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
-  <a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
-  <a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
-  <a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
-  <a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
-  <a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
-  <a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
-  <a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
-  <a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
+  <div class="sidebar">
+<h2>Admin Pet</h2>
+<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
+<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
+<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
+<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
+<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
+<a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
+<a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
+<a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
+<a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
+<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
+<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
 </div>
 
-<div class="main-content">
-  <h1>Agendamentos</h1>
+  <div class="main">
+    <h1>Agendamentos</h1>
+    <div class="kpis">
+      <div class="kpi" id="kpiTotal"><h3>Total do Mês</h3><p>0</p></div>
+      <div class="kpi" id="kpiConfirmados"><h3>Confirmados</h3><p>0</p></div>
+      <div class="kpi" id="kpiPendentes"><h3>Pendentes</h3><p>0</p></div>
+      <div class="kpi" id="kpiCancelados"><h3>Cancelados</h3><p>0</p></div>
+    </div>
 
-  <div class="kpis">
-    <div class="kpi total"><i class="fas fa-calendar"></i><div><h3>Total do Mês</h3><p id="kpiTotal">0</p></div></div>
-    <div class="kpi confirmado"><i class="fas fa-check-circle"></i><div><h3>Confirmados</h3><p id="kpiConfirmados">0</p></div></div>
-    <div class="kpi pendente"><i class="fas fa-hourglass-half"></i><div><h3>Pendentes</h3><p id="kpiPendentes">0</p></div></div>
-    <div class="kpi cancelado"><i class="fas fa-times-circle"></i><div><h3>Cancelados</h3><p id="kpiCancelados">0</p></div></div>
+    <div class="filter">
+      <label for="parceiroSelect">Filtrar por Parceiro:</label>
+      <select id="parceiroSelect">
+        <option value="">Todos</option>
+      </select>
+    </div>
+
+    <div id="calendar"></div>
   </div>
 
-  <div class="filter">
-    <label for="parceiroSelect">Filtrar por Parceiro:</label>
-    <select id="parceiroSelect">
-      <option value="">Todos</option>
-    </select>
-  </div>
+  <script>
+    // 🔥 Config Firebase
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_AUTH_DOMAIN",
+      projectId: "SEU_PROJECT_ID",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-  <div id="calendar"></div>
-</div>
+    const parceiroSelect = document.getElementById("parceiroSelect");
+    const calendarEl = document.getElementById("calendar");
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    let calendar;
 
-<script>
-const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_AUTH_DOMAIN",
-  projectId: "SEU_PROJECT_ID",
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+    async function carregarParceiros() {
+      const snapshot = await db.collection("parceiros").get();
+      snapshot.forEach(doc => {
+        const option = document.createElement("option");
+        option.value = doc.id;
+        option.textContent = doc.data().nome || "Sem Nome";
+        parceiroSelect.appendChild(option);
+      });
+    }
 
-document.addEventListener("DOMContentLoaded", function() {
-  const calendarEl = document.getElementById("calendar");
-  const parceiroSelect = document.getElementById("parceiroSelect");
+    async function carregarAgendamentos(parceiroId = "") {
+      let query = db.collection("agendamentos");
+      if (parceiroId) query = query.where("parceiroId", "==", parceiroId);
 
-  const calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    locale: 'pt-br',
-    height: 650,
-    events: []
-  });
-  calendar.render();
+      const snapshot = await query.get();
+      const eventos = [];
+      let total = 0, confirmados = 0, pendentes = 0, cancelados = 0;
 
-  async function carregarParceiros() {
-    const snapshot = await db.collection("parceiros").get();
-    snapshot.forEach(doc => {
-      const option = document.createElement("option");
-      option.value = doc.id;
-      option.textContent = doc.data().nome || "Sem Nome";
-      parceiroSelect.appendChild(option);
-    });
-  }
+      snapshot.forEach(doc => {
+        const ag = doc.data();
+        eventos.push({
+          title: ag.petNome + " - " + (ag.status || "Pendente"),
+          start: ag.data,
+          color: ag.status === "Confirmado" ? "#27ae60" : 
+                 ag.status === "Cancelado" ? "#e74c3c" : "#f39c12"
+        });
 
-  async function carregarAgendamentos(parceiroId = '') {
-    let query = db.collection("agendamentos");
-    if (parceiroId) query = query.where("parceiroId", "==", parceiroId);
-
-    const snapshot = await query.get();
-    const eventos = [];
-    let total = 0, confirmados = 0, pendentes = 0, cancelados = 0;
-
-    snapshot.forEach(doc => {
-      const ag = doc.data();
-      eventos.push({
-        title: ag.petNome + " - " + (ag.status || "Pendente"),
-        start: ag.data,
-        color: ag.status === "Confirmado" ? "#27ae60" :
-               ag.status === "Cancelado" ? "#e74c3c" : "#f39c12"
+        total++;
+        if (ag.status === "Confirmado") confirmados++;
+        else if (ag.status === "Cancelado") cancelados++;
+        else pendentes++;
       });
 
-      total++;
-      if (ag.status === "Confirmado") confirmados++;
-      else if (ag.status === "Cancelado") cancelados++;
-      else pendentes++;
+      // Atualiza KPI
+      document.querySelector("#kpiTotal p").textContent = total;
+      document.querySelector("#kpiConfirmados p").textContent = confirmados;
+      document.querySelector("#kpiPendentes p").textContent = pendentes;
+      document.querySelector("#kpiCancelados p").textContent = cancelados;
+
+      // Atualiza calendário
+      if (calendar) {
+        calendar.removeAllEvents();
+        calendar.addEventSource(eventos);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        locale: "pt-br",
+        height: 650
+      });
+      calendar.render();
+
+      carregarParceiros().then(() => carregarAgendamentos());
+
+      parceiroSelect.addEventListener("change", e => {
+        carregarAgendamentos(e.target.value);
+      });
     });
-
-    calendar.removeAllEvents();
-    calendar.addEventSource(eventos);
-
-    document.getElementById("kpiTotal").textContent = total;
-    document.getElementById("kpiConfirmados").textContent = confirmados;
-    document.getElementById("kpiPendentes").textContent = pendentes;
-    document.getElementById("kpiCancelados").textContent = cancelados;
-  }
-
-  carregarParceiros().then(() => carregarAgendamentos());
-
-  parceiroSelect.addEventListener("change", e => {
-    carregarAgendamentos(e.target.value);
-  });
-});
-</script>
+  </script>
 </body>
 </html>
