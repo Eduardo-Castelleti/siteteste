@@ -33,136 +33,198 @@ canvas {background:#fff; border-radius:10px; padding:10px;}
 button {padding:10px 20px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
 button:hover {background:#3498db;}
 .top-bar {display:flex; justify-content:flex-end; margin-bottom:20px;}
+.modal {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;}
+.modal-content {background:#fff; padding:20px; border-radius:10px; width:80%; max-height:90vh; overflow-y:auto;}
+.modal-header {display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; margin-bottom:10px;}
+.modal-footer {display:flex; justify-content:flex-end; margin-top:20px;}
+.nav-tabs {display:flex; border-bottom:1px solid #ddd; margin-bottom:15px;}
+.nav-tabs button {flex:1; padding:10px; border:none; cursor:pointer; background:#eee;}
+.nav-tabs button.active {background:#2980b9; color:#fff;}
+.tab-content {display:none;}
+.tab-content.active {display:block;}
 </style>
 </head>
 <body>
 
 <div class="sidebar">
-<h2>Admin Pet</h2>
-<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
-<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
-<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
-<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
-<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
-<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
-<a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
-<a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
-<a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
-<a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
-<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
-<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
+  <h2>Admin Pet</h2>
+  <a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+  <a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
+  <a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
+  <a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
+  <a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
+  <a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+  <a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
+  <a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
+  <a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
+  <a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
+  <a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
+  <a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
+  <a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
 </div>
 
 <div class="main-content">
-<h1>Parceiros</h1>
+  <h1>Parceiros</h1>
 
-<div class="top-bar">
-<button onclick="window.location.href='cadastrar_parceiro.html'"><i class="fas fa-plus"></i> Cadastrar Parceiro</button>
+  <div class="top-bar">
+    <button onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Parceiro</button>
+  </div>
+
+  <div class="cards">
+    <div class="card total"><h3>Total de Parceiros</h3><p id="totalParceiros">0</p></div>
+    <div class="card vip"><h3>Parceiros VIP</h3><p id="parceirosVIP">0</p></div>
+    <div class="card novos"><h3>Novos Parceiros (Último Mês)</h3><p id="novosParceiros">0</p></div>
+    <div class="card emergentes"><h3>Parceiros Emergentes</h3><p id="emergentesParceiros">0</p></div>
+    <div class="card alertaVIP"><h3>Próximos VIPs</h3><p id="proximosVIPs">0</p></div>
+  </div>
+
+  <div class="graph"><canvas id="graficoCategorias"></canvas></div>
+  <div class="graph"><canvas id="graficoCrescimento"></canvas></div>
 </div>
 
-<div class="cards">
-  <div class="card total"><h3>Total de Parceiros</h3><p id="totalParceiros">0</p></div>
-  <div class="card vip"><h3>Parceiros VIP</h3><p id="parceirosVIP">0</p></div>
-  <div class="card novos"><h3>Novos Parceiros (Último Mês)</h3><p id="novosParceiros">0</p></div>
-  <div class="card emergentes"><h3>Parceiros Emergentes</h3><p id="emergentesParceiros">0</p></div>
-  <div class="card alertaVIP"><h3>Próximos VIPs</h3><p id="proximosVIPs">0</p></div>
+<!-- Modal -->
+<div class="modal" id="modalParceiro">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Cadastrar Parceiro</h2>
+      <button onclick="fecharModal()">X</button>
+    </div>
+    <div class="nav-tabs">
+      <button class="active" onclick="abrirAba(event,'empresa')">Empresa</button>
+      <button onclick="abrirAba(event,'servicos')">Serviços</button>
+      <button onclick="abrirAba(event,'responsavel')">Responsável</button>
+      <button onclick="abrirAba(event,'financeiro')">Financeiro</button>
+    </div>
+    <div id="empresa" class="tab-content active">
+      <label>Nome da Empresa</label><input id="nomeEmpresa" class="form-control"><br>
+      <label>CNPJ/CPF</label><input id="cnpjCpf"><br>
+      <label>Telefone</label><input id="telefoneEmpresa"><br>
+      <label>CEP</label><input id="cep" onblur="buscarCEP()"><br>
+      <label>Rua</label><input id="rua"><br>
+      <label>Número</label><input id="numero"><br>
+      <label>Bairro</label><input id="bairro"><br>
+      <label>Cidade</label><input id="cidade"><br>
+      <label>Estado</label><input id="estado"><br>
+      <label>Website/Redes Sociais</label><input id="website">
+    </div>
+    <div id="servicos" class="tab-content">
+      <label><input type="checkbox" id="banhoTosa"> Banho & Tosa</label><br>
+      <label><input type="checkbox" id="creche"> Creche</label><br>
+      <label><input type="checkbox" id="hospedagem"> Hospedagem</label><br>
+      <label><input type="checkbox" id="dogWalker"> Dog Walker</label><br>
+      <label><input type="checkbox" id="petSitter"> Pet Sitter</label><br>
+      <label><input type="checkbox" id="adestramento"> Adestramento</label><br>
+      <label><input type="checkbox" id="outrosServicos"> Outros</label><br>
+      <input id="descricaoOutros" placeholder="Descreva outros serviços">
+    </div>
+    <div id="responsavel" class="tab-content">
+      <label>Nome</label><input id="nomeResponsavel"><br>
+      <label>Telefone</label><input id="telefoneResponsavel"><br>
+      <label>Email</label><input id="emailResponsavel"><br>
+      <label>Cargo/Função</label><input id="cargoResponsavel">
+    </div>
+    <div id="financeiro" class="tab-content">
+      <label>Faixa de Faturamento</label><input id="faturamento"><br>
+      <label>Formas de Pagamento</label><input id="formasPagamento"><br>
+      <label>Limite de Crédito</label><input id="limiteCredito"><br>
+      <label>Observações</label><textarea id="observacoes"></textarea><br>
+      <label>Status</label>
+      <select id="statusParceiro">
+        <option>Ativo</option>
+        <option>Inativo</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button onclick="fecharModal()">Cancelar</button>
+      <button onclick="salvarParceiro()">Salvar Parceiro</button>
+    </div>
+  </div>
 </div>
-
-<div class="graph"><canvas id="graficoCategorias"></canvas></div>
-<div class="graph"><canvas id="graficoCrescimento"></canvas></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "SEU_SENDER_ID",
-  appId: "SEU_APP_ID"
-}; 
+  apiKey: "AIzaSyCLBni8BY6zjHGMuoybZ06SBK4U9c1BhyE",
+  authDomain: "petdudis-db2b2.firebaseapp.com",
+  projectId: "petdudis-db2b2",
+  storageBucket: "petdudis-db2b2.firebasestorage.app",
+  messagingSenderId: "410321083813",
+  appId: "1:410321083813:web:eaf0082878a8281eab5c4c"
+};
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// Cards
-const totalEl = document.getElementById('totalParceiros');
-const vipEl = document.getElementById('parceirosVIP');
-const novosEl = document.getElementById('novosParceiros');
-const emergentesEl = document.getElementById('emergentesParceiros');
+// Modal
+function abrirModal(){document.getElementById("modalParceiro").style.display="flex";}
+function fecharModal(){document.getElementById("modalParceiro").style.display="none";}
+function abrirAba(evt, id){
+  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".nav-tabs button").forEach(b=>b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  evt.target.classList.add("active");
+}
 
-// Gráficos
-const graficoCategorias = new Chart(document.getElementById('graficoCategorias'), {
-    type:'doughnut',
-    data:{labels:[], datasets:[{data:[], backgroundColor:[]} ] },
-    options:{responsive:true}
-});
-const graficoCrescimento = new Chart(document.getElementById('graficoCrescimento'), {
-    type:'bar',
-    data:{labels:[], datasets:[{label:'Compras Últimos Meses', data:[], backgroundColor:[]} ] },
-    options:{responsive:true, plugins:{legend:{display:false}}}
-});
+// ViaCEP
+function buscarCEP(){
+  const cep = document.getElementById("cep").value.replace(/\D/g,'');
+  if(cep.length!==8) return;
+  fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    .then(r=>r.json()).then(d=>{
+      if(d.erro) return alert("CEP não encontrado!");
+      document.getElementById("rua").value = d.logradouro;
+      document.getElementById("bairro").value = d.bairro;
+      document.getElementById("cidade").value = d.localidade;
+      document.getElementById("estado").value = d.uf;
+    });
+}
 
-// Dados Parceiros
-db.collection("parceiros").onSnapshot(snapshot => {
-  const total = snapshot.size;
-  const hoje = new Date();
-  let vip = 0, novos = 0;
-  let emergentes = 0;
-  let proximosVIP = 0;
-  let categorias = {};
-  
-  let labelsCrescimento = [];
-  let dataCrescimento = [];
-  let backgroundCrescimento = [];
-
-  snapshot.forEach(doc => {
-    const p = doc.data();
-    const nome = p.nome || "Sem Nome";
-
-    // VIP
-    if(p.tipo==='VIP') vip++;
-
-    // Novos último mês
-    const cadastro = p.cadastro.toDate ? p.cadastro.toDate() : new Date(p.cadastro);
-    if(cadastro >= new Date(new Date().setMonth(new Date().getMonth()-1))) novos++;
-
-    // Emergentes: compras recentes >= 80% do VIP
-    const totalCompras = p.comprasUltimosMeses ? p.comprasUltimosMeses.reduce((a,b)=>a+b,0) : 0;
-    if(totalCompras >= 0.8 * (p.comprasVIP || 1000)) emergentes++;
-    if(totalCompras >= 0.6 * (p.comprasVIP || 1000) && totalCompras < (p.comprasVIP || 1000)) proximosVIP++;
-
-    // Categorias
-    const cat = p.categoria || "Outros";
-    categorias[cat] = (categorias[cat] || 0)+1;
-
-    // Gráfico crescimento
-    labelsCrescimento.push(nome);
-    dataCrescimento.push(totalCompras);
-    if(totalCompras >= (p.comprasVIP || 1000)) backgroundCrescimento.push('#16a085'); // VIP
-    else if(totalCompras >= 0.6*(p.comprasVIP||1000)) backgroundCrescimento.push('#f39c12'); // Próximo VIP
-    else backgroundCrescimento.push('#2980b9'); // Normal
+// Salvar no Firestore
+function salvarParceiro(){
+  const parceiro = {
+    nomeEmpresa: document.getElementById("nomeEmpresa").value,
+    cnpjCpf: document.getElementById("cnpjCpf").value,
+    telefoneEmpresa: document.getElementById("telefoneEmpresa").value,
+    endereco:{
+      cep: document.getElementById("cep").value,
+      rua: document.getElementById("rua").value,
+      numero: document.getElementById("numero").value,
+      bairro: document.getElementById("bairro").value,
+      cidade: document.getElementById("cidade").value,
+      estado: document.getElementById("estado").value
+    },
+    website: document.getElementById("website").value,
+    servicos:{
+      banhoTosa: document.getElementById("banhoTosa").checked,
+      creche: document.getElementById("creche").checked,
+      hospedagem: document.getElementById("hospedagem").checked,
+      dogWalker: document.getElementById("dogWalker").checked,
+      petSitter: document.getElementById("petSitter").checked,
+      adestramento: document.getElementById("adestramento").checked,
+      outros: document.getElementById("outrosServicos").checked ? document.getElementById("descricaoOutros").value : ""
+    },
+    responsavel:{
+      nome: document.getElementById("nomeResponsavel").value,
+      telefone: document.getElementById("telefoneResponsavel").value,
+      email: document.getElementById("emailResponsavel").value,
+      cargo: document.getElementById("cargoResponsavel").value
+    },
+    financeiro:{
+      faturamento: document.getElementById("faturamento").value,
+      formasPagamento: document.getElementById("formasPagamento").value,
+      limiteCredito: document.getElementById("limiteCredito").value,
+      observacoes: document.getElementById("observacoes").value,
+      status: document.getElementById("statusParceiro").value
+    },
+    cadastro: new Date()
+  };
+  db.collection("parceiros").add(parceiro).then(()=>{
+    alert("Parceiro salvo com sucesso!");
+    fecharModal();
+  }).catch(err=>{
+    alert("Erro ao salvar: "+err);
   });
-
-  totalEl.textContent = total;
-  vipEl.textContent = vip;
-  novosEl.textContent = novos;
-  emergentesEl.textContent = emergentes;
-  document.getElementById('proximosVIPs').textContent = proximosVIP;
-
-  // Atualiza gráfico categorias
-  graficoCategorias.data.labels = Object.keys(categorias);
-  graficoCategorias.data.datasets[0].data = Object.values(categorias);
-  graficoCategorias.data.datasets[0].backgroundColor = Object.keys(categorias).map((v,i)=>`hsl(${i*60},70%,50%)`);
-  graficoCategorias.update();
-
-  // Atualiza gráfico crescimento
-  graficoCrescimento.data.labels = labelsCrescimento;
-  graficoCrescimento.data.datasets[0].data = dataCrescimento;
-  graficoCrescimento.data.datasets[0].backgroundColor = backgroundCrescimento;
-  graficoCrescimento.update();
-});
+}
 </script>
 </body>
 </html>
