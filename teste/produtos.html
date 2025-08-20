@@ -1,242 +1,946 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Pet - Produtos</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin Pet - Produtos (KPI Interativos)</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-* {margin:0; padding:0; box-sizing:border-box; font-family:'Roboto',sans-serif;}
-body {display:flex; min-height:100vh; background:#f4f6f9;}
-.sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
-.sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
-.sidebar a {padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none; border-bottom:1px solid #34495e; transition:0.3s;}
-.sidebar a:hover {background:#34495e;}
-.sidebar a i {margin-right:15px;}
-.main-content {flex:1; padding:20px; overflow-y:auto;}
-h1 {margin-bottom:20px; color:#2c3e50;}
-button {padding:10px 20px; border:none; border-radius:5px; background:#2980b9; color:white; cursor:pointer; transition:0.3s;}
-button:hover {background:#3498db;}
-.top-bar {display:flex; justify-content:flex-end; margin-bottom:20px;}
-
-/* Modal */
-#modalProduto {display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000;}
-.modal-content {background:#fff; padding:20px; border-radius:10px; width:90%; max-width:900px; max-height:90%; overflow-y:auto; position:relative;}
-#closeModal {position:absolute; top:10px; right:15px; cursor:pointer; font-size:24px;}
-form {display:flex; flex-direction:column;}
-input, select, textarea {width:100%; margin-bottom:15px; padding:10px; border:1px solid #ccc; border-radius:5px; font-size:16px;}
-textarea {resize:vertical;}
-.tab {display:none;}
-.tab.active {display:block;}
-.tab-buttons {display:flex; margin-bottom:20px; gap:10px;}
-.tab-buttons button {flex:1; background:#bdc3c7; color:#2c3e50; font-weight:500;}
-.tab-buttons button.active {background:#2980b9; color:#fff;}
-.table-container {overflow-x:auto;}
-table {width:100%; border-collapse:collapse; margin-bottom:15px;}
-table th, table td {padding:10px; border:1px solid #ccc; text-align:left;}
-.add-variation {width:auto; background:#16a085;}
-.add-variation:hover {background:#1abc9c;}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Roboto',sans-serif}
+  body{display:flex;min-height:100vh;background:#f4f6f9;color:#2c3e50}
+  .sidebar{width:260px;background:#2c3e50;color:#ecf0f1;flex-shrink:0;display:flex;flex-direction:column}
+  .sidebar h2{text-align:center;padding:20px 0;border-bottom:1px solid #34495e}
+  .sidebar a{padding:15px 25px;display:flex;align-items:center;color:#ecf0f1;text-decoration:none;border-bottom:1px solid #34495e;transition:0.25s}
+  .sidebar a:hover{background:#34495e}
+  .sidebar a i{margin-right:12px}
+  .main-content{flex:1;padding:20px;overflow-y:auto}
+  h1{margin-bottom:14px}
+  .top-bar{display:flex;justify-content:space-between;gap:10px;margin-bottom:18px;align-items:center}
+  .top-bar .left {display:flex; gap:10px; align-items:center;}
+  button{padding:10px 14px;border:none;border-radius:6px;background:#2980b9;color:#fff;cursor:pointer;transition:0.18s;font-weight:500}
+  button:hover{background:#3498db}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+  .kpi-btn{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px;border-radius:10px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;border:2px solid transparent}
+  .kpi-btn:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+  .kpi-btn .title{font-size:14px;color:#34495e}
+  .kpi-btn .value{font-size:22px;font-weight:700;color:#2c3e50}
+  .kpi-btn.active{border-color:#2980b9}
+  .filters-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .search-input{flex:1;min-width:180px}
+  .result-panel{background:#fff;padding:12px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);max-height:520px;overflow:auto}
+  .produto-item{display:flex;gap:12px;padding:10px;border-bottom:1px solid #eee;align-items:center}
+  .produto-item img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
+  .produto-info{flex:1}
+  .produto-info b{display:block;font-size:16px}
+  .produto-meta{font-size:13px;color:#666;margin-top:6px}
+  .badge{background:#16a085;color:#fff;padding:4px 8px;border-radius:999px;font-size:12px}
+  .small{font-size:13px;color:#666}
+  /* Modal (Cadastro) */
+  #modalProduto{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);justify-content:center;align-items:center;z-index:1200}
+  .modal-content{background:#fff;padding:18px;border-radius:10px;width:92%;max-width:980px;max-height:90%;overflow:hidden;display:flex;flex-direction:column}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .modal-body{display:flex;gap:18px;flex:1;overflow:hidden}
+  .modal-left{width:48%;overflow:auto;padding-right:6px}
+  .modal-right{width:52%;overflow:auto;padding-left:6px}
+  .close-x{cursor:pointer;font-size:22px}
+  label{display:block;margin-bottom:6px;font-weight:500;color:#333}
+  input[type="text"], input[type="number"], input[type="date"], select, textarea, input[type="file"]{
+    width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;font-size:15px
+  }
+  textarea{min-height:110px;resize:vertical}
+  .tab-buttons{display:flex;gap:8px;margin-bottom:8px}
+  .tab-buttons button{flex:1;background:#ecf0f1;color:#2c3e50;border-radius:8px;padding:8px}
+  .tab-buttons button.active{background:#2980b9;color:#fff}
+  .tab{display:none}
+  .tab.active{display:block}
+  .variacoes-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+  .variacoes-table th,.variacoes-table td{border:1px solid #e6e6e6;padding:8px;text-align:left;font-size:14px}
+  .add-variation{background:#16a085}
+  .img-preview{width:100%;height:200px;background:#fafafa;border:1px dashed #ddd;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#999;margin-bottom:12px}
+  .img-preview img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
+  .footer-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:10px;border-top:1px solid #eee}
+  .muted{color:#777;font-size:13px}
+  /* responsive tweaks */
+  @media(max-width:900px){
+    .modal-body{flex-direction:column}
+    .modal-left,.modal-right{width:100%}
+  }
 </style>
 </head>
 <body>
 
-<div class="sidebar">
-<h2>Admin Pet</h2>
-<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
-<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
-<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
-<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
-</div>
-
-<div class="main-content">
-<h1>Produtos</h1>
-<div class="top-bar">
-  <button id="openModal"><i class="fas fa-plus"></i> Cadastrar Produto</button>
-</div>
-
-<!-- Modal -->
-<div id="modalProduto">
-  <div class="modal-content">
-    <span id="closeModal">&times;</span>
-    <h1>Cadastrar Produto</h1>
-    <form id="produtoForm">
-      <div class="tab-buttons">
-        <button type="button" class="active" onclick="showTab(0)">Geral</button>
-        <button type="button" onclick="showTab(1)">Composição</button>
-        <button type="button" onclick="showTab(2)">Variações</button>
-        <button type="button" onclick="showTab(3)">Troca & Garantia</button>
-      </div>
-
-      <!-- Aba Geral -->
-      <div class="tab active">
-        <h2>Informações Básicas</h2>
-        <input type="text" id="nome" placeholder="Nome do Produto" required>
-        <input type="text" id="marca" placeholder="Marca" required>
-        <select id="categoria" required>
-          <option value="">Selecione a Categoria</option>
-          <option value="ração">Ração</option>
-          <option value="petisco">Petisco</option>
-          <option value="acessório">Acessório</option>
-        </select>
-        <select id="animal" required>
-          <option value="">Selecione o Animal</option>
-          <option value="cachorro">Cachorro</option>
-          <option value="gato">Gato</option>
-          <option value="passaro">Pássaro</option>
-          <option value="coelho">Coelho</option>
-          <option value="outro">Outro</option>
-        </select>
-        <input type="file" id="imagem" accept="image/*">
-        <textarea id="descricao" placeholder="Descrição do Produto"></textarea>
-      </div>
-
-      <!-- Aba Composição -->
-      <div class="tab">
-        <h2>Composição e Ingredientes</h2>
-        <textarea id="composicao" placeholder="Composição nutricional"></textarea>
-        <textarea id="ingredientes" placeholder="Ingredientes"></textarea>
-      </div>
-
-      <!-- Aba Variações -->
-      <div class="tab">
-        <h2>Variações (Peso, Preço, Validade)</h2>
-        <div class="table-container">
-          <table id="variacoesTable">
-            <thead>
-              <tr>
-                <th>Peso</th>
-                <th>Valor de Compra</th>
-                <th>Valor de Venda</th>
-                <th>Validade</th>
-                <th>Quantidade</th>
-                <th>Ação</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <button type="button" class="add-variation" onclick="addVariacao()">+ Adicionar Variação</button>
-      </div>
-
-      <!-- Aba Troca & Garantia -->
-      <div class="tab">
-        <h2>Troca & Garantia</h2>
-        <select id="trocaPermitida">
-          <option value="nao">Troca Não Permitida</option>
-          <option value="sim">Troca Permitida</option>
-        </select>
-        <textarea id="instrucaoTroca" placeholder="Instruções de Troca"></textarea>
-        <select id="garantiaFabrica">
-          <option value="nao">Sem Garantia de Fábrica</option>
-          <option value="sim">Com Garantia de Fábrica</option>
-        </select>
-        <input type="number" id="porcentagemGarantia" placeholder="% de Garantia" min="0" max="100">
-        <input type="number" id="porcentagemTroca" placeholder="% restante para Troca" min="0" max="100">
-      </div>
-
-      <button type="submit">Salvar Produto</button>
-    </form>
+  <div class="sidebar">
+    <h2>Admin Pet</h2>
+    <a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="#"><i class="fas fa-user"></i> Clientes</a>
+    <a href="#"><i class="fas fa-building"></i> Parceiros</a>
+    <a href="#"><i class="fas fa-users"></i> Funcionários</a>
+    <a href="#"><i class="fas fa-box"></i> Produtos</a>
   </div>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "SEU_SENDER_ID",
-  appId: "SEU_APP_ID"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
+  <div class="main-content">
+    <h1>Produtos</h1>
 
-// Modal
-const modal = document.getElementById('modalProduto');
-document.getElementById('openModal').onclick = () => modal.style.display = 'flex';
-document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
-window.onclick = e => { if(e.target == modal) modal.style.display = 'none'; }
+    <div class="top-bar">
+      <div class="left">
+        <button id="openModal"><i class="fas fa-plus"></i> Cadastrar Produto</button>
+        <div class="muted" style="margin-left:10px">Clique em um KPI para ver a lista filtrada</div>
+      </div>
+      <div>
+        <input class="search-input" id="searchInput" placeholder="Pesquisar nome / marca..." style="padding:9px;border-radius:8px;border:1px solid #ccc">
+      </div>
+    </div>
 
-// Abas
-const tabs = document.querySelectorAll('.tab');
-const tabButtons = document.querySelectorAll('.tab-buttons button');
-function showTab(index){
-  tabs.forEach(t=>t.classList.remove('active'));
-  tabs[index].classList.add('active');
-  tabButtons.forEach(b=>b.classList.remove('active'));
-  tabButtons[index].classList.add('active');
-}
+    <!-- KPI Buttons -->
+    <div class="kpi-grid" id="kpiGrid">
+      <!-- Row: Estoque -->
+      <div class="kpi-btn" data-kpi="totalProdutos"><div class="title">Total de produtos cadastrados</div><div class="value" id="k_totalProdutos">0</div></div>
+      <div class="kpi-btn" data-kpi="produtosEmEstoque"><div class="title">Produtos em estoque</div><div class="value" id="k_produtosEmEstoque">0</div></div>
+      <div class="kpi-btn" data-kpi="estoqueCritico"><div class="title">Produtos em estoque crítico</div><div class="value" id="k_estoqueCritico">0</div></div>
+      <div class="kpi-btn" data-kpi="produtosVencidos"><div class="title">Quantidade de produtos vencidos</div><div class="value" id="k_produtosVencidos">0</div></div>
 
-// Adicionar variação
-function addVariacao(){
-  const tbody = document.querySelector('#variacoesTable tbody');
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td><input type="text" placeholder="Peso"></td>
-    <td><input type="number" placeholder="Valor de Compra" step="0.01"></td>
-    <td><input type="number" placeholder="Valor de Venda" step="0.01"></td>
-    <td><input type="date"></td>
-    <td><input type="number" placeholder="Quantidade"></td>
-    <td><button type="button" onclick="this.closest('tr').remove()">Remover</button></td>
-  `;
-  tbody.appendChild(tr);
-}
+      <!-- Row: Vendas -->
+      <div class="kpi-btn" data-kpi="maisVendidos"><div class="title">Mais vendidos</div><div class="value" id="k_maisVendidos">-</div></div>
+      <div class="kpi-btn" data-kpi="variacoesMaisVendidas"><div class="title">Variações mais vendidas</div><div class="value" id="k_variacoesMaisVendidas">-</div></div>
+      <div class="kpi-btn" data-kpi="faturamentoPorProduto"><div class="title">Faturamento por produto (top)</div><div class="value" id="k_faturamentoPorProduto">-</div></div>
 
-// Salvar produto
-document.getElementById('produtoForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
+      <!-- Row: Lucratividade -->
+      <div class="kpi-btn" data-kpi="maiorMargem"><div class="title">Maior margem de lucro</div><div class="value" id="k_maiorMargem">-</div></div>
+      <div class="kpi-btn" data-kpi="margemMediaPorCategoria"><div class="title">Margem média por categoria</div><div class="value" id="k_margemMediaPorCategoria">-</div></div>
+      <div class="kpi-btn" data-kpi="produtosMargemBaixa"><div class="title">Produtos com margem baixa</div><div class="value" id="k_produtosMargemBaixa">-</div></div>
 
-  const arquivo = document.getElementById('imagem').files[0];
-  let urlImagem = '';
-  if(arquivo){
-    const storageRef = storage.ref().child('produtos/'+arquivo.name);
-    await storageRef.put(arquivo);
-    urlImagem = await storageRef.getDownloadURL();
-  }
+      <!-- Row: Troca / Engajamento -->
+      <div class="kpi-btn" data-kpi="produtosComTroca"><div class="title">Produtos com troca permitida</div><div class="value" id="k_produtosComTroca">-</div></div>
+      <div class="kpi-btn" data-kpi="produtosMaisTrocados"><div class="title">Produtos mais trocados</div><div class="value" id="k_produtosMaisTrocados">-</div></div>
+      <div class="kpi-btn" data-kpi="taxaDeTroca"><div class="title">Taxa de troca (se disponível)</div><div class="value" id="k_taxaDeTroca">-</div></div>
+    </div>
 
-  const produto = {
-    nome: document.getElementById('nome').value,
-    marca: document.getElementById('marca').value,
-    categoria: document.getElementById('categoria').value,
-    animal: document.getElementById('animal').value,
-    imagem: urlImagem,
-    descricao: document.getElementById('descricao').value,
-    composicao: document.getElementById('composicao').value,
-    ingredientes: document.getElementById('ingredientes').value,
-    trocaPermitida: document.getElementById('trocaPermitida').value,
-    instrucaoTroca: document.getElementById('instrucaoTroca').value,
-    garantiaFabrica: document.getElementById('garantiaFabrica').value,
-    porcentagemGarantia: Number(document.getElementById('porcentagemGarantia').value || 0),
-    porcentagemTroca: Number(document.getElementById('porcentagemTroca').value || 0),
-    variacoes: []
+    <!-- Filters and results -->
+    <div class="filters-row">
+      <select id="filterCategoria" style="padding:9px;border-radius:8px;border:1px solid #ccc">
+        <option value="">Todas categorias</option>
+        <option value="ração">Ração</option>
+        <option value="petisco">Petisco</option>
+        <option value="acessório">Acessório</option>
+      </select>
+      <select id="filterAnimal" style="padding:9px;border-radius:8px;border:1px solid #ccc">
+        <option value="">Todos animais</option>
+        <option value="cachorro">Cachorro</option>
+        <option value="gato">Gato</option>
+        <option value="passaro">Pássaro</option>
+        <option value="coelho">Coelho</option>
+        <option value="outro">Outro</option>
+      </select>
+      <select id="filterPeriodo" style="padding:9px;border-radius:8px;border:1px solid #ccc">
+        <option value="all">Período: Todos</option>
+        <option value="30">Últimos 30 dias</option>
+        <option value="90">Últimos 90 dias</option>
+        <option value="365">Últimos 365 dias</option>
+      </select>
+      <button id="clearFilters" style="background:#e74c3c">Limpar filtros</button>
+    </div>
+
+    <div id="listaFiltro" class="result-panel">
+      <div style="padding:8px;color:#666">Clique em um KPI para visualizar a lista filtrada aqui.</div>
+    </div>
+  </div>
+
+  <!-- Modal: Cadastrar Produto -->
+  <div id="modalProduto" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h2 id="modalTitle">Cadastrar Produto</h2>
+        <div class="close-x" id="closeModal"><i class="fas fa-times"></i></div>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-left">
+          <div class="tab-buttons">
+            <button class="active" type="button" data-tab="0">Geral</button>
+            <button type="button" data-tab="1">Composição</button>
+            <button type="button" data-tab="2">Variações</button>
+            <button type="button" data-tab="3">Troca & Garantia</button>
+          </div>
+
+          <!-- Tabs (left column content switches) -->
+          <div class="tab-content">
+            <div class="tab active" data-idx="0">
+              <label>Nome</label><input id="nome" type="text" placeholder="Nome do produto" required>
+              <label>Marca</label><input id="marca" type="text" placeholder="Marca" required>
+              <label>Categoria</label>
+              <select id="categoria">
+                <option value="">Selecione</option>
+                <option value="ração">Ração</option>
+                <option value="petisco">Petisco</option>
+                <option value="acessório">Acessório</option>
+              </select>
+              <label>Animal (pet)</label>
+              <select id="animal">
+                <option value="">Selecione</option>
+                <option value="cachorro">Cachorro</option>
+                <option value="gato">Gato</option>
+                <option value="passaro">Pássaro</option>
+                <option value="coelho">Coelho</option>
+                <option value="outro">Outro</option>
+              </select>
+
+              <label>Imagem do produto (upload)</label>
+              <div class="img-preview" id="imgPreview">Nenhuma imagem</div>
+              <input type="file" id="imagemFile" accept="image/*">
+              <div class="small muted">A imagem será enviada ao Firebase Storage ao salvar o produto.</div>
+              <label>Descrição</label><textarea id="descricao" placeholder="Descrição breve"></textarea>
+            </div>
+
+            <div class="tab" data-idx="1">
+              <label>Composição nutricional (estrutura recomendada)</label>
+              <textarea id="composicao" placeholder="Ex: Proteína bruta 26%, Gordura bruta 12%, Fibras 4%..."></textarea>
+              <label>Ingredientes</label>
+              <textarea id="ingredientes" placeholder="Lista de ingredientes"></textarea>
+            </div>
+
+            <div class="tab" data-idx="2">
+              <label>Variações</label>
+              <table class="variacoes-table" id="variacoesTable">
+                <thead>
+                  <tr><th>Peso</th><th>Valor compra</th><th>Valor venda</th><th>Validade</th><th>Qtd</th><th>Vendas (opcional)</th><th>Ação</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <button class="add-variation" id="addVariationBtn" type="button">+ Adicionar variação</button>
+              <div class="muted" style="margin-top:8px">Você pode informar um campo "vendas" por variação (contagem) para relatórios de vendas.</div>
+            </div>
+
+            <div class="tab" data-idx="3">
+              <label>Troca permitida?</label>
+              <select id="trocaPermitida"><option value="nao">Não</option><option value="sim">Sim</option></select>
+              <label>Instruções de troca</label><textarea id="instrucaoTroca"></textarea>
+              <label>Garantia de fábrica?</label>
+              <select id="garantiaFabrica"><option value="nao">Não</option><option value="sim">Sim</option></select>
+              <label>% de garantia</label><input id="porcentagemGarantia" type="number" min="0" max="100" placeholder="Ex: 0-100">
+              <label>% restante para troca</label><input id="porcentagemTroca" type="number" min="0" max="100" placeholder="Ex: 75">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-right">
+          <div style="margin-bottom:10px">
+            <label>Resumo rápido</label>
+            <div style="background:#fafafa;padding:10px;border-radius:8px;border:1px solid #eee">
+              <div class="small">Preencha as abas à esquerda. Clique em <b>Salvar produto</b> abaixo quando terminar.</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:10px">
+            <label>Preview de variações (automático)</label>
+            <div id="previewVariacoes" style="background:#fff;padding:8px;border-radius:8px;border:1px solid #eee;min-height:120px;overflow:auto"></div>
+          </div>
+
+          <div style="margin-bottom:10px">
+            <label>Dados técnicos</label>
+            <table style="width:100%;border-collapse:collapse">
+              <tr><td class="small">Cadastro via UI</td><td class="small" id="metaStatus">Pronto</td></tr>
+              <tr><td class="small">Storage</td><td class="small">Firebase Storage (configurar)</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <button id="cancelBtn" type="button" style="background:#95a5a6">Cancelar</button>
+        <button id="saveProdutoBtn" type="button">Salvar produto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+  <script>
+  // ---------- CONFIG FIREBASE ----------
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_PROJETO.firebaseapp.com",
+    projectId: "SEU_PROJETO",
+    storageBucket: "SEU_PROJETO.appspot.com",
+    messagingSenderId: "SEU_SENDER_ID",
+    appId: "SEU_APP_ID"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+
+  // ---------- UI ELEMENTS ----------
+  const openModalBtn = document.getElementById('openModal');
+  const modal = document.getElementById('modalProduto');
+  const closeModal = document.getElementById('closeModal');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const saveProdutoBtn = document.getElementById('saveProdutoBtn');
+  const imgFileInput = document.getElementById('imagemFile');
+  const imgPreview = document.getElementById('imgPreview');
+  const variacoesTbody = document.querySelector('#variacoesTable tbody');
+  const addVariationBtn = document.getElementById('addVariationBtn');
+  const previewVariacoes = document.getElementById('previewVariacoes');
+
+  const listaFiltro = document.getElementById('listaFiltro');
+  const searchInput = document.getElementById('searchInput');
+  const filterCategoria = document.getElementById('filterCategoria');
+  const filterAnimal = document.getElementById('filterAnimal');
+  const filterPeriodo = document.getElementById('filterPeriodo');
+  const clearFilters = document.getElementById('clearFilters');
+
+  // KPI nodes
+  const kNodes = {
+    totalProdutos: document.getElementById('k_totalProdutos'),
+    produtosEmEstoque: document.getElementById('k_produtosEmEstoque'),
+    estoqueCritico: document.getElementById('k_estoqueCritico'),
+    produtosVencidos: document.getElementById('k_produtosVencidos'),
+    maisVendidos: document.getElementById('k_maisVendidos'),
+    variacoesMaisVendidas: document.getElementById('k_variacoesMaisVendidas'),
+    faturamentoPorProduto: document.getElementById('k_faturamentoPorProduto'),
+    maiorMargem: document.getElementById('k_maiorMargem'),
+    margemMediaPorCategoria: document.getElementById('k_margemMediaPorCategoria'),
+    produtosMargemBaixa: document.getElementById('k_produtosMargemBaixa'),
+    produtosComTroca: document.getElementById('k_produtosComTroca'),
+    produtosMaisTrocados: document.getElementById('k_produtosMaisTrocados'),
+    taxaDeTroca: document.getElementById('k_taxaDeTroca')
   };
 
-  document.querySelectorAll('#variacoesTable tbody tr').forEach(tr=>{
-    const tds = tr.querySelectorAll('input');
-    produto.variacoes.push({
-      peso: tds[0].value,
-      valorCompra: Number(tds[1].value || 0),
-      valorVenda: Number(tds[2].value || 0),
-      validade: tds[3].value,
-      quantidade: Number(tds[4].value || 0)
+  // cache produtos (para evitar múltiplas leituras seguidas)
+  let produtosCache = [];
+  let lastSnapshotTime = 0;
+
+  // ---------- MODAL HANDLERS ----------
+  openModalBtn.addEventListener('click', ()=> {
+    modal.style.display = 'flex';
+    // reset modal fields
+    resetModal();
+  });
+  closeModal.addEventListener('click', ()=> modal.style.display = 'none');
+  cancelBtn.addEventListener('click', ()=> modal.style.display = 'none');
+  window.addEventListener('click', (e)=> { if(e.target === modal) modal.style.display = 'none'; });
+
+  // tabs inside modal
+  const tabButtons = document.querySelectorAll('.tab-buttons button');
+  const tabPanels = document.querySelectorAll('.tab-content .tab');
+  tabButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=> {
+      tabButtons.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const idx = btn.dataset.tab;
+      tabPanels.forEach(p=>p.classList.remove('active'));
+      document.querySelector('.tab-content .tab[data-idx="'+idx+'"]').classList.add('active');
     });
   });
 
-  try{
-    await db.collection('produtos').add(produto);
-    alert('Produto salvo com sucesso!');
-    modal.style.display = 'none';
-    location.reload();
-  }catch(err){
-    alert('Erro ao salvar: '+err.message);
+  // image preview
+  imgFileInput.addEventListener('change', (e)=>{
+    const f = e.target.files[0];
+    if(!f) { imgPreview.innerHTML = 'Nenhuma imagem'; return; }
+    const url = URL.createObjectURL(f);
+    imgPreview.innerHTML = '<img src="'+url+'" alt="preview">';
+  });
+
+  // add variation row
+  addVariationBtn.addEventListener('click', addVariacaoRow);
+
+  function addVariacaoRow(data){
+    // data is optional, used when re-populating
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" placeholder="Peso (ex: 1kg)" class="v-peso" value="${data?.peso||''}"></td>
+      <td><input type="number" step="0.01" placeholder="Valor compra" class="v-compra" value="${data?.valorCompra||''}"></td>
+      <td><input type="number" step="0.01" placeholder="Valor venda" class="v-venda" value="${data?.valorVenda||''}"></td>
+      <td><input type="date" class="v-validade" value="${data?.validade||''}"></td>
+      <td><input type="number" step="1" placeholder="Quantidade" class="v-qtd" value="${data?.quantidade||0}"></td>
+      <td><input type="number" step="1" placeholder="vendas" class="v-vendas" value="${data?.vendas||0}"></td>
+      <td><button type="button" class="removeRowBtn" style="background:#e74c3c">Remover</button></td>
+    `;
+    variacoesTbody.appendChild(tr);
+    tr.querySelector('.removeRowBtn').addEventListener('click', ()=> tr.remove());
+    refreshPreviewVariacoes();
+    // update preview when inputs change
+    tr.querySelectorAll('input').forEach(inp => inp.addEventListener('input', refreshPreviewVariacoes));
   }
-});
-</script>
+
+  function refreshPreviewVariacoes(){
+    const rows = Array.from(variacoesTbody.querySelectorAll('tr'));
+    if(rows.length===0){ previewVariacoes.innerHTML = '<div class="small muted">Nenhuma variação adicionada</div>'; return; }
+    previewVariacoes.innerHTML = rows.map(r=>{
+      const peso = r.querySelector('.v-peso').value || '-';
+      const compra = r.querySelector('.v-compra').value || '0';
+      const venda = r.querySelector('.v-venda').value || '0';
+      const validade = r.querySelector('.v-validade').value || '-';
+      const qtd = r.querySelector('.v-qtd').value || '0';
+      const vendas = r.querySelector('.v-vendas').value || '0';
+      return `<div style="padding:6px;border-bottom:1px solid #f1f1f1">
+                <b>${peso}</b>
+                <div class="small">Compra R$ ${Number(compra).toFixed(2)} • Venda R$ ${Number(venda).toFixed(2)} • Qtd: ${qtd} • Vendas: ${vendas} • Validade: ${validade}</div>
+              </div>`;
+    }).join('');
+  }
+
+  function resetModal(){
+    document.getElementById('nome').value='';
+    document.getElementById('marca').value='';
+    document.getElementById('categoria').value='';
+    document.getElementById('animal').value='';
+    imgFileInput.value='';
+    imgPreview.innerHTML = 'Nenhuma imagem';
+    document.getElementById('descricao').value='';
+    document.getElementById('composicao').value='';
+    document.getElementById('ingredientes').value='';
+    variacoesTbody.innerHTML='';
+    document.getElementById('trocaPermitida').value='nao';
+    document.getElementById('instrucaoTroca').value='';
+    document.getElementById('garantiaFabrica').value='nao';
+    document.getElementById('porcentagemGarantia').value='';
+    document.getElementById('porcentagemTroca').value='';
+    refreshPreviewVariacoes();
+    // default to first tab
+    tabButtons.forEach(b=>b.classList.remove('active'));
+    tabPanels.forEach(p=>p.classList.remove('active'));
+    tabButtons[0].classList.add('active');
+    tabPanels[0].classList.add('active');
+  }
+
+  // ---------- SALVAR PRODUTO (upload imagem + firestore) ----------
+  saveProdutoBtn.addEventListener('click', async ()=>{
+    saveProdutoBtn.disabled = true;
+    saveProdutoBtn.textContent = 'Salvando...';
+    try{
+      // montar objeto produto
+      const produto = {
+        nome: document.getElementById('nome').value.trim(),
+        marca: document.getElementById('marca').value.trim(),
+        categoria: document.getElementById('categoria').value,
+        animal: document.getElementById('animal').value,
+        descricao: document.getElementById('descricao').value.trim(),
+        composicao: document.getElementById('composicao').value.trim(),
+        ingredientes: document.getElementById('ingredientes').value.trim(),
+        trocaPermitida: document.getElementById('trocaPermitida').value,
+        instrucaoTroca: document.getElementById('instrucaoTroca').value.trim(),
+        garantiaFabrica: document.getElementById('garantiaFabrica').value,
+        porcentagemGarantia: Number(document.getElementById('porcentagemGarantia').value || 0),
+        porcentagemTroca: Number(document.getElementById('porcentagemTroca').value || 0),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      // coletar variações
+      produto.variacoes = [];
+      Array.from(variacoesTbody.querySelectorAll('tr')).forEach(tr=>{
+        produto.variacoes.push({
+          peso: tr.querySelector('.v-peso').value || '',
+          valorCompra: Number(tr.querySelector('.v-compra').value || 0),
+          valorVenda: Number(tr.querySelector('.v-venda').value || 0),
+          validade: tr.querySelector('.v-validade').value || '',
+          quantidade: Number(tr.querySelector('.v-qtd').value || 0),
+          vendas: Number(tr.querySelector('.v-vendas').value || 0)
+        });
+      });
+
+      // upload imagem (se houver)
+      const file = imgFileInput.files[0];
+      if(file){
+        const fileName = Date.now() + '_' + file.name.replace(/\s+/g,'_');
+        const ref = storage.ref().child('produtos/' + fileName);
+        const snapshot = await ref.put(file);
+        produto.imagem = await snapshot.ref.getDownloadURL();
+        produto.imagemPath = snapshot.metadata.fullPath || ('produtos/' + fileName);
+      } else {
+        produto.imagem = '';
+      }
+
+      // salvar no Firestore
+      await db.collection('produtos').add(produto);
+      alert('Produto salvo com sucesso!');
+      modal.style.display = 'none';
+      loadAndRenderKPIs(true);
+    }catch(err){
+      console.error(err);
+      alert('Erro ao salvar: ' + (err.message || err));
+    }finally{
+      saveProdutoBtn.disabled = false;
+      saveProdutoBtn.textContent = 'Salvar produto';
+    }
+  });
+
+  // ---------- CARREGAR DADOS E CALCULAR KPI ----------
+  async function loadProdutosOnce(){
+    // If cache was loaded less than 10s ago, reuse
+    const now = Date.now();
+    if(produtosCache.length > 0 && (now - lastSnapshotTime) < 10_000) return produtosCache;
+    const snap = await db.collection('produtos').get();
+    produtosCache = [];
+    snap.forEach(d=> {
+      const p = d.data();
+      p._id = d.id;
+      // normalize if variacoes missing
+      if(!Array.isArray(p.variacoes)) p.variacoes = [];
+      produtosCache.push(p);
+    });
+    lastSnapshotTime = now;
+    return produtosCache;
+  }
+
+  async function loadAndRenderKPIs(force=false){
+    const produtos = await loadProdutosOnce();
+    // 1) Total produtos cadastrados
+    kNodes.totalProdutos.textContent = produtos.length;
+
+    // 2) Produtos em estoque (somatório unidades >0 across variations)
+    let estoqueTotalUnidades = 0;
+    let produtosEmEstoqueCount = 0;
+    let estoqueCriticoCount = 0;
+    let produtosVencidosCount = 0;
+    const estoqueCriticoThreshold = 5; // ajuste se quiser
+    const hoje = new Date();
+
+    produtos.forEach(p=>{
+      let totalPorProduto = 0;
+      p.variacoes.forEach(v=>{
+        const qtd = Number(v.quantidade || 0);
+        totalPorProduto += qtd;
+        estoqueTotalUnidades += qtd;
+        // vencido?
+        if(v.validade){
+          const d = new Date(v.validade);
+          if(!isNaN(d) && d < hoje) produtosVencidosCount += 1;
+        }
+        if(qtd <= estoqueCriticoThreshold) estoqueCriticoCount += 1;
+      });
+      if(totalPorProduto > 0) produtosEmEstoqueCount += 1;
+    });
+
+    kNodes.produtosEmEstoque.textContent = estoqueTotalUnidades;
+    kNodes.estoqueCritico.textContent = estoqueCriticoCount;
+    kNodes.produtosVencidos.textContent = produtosVencidosCount;
+
+    // Vendas: calcular mais vendidos e variações mais vendidas e faturamento
+    // We infer sales from fields: product-level p.vendas or variation.vendas. We'll aggregate both.
+    const vendasPorProduto = {}; // nome -> vendasCount
+    const vendasPorVariacao = []; // {produtoId, nome, peso, vendas, valorVenda}
+    const faturamentoPorProduto = {}; // nome -> faturamento
+
+    produtos.forEach(p=>{
+      const nome = p.nome || ('#'+p._id);
+      let totalVendasProduto = Number(p.vendas || 0);
+      p.variacoes.forEach(v=>{
+        const vVendas = Number(v.vendas || 0);
+        const vVenda = Number(v.valorVenda || v.valor_venda || 0);
+        totalVendasProduto += vVendas;
+        vendasPorVariacao.push({
+          produtoId: p._id,
+          produtoNome: nome,
+          peso: v.peso || '',
+          vendas: vVendas,
+          valorVenda: vVenda
+        });
+        faturamentoPorProduto[nome] = (faturamentoPorProduto[nome] || 0) + (vVendas * vVenda);
+      });
+      // if product-level vendas exists, approximate faturamento through avg price * vendas
+      if(Number(p.vendas || 0) > 0 && (!p.variacoes || p.variacoes.length===0)){
+        vendasPorProduto[nome] = (vendasPorProduto[nome] || 0) + Number(p.vendas || 0);
+        // try to guess price
+        const price = Number(p.preco_venda || p.precoVenda || 0);
+        faturamentoPorProduto[nome] = (faturamentoPorProduto[nome] || 0) + Number(p.vendas || 0) * price;
+      } else {
+        vendasPorProduto[nome] = (vendasPorProduto[nome] || 0) + totalVendasProduto;
+      }
+    });
+
+    // aggregate vendasPorVariacao top
+    vendasPorVariacao.sort((a,b)=>b.vendas - a.vendas);
+    const topVariacoes = vendasPorVariacao.slice(0,3);
+    kNodes.variacoesMaisVendidas.textContent = topVariacoes.length ? topVariacoes.map(x=> x.produtoNome + ' ('+x.peso+')').join(' | ') : '-';
+
+    // aggregate mais vendidos produtos
+    const vendasEntries = Object.entries(vendasPorProduto);
+    vendasEntries.sort((a,b)=> (b[1]||0) - (a[1]||0));
+    const topVendidos = vendasEntries.slice(0,3).map(e=> e[0] + ' (' + (e[1]||0) + ')');
+    kNodes.maisVendidos.textContent = topVendidos.length ? topVendidos.join(' | ') : '-';
+
+    // faturamento por produto (top)
+    const faturEntries = Object.entries(faturamentoPorProduto);
+    faturEntries.sort((a,b)=> (b[1]||0) - (a[1]||0));
+    kNodes.faturamentoPorProduto.textContent = faturEntries.length ? faturEntries.slice(0,1)[0][0] + ' R$ ' + (faturEntries[0][1]||0).toFixed(2) : '-';
+
+    // Lucratividade: calcular margens por variação (se valores de custo/venda informados)
+    const margemPorProduto = {}; // produto -> lista margens
+    const margemMediaCategoria = {}; // categoria -> {sum, count}
+    const produtosComMargemBaixaList = [];
+
+    produtos.forEach(p=>{
+      const cat = p.categoria || 'Sem categoria';
+      p.variacoes.forEach(v=>{
+        const custo = Number(v.valorCompra || v.valor_compra || 0);
+        const venda = Number(v.valorVenda || v.valor_venda || 0);
+        if(custo > 0 && venda >= 0){
+          const margem = ((venda - custo)/custo) * 100;
+          margemPorProduto[p.nome] = margemPorProduto[p.nome] || [];
+          margemPorProduto[p.nome].push(margem);
+          margemMediaCategoria[cat] = margemMediaCategoria[cat] || {sum:0,count:0};
+          margemMediaCategoria[cat].sum += margem;
+          margemMediaCategoria[cat].count += 1;
+          if(margem < 10){ // critério: margem baixa < 10%
+            produtosComMargemBaixaList.push({nome: p.nome, peso: v.peso, margem: margem.toFixed(2)});
+          }
+        }
+      });
+    });
+
+    // maior margem
+    let maiorMargemValue = -Infinity; let maiorMargemNome = '-';
+    Object.entries(margemPorProduto).forEach(([nome, arr])=>{
+      const avg = arr.reduce((a,b)=>a+b,0)/arr.length;
+      if(avg > maiorMargemValue){ maiorMargemValue = avg; maiorMargemNome = nome; }
+    });
+    kNodes.maiorMargem.textContent = (maiorMargemValue===-Infinity) ? '-' : (maiorMargemNome + ' ' + maiorMargemValue.toFixed(2) + '%');
+
+    // margem média por categoria (show first 2 categories)
+    const catEntries = Object.entries(margemMediaCategoria).map(([cat, obj])=> ({cat, avg: obj.sum / obj.count}));
+    kNodes.margemMediaPorCategoria.textContent = catEntries.length ? catEntries.slice(0,2).map(c=> c.cat + ' ' + c.avg.toFixed(1)+'%').join(' | ') : '-';
+
+    kNodes.produtosMargemBaixa.textContent = produtosComMargemBaixaList.length ? produtosComMargemBaixaList.length : '0';
+
+    // Troca / Engajamento - depends on stored metadata (e.g., p.trocasCount)
+    let produtosComTrocaCount = 0;
+    const produtosMaisTrocadosArr = [];
+    let totalTrocas = 0;
+    let totalVendasAll = 0;
+
+    produtos.forEach(p=>{
+      if(p.trocaPermitida === 'sim' || p.trocaPermitida === true) produtosComTrocaCount++;
+      const trocas = Number(p.trocasCount || p.trocas || 0);
+      const vendas = Number(p.vendas || 0) + (p.variacoes ? p.variacoes.reduce((s,v)=> s + Number(v.vendas||0), 0) : 0);
+      totalTrocas += trocas;
+      totalVendasAll += vendas;
+      if(trocas > 0) produtosMaisTrocadosArr.push({nome: p.nome, trocas});
+    });
+
+    produtosMaisTrocadosArr.sort((a,b)=> b.trocas - a.trocas);
+    kNodes.produtosComTroca.textContent = produtosComTrocaCount;
+    kNodes.produtosMaisTrocados.textContent = produtosMaisTrocadosArr.length ? produtosMaisTrocadosArr.slice(0,3).map(x=> x.nome + ' ('+x.trocas+')').join(' | ') : '-';
+    kNodes.taxaDeTroca.textContent = (totalVendasAll > 0) ? ((totalTrocas / totalVendasAll * 100).toFixed(2) + '%') : '-';
+  }
+
+  // ---------- KPI BUTTON CLICK HANDLER (filtrar e mostrar) ----------
+  document.querySelectorAll('.kpi-btn').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      // visual
+      document.querySelectorAll('.kpi-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const produtos = await loadProdutosOnce();
+      const tipo = btn.dataset.kpi;
+      const filtered = []; // array de items para exibir. each item: {produto, variacao?}
+
+      // common filters from UI
+      const q = (searchInput.value || '').toLowerCase();
+      const categoriaSel = filterCategoria.value || '';
+      const animalSel = filterAnimal.value || '';
+      const periodo = filterPeriodo.value || 'all';
+      const periodoDate = (() => {
+        if(periodo === 'all') return null;
+        const d = new Date();
+        d.setDate(d.getDate() - Number(periodo));
+        return d;
+      })();
+
+      // helper to push product/variation into filtered respecting search/categoria/animal
+      function pushIfMatches(p, v=null){
+        if(categoriaSel && (p.categoria || '') !== categoriaSel) return;
+        if(animalSel && (p.animal || '') !== animalSel) return;
+        if(q){
+          const hay = (p.nome || '') + ' ' + (p.marca || '') + ' ' + (v?.peso||'');
+          if(hay.toLowerCase().indexOf(q) === -1) return;
+        }
+        if(periodoDate && p.createdAt && p.createdAt.toDate){
+          const created = p.createdAt.toDate();
+          if(created < periodoDate) return;
+        }
+        filtered.push({produto:p, variacao:v});
+      }
+
+      // compute filters
+      const hoje = new Date();
+      const estoqueCriticoThreshold = 5;
+      produtos.forEach(p=>{
+        switch(tipo){
+          // Estoque
+          case 'totalProdutos':
+            pushIfMatches(p, null);
+            break;
+          case 'produtosEmEstoque':
+            p.variacoes.forEach(v=>{ if(Number(v.quantidade || 0) > 0) pushIfMatches(p, v); });
+            break;
+          case 'estoqueCritico':
+            p.variacoes.forEach(v=>{ if(Number(v.quantidade || 0) <= estoqueCriticoThreshold) pushIfMatches(p, v); });
+            break;
+          case 'produtosVencidos':
+            p.variacoes.forEach(v=>{
+              if(v.validade){
+                const d = new Date(v.validade);
+                if(!isNaN(d) && d < hoje) pushIfMatches(p, v);
+              }
+            });
+            break;
+
+          // Vendas
+          case 'maisVendidos':
+            // we'll consider product-level vendas and sum of variation.vendas
+            const vendasProduto = Number(p.vendas || 0) + p.variacoes.reduce((s,v)=> s + Number(v.vendas || 0), 0);
+            if(vendasProduto > 0) pushIfMatches(p, null);
+            break;
+          case 'variacoesMaisVendidas':
+            p.variacoes.forEach(v=>{ if(Number(v.vendas || 0) > 0) pushIfMatches(p, v); });
+            break;
+          case 'faturamentoPorProduto':
+            // compute approximate faturamento (vendas * valorVenda)
+            const fatur = p.variacoes.reduce((s,v)=> s + (Number(v.vendas||0) * Number(v.valorVenda||0)), 0) + (Number(p.vendas||0) * (Number(p.preco_venda||p.precoVenda||0)));
+            if(fatur > 0) { p._faturamento = fatur; pushIfMatches(p, null); }
+            break;
+
+          // Lucratividade
+          case 'maiorMargem':
+            p.variacoes.forEach(v=>{
+              const custo = Number(v.valorCompra || 0); const venda = Number(v.valorVenda || 0);
+              if(custo > 0){
+                const margem = ((venda - custo)/custo) * 100;
+                // push those with margin info
+                pushIfMatches(p, v);
+              }
+            });
+            break;
+          case 'margemMediaPorCategoria':
+            pushIfMatches(p, null);
+            break;
+          case 'produtosMargemBaixa':
+            p.variacoes.forEach(v=>{
+              const custo = Number(v.valorCompra || 0); const venda = Number(v.valorVenda || 0);
+              if(custo > 0){
+                const margem = ((venda - custo)/custo) * 100;
+                if(margem < 10) pushIfMatches(p, v); // criterio margem baixa <10%
+              }
+            });
+            break;
+
+          // Troca / Engajamento
+          case 'produtosComTroca':
+            if(p.trocaPermitida === 'sim' || p.trocaPermitida === true) pushIfMatches(p, null);
+            break;
+          case 'produtosMaisTrocados':
+            if(Number(p.trocasCount || p.trocas || 0) > 0) pushIfMatches(p, null);
+            break;
+          case 'taxaDeTroca':
+            // show products that have trocasCount > 0
+            if(Number(p.trocasCount || p.trocas || 0) > 0) pushIfMatches(p, null);
+            break;
+          default:
+            break;
+        }
+      });
+
+      // sort results for nicer view depending on KPI
+      if(tipo === 'maisVendidos'){
+        filtered.sort((a,b)=>{
+          const av = Number(a.produto.vendas || 0) + (a.variacao ? Number(a.variacao.vendas||0) : 0);
+          const bv = Number(b.produto.vendas || 0) + (b.variacao ? Number(b.variacao.vendas||0) : 0);
+          return bv - av;
+        });
+      }
+      if(tipo === 'faturamentoPorProduto'){
+        filtered.sort((a,b)=> (b.produto._faturamento||0) - (a.produto._faturamento||0));
+      }
+      if(tipo === 'variacoesMaisVendidas'){
+        filtered.sort((a,b)=> (Number(b.variacao?.vendas || 0)) - (Number(a.variacao?.vendas || 0)));
+      }
+      if(tipo === 'produtosMargemBaixa'){
+        filtered.sort((a,b)=>{
+          const am = calcMargem(a.variacao);
+          const bm = calcMargem(b.variacao);
+          return am - bm;
+        });
+      }
+
+      renderLista(filtered, tipo);
+    });
+  });
+
+  // helper margin calc
+  function calcMargem(v){
+    if(!v) return Infinity;
+    const custo = Number(v.valorCompra || 0);
+    const venda = Number(v.valorVenda || 0);
+    if(custo <= 0) return Infinity;
+    return ((venda - custo)/custo) * 100;
+  }
+
+  // ---------- RENDER LISTA ----------
+
+  function renderLista(items, tipo){
+    if(!items || items.length===0){
+      listaFiltro.innerHTML = '<div style="padding:8px;color:#666">Nenhum resultado para esse KPI / filtros.</div>';
+      return;
+    }
+    // build HTML
+    const html = items.map(it=>{
+      const p = it.produto;
+      const v = it.variacao;
+      const img = p.imagem || '';
+      const nome = p.nome || ('#' + p._id);
+      const marca = p.marca || '';
+      const cat = p.categoria || '';
+      const animal = p.animal || '';
+      const linhas = [];
+      if(v){
+        linhas.push(`<div class="badge">Peso: ${v.peso||'-'}</div>`);
+        linhas.push(`<div class="small">Qtd: ${v.quantidade||0} • Vendas: ${v.vendas||0} • Validade: ${v.validade||'-'}</div>`);
+        const margem = calcMargem(v);
+        if(isFinite(margem)) linhas.push(`<div class="small">Margem: ${margem.toFixed(2)}%</div>`);
+      } else {
+        // show summary of variations
+        const somaQtd = p.variacoes.reduce((s,x)=> s + Number(x.quantidade||0), 0);
+        const somaVendas = p.variacoes.reduce((s,x)=> s + Number(x.vendas||0), 0) + Number(p.vendas||0);
+        linhas.push(`<div class="small">Total variações: ${p.variacoes.length} • Estoque total: ${somaQtd} • Vendas: ${somaVendas}</div>`);
+        if(p._faturamento) linhas.push(`<div class="small">Faturamento aprox: R$ ${Number(p._faturamento).toFixed(2)}</div>`);
+      }
+
+      return `<div class="produto-item">
+                <div style="width:74px">
+                  ${img ? `<img src="${img}" alt="${nome}">` : `<div style="width:64px;height:64px;background:#f1f1f1;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#bbb">sem img</div>`}
+                </div>
+                <div class="produto-info">
+                  <b>${nome}</b>
+                  <div class="produto-meta">${marca} • ${cat} • ${animal}</div>
+                  <div style="margin-top:8px">${linhas.join(' • ')}</div>
+                </div>
+                <div style="text-align:right">
+                  <div class="small">ID: ${p._id}</div>
+                  <div style="margin-top:8px"><button style="background:#16a085" onclick="openEdit('${p._id}')">Editar</button></div>
+                </div>
+              </div>`;
+    }).join('');
+    listaFiltro.innerHTML = html;
+  }
+
+  // openEdit stub - can be expanded to load data into modal for editing
+  window.openEdit = async function(prodId){
+    // load document, populate fields and open modal for editing
+    try{
+      const doc = await db.collection('produtos').doc(prodId).get();
+      if(!doc.exists){ alert('Produto não encontrado'); return; }
+      const p = doc.data();
+      // populate modal
+      document.getElementById('nome').value = p.nome || '';
+      document.getElementById('marca').value = p.marca || '';
+      document.getElementById('categoria').value = p.categoria || '';
+      document.getElementById('animal').value = p.animal || '';
+      document.getElementById('descricao').value = p.descricao || '';
+      document.getElementById('composicao').value = p.composicao || '';
+      document.getElementById('ingredientes').value = p.ingredientes || '';
+      document.getElementById('trocaPermitida').value = p.trocaPermitida || 'nao';
+      document.getElementById('instrucaoTroca').value = p.instrucaoTroca || '';
+      document.getElementById('garantiaFabrica').value = p.garantiaFabrica || 'nao';
+      document.getElementById('porcentagemGarantia').value = p.porcentagemGarantia || '';
+      document.getElementById('porcentagemTroca').value = p.porcentagemTroca || '';
+      // preview image if exists
+      if(p.imagem) imgPreview.innerHTML = '<img src="'+p.imagem+'">';
+      else imgPreview.innerHTML = 'Nenhuma imagem';
+      // populate variations
+      variacoesTbody.innerHTML = '';
+      (p.variacoes || []).forEach(v => addVariacaoRow({
+        peso: v.peso || '',
+        valorCompra: v.valorCompra || v.valor_compra || '',
+        valorVenda: v.valorVenda || v.valor_venda || '',
+        validade: v.validade || '',
+        quantidade: v.quantidade || 0,
+        vendas: v.vendas || 0
+      }));
+      // open modal
+      modal.style.display = 'flex';
+      // change save behavior: update vs add
+      saveProdutoBtn.onclick = async function updateHandler(){
+        saveProdutoBtn.disabled = true; saveProdutoBtn.textContent = 'Salvando...';
+        try{
+          // gather data like save flow but call update
+          const produtoUpdate = {
+            nome: document.getElementById('nome').value.trim(),
+            marca: document.getElementById('marca').value.trim(),
+            categoria: document.getElementById('categoria').value,
+            animal: document.getElementById('animal').value,
+            descricao: document.getElementById('descricao').value.trim(),
+            composicao: document.getElementById('composicao').value.trim(),
+            ingredientes: document.getElementById('ingredientes').value.trim(),
+            trocaPermitida: document.getElementById('trocaPermitida').value,
+            instrucaoTroca: document.getElementById('instrucaoTroca').value.trim(),
+            garantiaFabrica: document.getElementById('garantiaFabrica').value,
+            porcentagemGarantia: Number(document.getElementById('porcentagemGarantia').value || 0),
+            porcentagemTroca: Number(document.getElementById('porcentagemTroca').value || 0),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          produtoUpdate.variacoes = [];
+          Array.from(variacoesTbody.querySelectorAll('tr')).forEach(tr=>{
+            produtoUpdate.variacoes.push({
+              peso: tr.querySelector('.v-peso').value || '',
+              valorCompra: Number(tr.querySelector('.v-compra').value || 0),
+              valorVenda: Number(tr.querySelector('.v-venda').value || 0),
+              validade: tr.querySelector('.v-validade').value || '',
+              quantidade: Number(tr.querySelector('.v-qtd').value || 0),
+              vendas: Number(tr.querySelector('.v-vendas').value || 0)
+            });
+          });
+
+          // if new image file chosen, upload and save path
+          const file = imgFileInput.files[0];
+          if(file){
+            const fileName = Date.now() + '_' + file.name.replace(/\s+/g,'_');
+            const ref = storage.ref().child('produtos/' + fileName);
+            const snapshot = await ref.put(file);
+            produtoUpdate.imagem = await snapshot.ref.getDownloadURL();
+            produtoUpdate.imagemPath = snapshot.metadata.fullPath || ('produtos/' + fileName);
+          }
+
+          await db.collection('produtos').doc(prodId).update(produtoUpdate);
+          alert('Produto atualizado com sucesso!');
+          modal.style.display = 'none';
+          // restore save button to original handler (reload page-binding)
+          saveProdutoBtn.onclick = null;
+          loadAndRenderKPIs(true);
+        }catch(err){ console.error(err); alert('Erro ao atualizar: '+(err.message||err)); }
+        finally{ saveProdutoBtn.disabled = false; saveProdutoBtn.textContent = 'Salvar produto'; }
+      };
+    }catch(err){ console.error(err); alert('Erro ao carregar produto: '+(err.message||err)); }
+  };
+
+  // ---------- FILTER UI ----------
+  searchInput.addEventListener('input', ()=> { /* if a KPI is active, re-run click to refresh filtered results */ callActiveKPI(); });
+  filterCategoria.addEventListener('change', callActiveKPI);
+  filterAnimal.addEventListener('change', callActiveKPI);
+  filterPeriodo.addEventListener('change', callActiveKPI);
+  clearFilters.addEventListener('click', ()=>{
+    searchInput.value=''; filterCategoria.value=''; filterAnimal.value=''; filterPeriodo.value='all';
+    callActiveKPI();
+  });
+
+  function callActiveKPI(){
+    const active = document.querySelector('.kpi-btn.active');
+    if(active) active.click();
+  }
+
+  // ---------- INIT ----------
+  (async function init(){
+    // load KPIs initially
+    await loadAndRenderKPIs();
+    // bind KPI buttons to initial click to show totalProducts by default
+    // simulate click on totalProdutos
+    const totalBtn = document.querySelector('[data-kpi="totalProdutos"]');
+    if(totalBtn) totalBtn.click();
+    // periodic refresh (every 2 minutes) to update KPIs
+    setInterval(()=> loadAndRenderKPIs(true), 120000);
+  })();
+  </script>
 </body>
 </html>
