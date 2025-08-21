@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Pet - Funcionários</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
+.sidebar { width:200px; background:#2c3e50; height:100vh; float:left; color:#fff; }
+.sidebar a { display:block; padding:15px; color:#fff; text-decoration:none; }
+.sidebar a.active, .sidebar a:hover { background:#34495e; }
+.main { margin-left:200px; padding:20px; }
+h1 { margin-bottom:20px; }
+.resumo-pedidos { display:flex; gap:10px; margin-bottom:20px; }
+.card { background:#fff; padding:15px; border-radius:5px; flex:1; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+.filters { margin-bottom:10px; display:flex; gap:10px; flex-wrap:wrap; }
+.filters input, .filters select, .filters button { padding:5px 10px; border-radius:5px; border:1px solid #ccc; }
+table { width:100%; border-collapse:collapse; background:#fff; border-radius:5px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; }
+.status.ativo { color:green; font-weight:bold; }
+.status.inativo { color:red; font-weight:bold; }
+.actions button { margin-right:5px; padding:5px 10px; border:none; border-radius:3px; cursor:pointer; }
+.btn-edit { background:#2980b9; color:#fff; }
+.btn-cancel { background:#c0392b; color:#fff; }
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+.modal-content { background:#fff; padding:20px; border-radius:5px; width:90%; max-width:700px; max-height:90%; overflow-y:auto; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.modal-header h2 { margin:0; }
+.modal-header .close { cursor:pointer; font-size:24px; }
+.modal-footer { text-align:right; margin-top:10px; }
+.modal-footer button { padding:5px 10px; margin-left:5px; border:none; border-radius:3px; cursor:pointer; }
+.btn-close { background:#7f8c8d; color:#fff; }
+.btn-save { background:#27ae60; color:#fff; }
+.modal-body input, .modal-body select, .modal-body textarea { width:100%; margin-bottom:10px; padding:5px; border-radius:3px; border:1px solid #ccc; }
+.modal-body h3 { margin-top:20px; }
+.modal-body table th, .modal-body table td { padding:5px; font-size:14px; }
+.modal-body table th { background:#2c3e50; color:#fff; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <a href="#" class="active" onclick="showPage('clientes', event)">👥 Clientes</a>
+  <a href="#" onclick="showPage('pedidos', event)">🛒 Pedidos</a>
+  <a href="#" onclick="showPage('parceiros', event)">🤝 Parceiros</a>
+  <a href="#" onclick="showPage('produtos', event)">🛍 Produtos</a>
+  <a href="#" onclick="showPage('agenda', event)">📅 Agenda</a>
+  <a href="#" onclick="showPage('marketing', event)">📢 Marketing</a>
+  <a href="#" onclick="showPage('kpis', event)">📊 KPI’s</a>
+</div>
+
+<div class="main">
+  <div id="clientes" class="page active">
+    <h1>👥 Clientes</h1>
+
+    <!-- Cards de resumo -->
+    <div class="resumo-pedidos">
+      <div class="card">
+        <h3>📋 Total de Clientes</h3>
+        <p id="totalClientes">0</p>
+      </div>
+      <div class="card">
+        <h3>🆕 Novos este mês</h3>
+        <p id="novosClientes">0</p>
+      </div>
+      <div class="card">
+        <h3>✅ Ativos</h3>
+        <p id="clientesAtivos">0</p>
+      </div>
+      <div class="card">
+        <h3>⚠️ Inativos</h3>
+        <p id="clientesInativos">0</p>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters">
+      <input type="text" id="searchCliente" placeholder="Buscar por nome, e-mail ou telefone" oninput="filtrarClientes()">
+      <select id="statusFilter" onchange="filtrarClientes()">
+        <option value="">Todos os status</option>
+        <option value="ativo">Ativo</option>
+        <option value="inativo">Inativo</option>
+      </select>
+      <button onclick="openClienteModal()">➕ Novo Cliente</button>
+    </div>
+
+    <!-- Tabela de clientes -->
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>E-mail / Telefone</th>
+          <th>Total de Pedidos</th>
+          <th>Valor Total</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="clientesTable"></tbody>
+    </table>
+
+    <!-- Modal de cadastro/edição com histórico -->
+    <div id="clienteModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Cadastro / Edição de Cliente</h2>
+          <span class="close" onclick="closeClienteModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="clienteId">
+          <label for="nomeCliente">Nome:</label>
+          <input type="text" id="nomeCliente" placeholder="Nome do cliente">
+          <label for="emailCliente">E-mail:</label>
+          <input type="email" id="emailCliente" placeholder="E-mail">
+          <label for="telefoneCliente">Telefone:</label>
+          <input type="text" id="telefoneCliente" placeholder="Telefone">
+          <label for="observacoesCliente">Observações:</label>
+          <textarea id="observacoesCliente" rows="3" placeholder="Observações sobre o cliente"></textarea>
+          <label for="statusCliente">Status:</label>
+          <select id="statusCliente">
+            <option value="ativo">Ativo</option>
+            <option value="inativo">Inativo</option>
+          </select>
+
+          <h3>📦 Histórico de Pedidos</h3>
+          <table style="width:100%; margin-top:10px; border-collapse:collapse;">
+            <thead>
+              <tr style="background:#2c3e50; color:#fff;">
+                <th>ID</th>
+                <th>Data</th>
+                <th>Produtos</th>
+                <th>Valor</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="historicoPedidos"></tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-close" onclick="closeClienteModal()">Fechar</button>
+          <button class="btn-save" onclick="salvarCliente()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mockup de outras páginas -->
+  <div id="pedidos" class="page">🛒 Pedidos</div>
+  <div id="parceiros" class="page">🤝 Parceiros</div>
+  <div id="produtos" class="page">🛍 Produtos</div>
+  <div id="agenda" class="page">📅 Agenda</div>
+  <div id="marketing" class="page">📢 Marketing</div>
+  <div id="kpis" class="page">📊 KPI’s</div>
+</div>
+
+<script>
+const clientesMock = {
+  "001": { 
+    nome:"Maria Silva", email:"maria@email.com", telefone:"(51) 99999-1111", status:"ativo", observacoes:"", 
+    pedidos: [
+      {id:"101", data:"20/08/2025", produtos:"Ração Premium (10kg)", valor:120, status:"Finalizado"},
+      {id:"102", data:"15/08/2025", produtos:"Petisco + Shampoo", valor:45, status:"Finalizado"}
+    ]
+  },
+  "002": { 
+    nome:"João Pereira", email:"joao@email.com", telefone:"(51) 98888-2222", status:"inativo", observacoes:"", 
+    pedidos: [
+      {id:"103", data:"19/08/2025", produtos:"Antipulgas", valor:85, status:"Em separação"}
+    ]
+  }
+};
+
+function showPage(pageId, event){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelectorAll('.sidebar a').forEach(link=>link.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function openClienteModal(id){
+  document.getElementById("clienteModal").style.display="flex";
+  const historicoTbody = document.getElementById("historicoPedidos");
+  historicoTbody.innerHTML="";
+  
+  if(id){
+    const c = clientesMock[id];
+    document.getElementById("clienteId").value=id;
+    document.getElementById("nomeCliente").value=c.nome;
+    document.getElementById("emailCliente").value=c.email;
+    document.getElementById("telefoneCliente").value=c.telefone;
+    document.getElementById("observacoesCliente").value=c.observacoes;
+    document.getElementById("statusCliente").value=c.status;
+    
+    c.pedidos.forEach(p=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML=`
+        <td><a href="#" onclick="abrirPedidoDetalhe('${p.id}')">${p.id}</a></td>
+        <td>${p.data}</td>
+        <td>${p.produtos}</td>
+        <td>R$ ${p.valor.toFixed(2)}</td>
+        <td>${p.status}</td>
+      `;
+      historicoTbody.appendChild(tr);
+    });
+  } else {
+    document.getElementById("clienteId").value="";
+    document.getElementById("nomeCliente").value="";
+    document.getElementById("emailCliente").value="";
+    document.getElementById("telefoneCliente").value="";
+    document.getElementById("observacoesCliente").value="";
+    document.getElementById("statusCliente").value="ativo";
+  }
+}
+
+function closeClienteModal(){ document.getElementById("clienteModal").style.display="none"; }
+
+function salvarCliente(){
+  const id=document.getElementById("clienteId").value || (Math.floor(Math.random()*1000).toString().padStart(3,'0'));
+  if(!clientesMock[id]) clientesMock[id] = { pedidos: [] };
+  clientesMock[id].nome=document.getElementById("nomeCliente").value;
+  clientesMock[id].email=document.getElementById("emailCliente").value;
+  clientesMock[id].telefone=document.getElementById("telefoneCliente").value;
+  clientesMock[id].status=document.getElementById("statusCliente").value;
+  clientesMock[id].observacoes=document.getElementById("observacoesCliente").value;
+
+  alert(`Cliente ${clientesMock[id].nome} salvo!`);
+  closeClienteModal();
+  atualizarResumoClientes();
+}
+
+function desativarCliente(id){ clientesMock[id].status="inativo"; atualizarResumoClientes(); }
+function ativarCliente(id){ clientesMock[id].status="ativo"; atualizarResumoClientes(); }
+
+function atualizarResumoClientes(){
+  const total=Object.keys(clientesMock).length;
+  const ativos=Object.values(clientesMock).filter(c=>c.status==="ativo").length;
+  const inativos=total-ativos;
+  const novos=0; // mockup fixo
+  document.getElementById("totalClientes").innerText=total;
+  document.getElementById("clientesAtivos").innerText=ativos;
+  document.getElementById("clientesInativos").innerText=inativos;
+  document.getElementById("novosClientes").innerText=novos;
+
+  const tbody=document.getElementById("clientesTable");
+  tbody.innerHTML="";
+  Object.entries(clientesMock).forEach(([id,c])=>{
+    const totalPedidos = c.pedidos.reduce((acc,p)=>acc+p.valor,0).toFixed(2);
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${id}</td>
+      <td>${c.nome}</td>
+      <td>${c.email} / ${c.telefone}</td>
+      <td>${c.pedidos.length}</td>
+      <td>R$ ${totalPedidos}</td>
+      <td><span class="status ${c.status}">${c.status.charAt(0).toUpperCase()+c.status.slice(1)}</span></td>
+      <td class="actions">
+        <button class="btn-edit" onclick="openClienteModal('${id}')">Editar</button>
+        <button class="btn-cancel" onclick="${c.status==='ativo'?'desativarCliente':'ativarCliente'}('${id}')">${c.status==='ativo'?'Desativar':'Ativar'}</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filtrarClientes(){
+  const search = document.getElementById("searchCliente").value.toLowerCase();
+  const status = document.getElementById("statusFilter").value;
+  document.querySelectorAll("#clientesTable tr").forEach(tr=>{
+    const nome = tr.children[1].innerText.toLowerCase();
+    const email = tr.children[2].innerText.toLowerCase();
+    const stat = tr.children[5].innerText.toLowerCase();
+    if((nome.includes(search) || email.includes(search)) && (status==="" || stat===status)){
+      tr.style.display="";
+    } else tr.style.display="none";
+  });
+}
+
+function abrirPedidoDetalhe(id){
+  alert("Abrindo detalhes do pedido " + id + " (mockup).");
+}
+
+atualizarResumoClientes();
+</script>
+</body>
+</html>
