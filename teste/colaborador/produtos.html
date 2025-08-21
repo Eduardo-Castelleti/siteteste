@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Pet - Produtos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #007bff;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 100%;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background: #f1f1f1;
+    }
+    .actions button {
+      margin-right: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    .inativo {
+      background: #ffdddd;
+    }
+  </style>
+</head>
+<body>
+  <header>📦 Gestão de Produtos</header>
+  <div class="container">
+    <h2>Cadastrar Produto</h2>
+    <form id="produtoForm">
+      <input type="text" id="nome" placeholder="Nome do Produto" required>
+      <input type="text" id="categoria" placeholder="Categoria" required>
+      <input type="number" id="preco" placeholder="Preço (R$)" required step="0.01">
+      <input type="number" id="estoque" placeholder="Estoque" required>
+      <button type="submit">Cadastrar Produto</button>
+    </form>
+
+    <h2>Lista de Produtos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Categoria</th>
+          <th>Preço</th>
+          <th>Estoque</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="produtosList"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // Configuração Firebase
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_AUTH_DOMAIN",
+      projectId: "SEU_PROJECT_ID",
+      storageBucket: "SEU_BUCKET",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId: "SEU_APP_ID"
+    };
+
+    // Inicializar Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const produtoForm = document.getElementById("produtoForm");
+    const produtosList = document.getElementById("produtosList");
+
+    // Adicionar produto
+    produtoForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const categoria = document.getElementById("categoria").value;
+      const preco = parseFloat(document.getElementById("preco").value);
+      const estoque = parseInt(document.getElementById("estoque").value);
+
+      await db.collection("produtos").add({
+        nome,
+        categoria,
+        preco,
+        estoque,
+        ativo: true,
+        criadoEm: new Date()
+      });
+
+      produtoForm.reset();
+    });
+
+    // Renderizar lista de produtos em tempo real
+    db.collection("produtos").onSnapshot(snapshot => {
+      produtosList.innerHTML = "";
+      snapshot.forEach(doc => {
+        const produto = doc.data();
+        const row = document.createElement("tr");
+        if (!produto.ativo) row.classList.add("inativo");
+
+        row.innerHTML = `
+          <td>${produto.nome}</td>
+          <td>${produto.categoria}</td>
+          <td>R$ ${produto.preco.toFixed(2)}</td>
+          <td>${produto.estoque}</td>
+          <td>${produto.ativo ? "Ativo ✅" : "Inativo ❌"}</td>
+          <td class="actions">
+            <button onclick="editarProduto('${doc.id}', '${produto.nome}', '${produto.categoria}', ${produto.preco}, ${produto.estoque})">Editar</button>
+            <button onclick="inativarProduto('${doc.id}', ${produto.ativo})">${produto.ativo ? "Inativar" : "Ativar"}</button>
+          </td>
+        `;
+        produtosList.appendChild(row);
+      });
+    });
+
+    // Editar produto
+    async function editarProduto(id, nome, categoria, preco, estoque) {
+      const novoNome = prompt("Novo nome:", nome);
+      const novaCategoria = prompt("Nova categoria:", categoria);
+      const novoPreco = parseFloat(prompt("Novo preço:", preco));
+      const novoEstoque = parseInt(prompt("Novo estoque:", estoque));
+
+      if (novoNome && novaCategoria && !isNaN(novoPreco) && !isNaN(novoEstoque)) {
+        await db.collection("produtos").doc(id).update({
+          nome: novoNome,
+          categoria: novaCategoria,
+          preco: novoPreco,
+          estoque: novoEstoque
+        });
+      }
+    }
+
+    // Inativar / Ativar produto
+    async function inativarProduto(id, ativo) {
+      await db.collection("produtos").doc(id).update({
+        ativo: !ativo
+      });
+    }
+  </script>
+</body>
+</html>
