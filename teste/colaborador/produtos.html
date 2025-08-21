@@ -5,94 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Pet - Produtos</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: #f4f6f8;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #007bff;
-      color: #fff;
-      padding: 15px;
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-    }
-    .container {
-      width: 90%;
-      max-width: 1000px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
-    }
-    h2 {
-      margin-top: 0;
-      color: #333;
-    }
-    form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-    input, select, button {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-      width: 100%;
-    }
-    button {
-      background: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background: #f1f1f1;
-    }
-    .actions button {
-      margin-right: 5px;
-      padding: 5px 10px;
-      font-size: 12px;
-    }
-    .inativo {
-      background: #ffdddd;
-    }
+    body { font-family: 'Roboto', sans-serif; margin: 0; display: flex; height: 100vh; background: #f4f6f9; }
+    .sidebar { width: 250px; background-color: #2c3e50; color: #fff; display: flex; flex-direction: column; padding-top: 20px; }
+    .sidebar h2 { text-align:center; margin-bottom:30px; font-size:20px; font-weight:700; }
+    .sidebar a { padding:15px 20px; text-decoration:none; color:#ecf0f1; display:block; transition:0.3s; font-weight:500; }
+    .sidebar a:hover { background-color: #34495e; }
+    .sidebar a.active { background-color:#1abc9c; color:#fff; }
+    .content { flex:1; padding:20px; overflow-y:auto; }
+    h1 { font-size:24px; margin-bottom:20px; color:#2c3e50; }
+
+    .cards { display: flex; gap: 20px; margin-bottom: 20px; }
+    .card { flex: 1; background: white; padding: 20px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .card h3 { margin: 0; font-size: 18px; color: #555; }
+    .card p { font-size: 22px; margin: 5px 0 0; font-weight: bold; }
+
+    button { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #2980b9; }
+
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #f8f9fa; }
+    tr:hover { background: #f1f1f1; cursor: pointer; }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 20px; border-radius: 8px; width: 500px; max-width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; }
+    .close { cursor: pointer; font-size: 20px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; }
+    input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
   </style>
 </head>
 <body>
-  <header>📦 Gestão de Produtos</header>
-  <div class="container">
-    <h2>Cadastrar Produto</h2>
-    <form id="produtoForm">
-      <input type="text" id="nome" placeholder="Nome do Produto" required>
-      <input type="text" id="categoria" placeholder="Categoria" required>
-      <input type="number" id="preco" placeholder="Preço (R$)" required step="0.01">
-      <input type="number" id="estoque" placeholder="Estoque" required>
-      <button type="submit">Cadastrar Produto</button>
-    </form>
 
-    <h2>Lista de Produtos</h2>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Colaborador</h2>
+    <a href="index.html" class="active" onclick="showPage('pedidos')">📦 Pedidos</a>
+    <a href="clientes.html" onclick="showPage('clientes')">👥 Clientes</a>
+    <a href="parceiros.html" onclick="showPage('parceiros')">🤝 Parceiros</a>
+    <a href="#" onclick="showPage('produtos')">🛒 Produtos</a>
+    <a href="#" onclick="showPage('agenda')">📅 Agenda</a>
+    <a href="#" onclick="showPage('marketing')">📢 Marketing</a>
+    <a href="#" onclick="showPage('kpis')">📊 KPI’s</a>
+  </div>
+
+  <!-- Conteúdo -->
+  <div class="content">
+    <h1>Produtos</h1>
+
+    <!-- Cards -->
+    <div class="cards">
+      <div class="card">
+        <h3>Total de Produtos</h3>
+        <p>50</p>
+      </div>
+      <div class="card">
+        <h3>Ativos</h3>
+        <p>45</p>
+      </div>
+      <div class="card">
+        <h3>Inativos</h3>
+        <p>5</p>
+      </div>
+    </div>
+
+    <button onclick="openModal()">+ Cadastrar Produto</button>
+
+    <!-- Tabela -->
     <table>
       <thead>
         <tr>
@@ -101,97 +82,93 @@
           <th>Preço</th>
           <th>Estoque</th>
           <th>Status</th>
-          <th>Ações</th>
         </tr>
       </thead>
-      <tbody id="produtosList"></tbody>
+      <tbody>
+        <tr onclick="openDetalhes('Ração Special Dog 10kg')">
+          <td>Ração Special Dog 10kg</td>
+          <td>Ração</td>
+          <td>R$ 200,00</td>
+          <td>15</td>
+          <td>Ativo</td>
+        </tr>
+        <tr onclick="openDetalhes('Petisco Bifinho')">
+          <td>Petisco Bifinho</td>
+          <td>Petisco</td>
+          <td>R$ 25,00</td>
+          <td>50</td>
+          <td>Ativo</td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
+  <!-- Modal Cadastro Produto -->
+  <div class="modal" id="modalProduto">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Cadastrar Produto</h2>
+        <span class="close" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="nome">
+      </div>
+      <div class="form-group">
+        <label>Categoria</label>
+        <input type="text" id="categoria">
+      </div>
+      <div class="form-group">
+        <label>Preço</label>
+        <input type="number" id="preco" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Estoque</label>
+        <input type="number" id="estoque">
+      </div>
+      <button onclick="salvarProduto()">Salvar</button>
+    </div>
+  </div>
+
+  <!-- Modal Detalhes Produto -->
+  <div class="modal" id="modalDetalhes">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Detalhes do Produto</h2>
+        <span class="close" onclick="closeDetalhes()">&times;</span>
+      </div>
+      <p><b>Nome:</b> <span id="produtoNome"></span></p>
+      <p><b>Categoria:</b> <span id="produtoCategoria"></span></p>
+      <p><b>Preço:</b> <span id="produtoPreco"></span></p>
+      <p><b>Estoque:</b> <span id="produtoEstoque"></span></p>
+      <p><b>Status:</b> Ativo</p>
+    </div>
+  </div>
+
   <script>
-    // Configuração Firebase
-    const firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_AUTH_DOMAIN",
-      projectId: "SEU_PROJECT_ID",
-      storageBucket: "SEU_BUCKET",
-      messagingSenderId: "SEU_SENDER_ID",
-      appId: "SEU_APP_ID"
-    };
-
-    // Inicializar Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    const produtoForm = document.getElementById("produtoForm");
-    const produtosList = document.getElementById("produtosList");
-
-    // Adicionar produto
-    produtoForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const nome = document.getElementById("nome").value;
-      const categoria = document.getElementById("categoria").value;
-      const preco = parseFloat(document.getElementById("preco").value);
-      const estoque = parseInt(document.getElementById("estoque").value);
-
-      await db.collection("produtos").add({
-        nome,
-        categoria,
-        preco,
-        estoque,
-        ativo: true,
-        criadoEm: new Date()
-      });
-
-      produtoForm.reset();
-    });
-
-    // Renderizar lista de produtos em tempo real
-    db.collection("produtos").onSnapshot(snapshot => {
-      produtosList.innerHTML = "";
-      snapshot.forEach(doc => {
-        const produto = doc.data();
-        const row = document.createElement("tr");
-        if (!produto.ativo) row.classList.add("inativo");
-
-        row.innerHTML = `
-          <td>${produto.nome}</td>
-          <td>${produto.categoria}</td>
-          <td>R$ ${produto.preco.toFixed(2)}</td>
-          <td>${produto.estoque}</td>
-          <td>${produto.ativo ? "Ativo ✅" : "Inativo ❌"}</td>
-          <td class="actions">
-            <button onclick="editarProduto('${doc.id}', '${produto.nome}', '${produto.categoria}', ${produto.preco}, ${produto.estoque})">Editar</button>
-            <button onclick="inativarProduto('${doc.id}', ${produto.ativo})">${produto.ativo ? "Inativar" : "Ativar"}</button>
-          </td>
-        `;
-        produtosList.appendChild(row);
-      });
-    });
-
-    // Editar produto
-    async function editarProduto(id, nome, categoria, preco, estoque) {
-      const novoNome = prompt("Novo nome:", nome);
-      const novaCategoria = prompt("Nova categoria:", categoria);
-      const novoPreco = parseFloat(prompt("Novo preço:", preco));
-      const novoEstoque = parseInt(prompt("Novo estoque:", estoque));
-
-      if (novoNome && novaCategoria && !isNaN(novoPreco) && !isNaN(novoEstoque)) {
-        await db.collection("produtos").doc(id).update({
-          nome: novoNome,
-          categoria: novaCategoria,
-          preco: novoPreco,
-          estoque: novoEstoque
-        });
-      }
+    function openModal() {
+      document.getElementById('modalProduto').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('modalProduto').style.display = 'none';
+    }
+    function salvarProduto() {
+      alert("Produto salvo com sucesso (mock)!");
+      closeModal();
     }
 
-    // Inativar / Ativar produto
-    async function inativarProduto(id, ativo) {
-      await db.collection("produtos").doc(id).update({
-        ativo: !ativo
-      });
+    function openDetalhes(nome) {
+      // Exemplo simples, pode ser ajustado para puxar dados reais
+      document.getElementById('produtoNome').innerText = nome;
+      document.getElementById('produtoCategoria').innerText = nome.includes('Ração') ? 'Ração' : 'Petisco';
+      document.getElementById('produtoPreco').innerText = nome.includes('Ração') ? 'R$ 200,00' : 'R$ 25,00';
+      document.getElementById('produtoEstoque').innerText = nome.includes('Ração') ? '15' : '50';
+      document.getElementById('modalDetalhes').style.display = 'flex';
+    }
+    function closeDetalhes() {
+      document.getElementById('modalDetalhes').style.display = 'none';
     }
   </script>
+
 </body>
 </html>
