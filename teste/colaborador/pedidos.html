@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedidos - Colaborador</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f6fa;
+      color: #2c3e50;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .filters input, .filters select {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #2c3e50;
+      color: #fff;
+    }
+
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .status {
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .aguardando { background-color: #f39c12; color: #fff; }
+    .separacao { background-color: #3498db; color: #fff; }
+    .finalizado { background-color: #27ae60; color: #fff; }
+    .cancelado { background-color: #e74c3c; color: #fff; }
+
+    .actions button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      margin-right: 5px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .btn-edit { background: #3498db; color: #fff; }
+    .btn-cancel { background: #e74c3c; color: #fff; }
+  </style>
+</head>
+<body>
+
+  <h1>📦 Pedidos</h1>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <input type="text" id="searchCliente" placeholder="Buscar cliente...">
+    <select id="filterStatus">
+      <option value="">Todos os status</option>
+      <option value="aguardando">Aguardando</option>
+      <option value="separacao">Em separação</option>
+      <option value="finalizado">Finalizado</option>
+      <option value="cancelado">Cancelado</option>
+    </select>
+    <input type="date" id="filterDate">
+  </div>
+
+  <!-- Tabela de Pedidos -->
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Cliente</th>
+        <th>Produtos</th>
+        <th>Valor</th>
+        <th>Data</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="pedidosTable">
+      <tr>
+        <td>001</td>
+        <td>Maria Silva</td>
+        <td>Ração Premium (10kg)</td>
+        <td>R$ 120,00</td>
+        <td>20/08/2025</td>
+        <td><span class="status aguardando">Aguardando</span></td>
+        <td class="actions">
+          <button class="btn-edit" onclick="updateStatus('001')">Editar</button>
+          <button class="btn-cancel" onclick="cancelarPedido('001')">Cancelar</button>
+        </td>
+      </tr>
+      <tr>
+        <td>002</td>
+        <td>João Pereira</td>
+        <td>Antipulgas + Petisco</td>
+        <td>R$ 85,00</td>
+        <td>19/08/2025</td>
+        <td><span class="status separacao">Em separação</span></td>
+        <td class="actions">
+          <button class="btn-edit" onclick="updateStatus('002')">Editar</button>
+          <button class="btn-cancel" onclick="cancelarPedido('002')">Cancelar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script>
+    function updateStatus(id) {
+      const novoStatus = prompt("Digite o novo status (aguardando, separacao, finalizado, cancelado):");
+      if (novoStatus) {
+        alert("Pedido " + id + " atualizado para: " + novoStatus);
+        // Aqui entraria o update no Firestore
+      }
+    }
+
+    function cancelarPedido(id) {
+      if (confirm("Tem certeza que deseja cancelar o pedido " + id + "?")) {
+        alert("Pedido " + id + " foi cancelado.");
+        // Aqui entraria o update no Firestore
+      }
+    }
+  </script>
+</body>
+</html>
