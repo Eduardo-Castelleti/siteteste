@@ -1,297 +1,257 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Colaborador</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-  body {
-    margin: 0;
-    font-family: 'Roboto', sans-serif;
-    display: flex;
-    height: 100vh;
-    background-color: #f5f6fa;
-  }
-  .sidebar {
-    width: 250px;
-    background-color: #2c3e50;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    padding-top: 20px;
-  }
-  .sidebar h2 { text-align:center; margin-bottom:30px; font-size:20px; font-weight:700; }
-  .sidebar a { padding:15px 20px; text-decoration:none; color:#ecf0f1; display:block; transition:0.3s; font-weight:500; }
-  .sidebar a:hover { background-color: #34495e; }
-  .sidebar a.active { background-color:#1abc9c; color:#fff; }
-  .content { flex:1; padding:20px; overflow-y:auto; }
-  h1 { font-size:24px; margin-bottom:20px; color:#2c3e50; }
-.resumo-pedidos { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
-.card { background:#fff; padding:15px; border-radius:5px; flex:1; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-.filters { margin-bottom:10px; display:flex; gap:10px; flex-wrap:wrap; }
-.filters input, .filters button { padding:5px 10px; border-radius:5px; border:1px solid #ccc; }
-table { width:100%; border-collapse:collapse; background:#fff; border-radius:5px; overflow:hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-th, td { padding:10px; border-bottom:1px solid #eee; text-align:left; cursor:pointer; }
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-.modal-content { background:#fff; padding:20px; border-radius:5px; width:90%; max-width:700px; max-height:90%; overflow-y:auto; }
-.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.modal-header h2 { margin:0; }
-.modal-header .close { cursor:pointer; font-size:24px; }
-.modal-footer { text-align:right; margin-top:10px; }
-.modal-footer button { padding:5px 10px; margin-left:5px; border:none; border-radius:3px; cursor:pointer; }
-.btn-close { background:#7f8c8d; color:#fff; }
-.btn-save { background:#27ae60; color:#fff; }
-.modal-body input, .modal-body select, .modal-body textarea { width:100%; margin-bottom:10px; padding:5px; border-radius:3px; border:1px solid #ccc; }
-.modal-body h3 { margin-top:20px; }
-.modal-body table th, .modal-body table td { padding:5px; font-size:14px; }
-.modal-body table th { background:#2c3e50; color:#fff; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Pet - Clientes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      background: #f5f6fa;
+    }
+    /* Menu lateral */
+    .sidebar {
+      width: 220px;
+      background: #2c3e50;
+      color: #fff;
+      height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      padding-top: 20px;
+    }
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 12px 20px;
+      color: #fff;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover {
+      background: #34495e;
+    }
+    /* Conteúdo */
+    .content {
+      margin-left: 220px;
+      padding: 20px;
+      width: calc(100% - 220px);
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    form {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    form input, form button {
+      padding: 10px;
+      margin: 5px;
+    }
+    form input {
+      width: calc(33% - 20px);
+    }
+    form button {
+      background: #27ae60;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #27ae60;
+      color: white;
+    }
+    td a {
+      color: #2980b9;
+      cursor: pointer;
+    }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .close {
+      position: absolute;
+      top: 10px; right: 15px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
+  <!-- Menu Lateral -->
+  <div class="sidebar">
+    <h2>Admin Pet</h2>
+    <a href="index.html">Dashboard</a>
+    <a href="clientes.html">Clientes</a>
+    <a href="produtos.html">Produtos</a>
+    <a href="vendas.html">Vendas</a>
+    <a href="agendamentos.html">Agendamentos</a>
+    <a href="parceiros.html">Parceiros</a>
+  </div>
 
-<div class="sidebar">
-  <a href="#" class="active" onclick="showPage('clientes', event)">👥 Clientes</a>
-  <a href="#" onclick="showPage('pedidos', event)">🛒 Pedidos</a>
-  <a href="#" onclick="showPage('parceiros', event)">🤝 Parceiros</a>
-  <a href="#" onclick="showPage('produtos', event)">🛍 Produtos</a>
-  <a href="#" onclick="showPage('agenda', event)">📅 Agenda</a>
-  <a href="#" onclick="showPage('marketing', event)">📢 Marketing</a>
-  <a href="#" onclick="showPage('kpis', event)">📊 KPI’s</a>
-</div>
+  <!-- Conteúdo -->
+  <div class="content">
+    <h1>Gerenciar Clientes</h1>
 
-<div class="main">
-  <div id="clientes" class="page active">
-    <h1>👥 Clientes</h1>
+    <!-- Formulário de Cadastro -->
+    <form id="formCliente">
+      <input type="text" placeholder="Nome" required>
+      <input type="text" placeholder="Telefone" required>
+      <input type="email" placeholder="E-mail" required>
+      <input type="text" placeholder="CPF" required>
+      <input type="date" placeholder="Data de Nascimento" required>
+      <button type="submit">Cadastrar Cliente</button>
+    </form>
 
-    <!-- Cards de resumo -->
-    <div class="resumo-pedidos">
-      <div class="card">
-        <h3>📋 Total de Clientes</h3>
-        <p id="totalClientes">0</p>
-      </div>
-      <div class="card">
-        <h3>🆕 Novos este mês</h3>
-        <p id="novosClientes">0</p>
-      </div>
-      <div class="card">
-        <h3>✅ Ativos</h3>
-        <p id="clientesAtivos">0</p>
-      </div>
-      <div class="card">
-        <h3>⚠️ Inativos</h3>
-        <p id="clientesInativos">0</p>
-      </div>
-    </div>
-
-    <!-- Filtros -->
-    <div class="filters">
-      <input type="text" id="searchCliente" placeholder="Buscar por nome, e-mail, telefone ou CPF" oninput="filtrarClientes()">
-      <button onclick="openClienteModal()">➕ Novo Cliente</button>
-    </div>
-
-    <!-- Tabela de clientes -->
+    <!-- Lista de Clientes -->
     <table>
       <thead>
         <tr>
-          <th>ID</th>
           <th>Nome</th>
-          <th>E-mail / Telefone / CPF</th>
-          <th>Data Nascimento</th>
-          <th>Total de Pedidos</th>
-          <th>Valor Total</th>
+          <th>Telefone</th>
+          <th>E-mail</th>
+          <th>CPF</th>
+          <th>Status</th>
         </tr>
       </thead>
-      <tbody id="clientesTable"></tbody>
+      <tbody>
+        <tr>
+          <td><a onclick="abrirPedidos('João Silva')">João Silva</a></td>
+          <td>(51) 99999-9999</td>
+          <td>joao@email.com</td>
+          <td>123.456.789-00</td>
+          <td><button onclick="toggleStatus(this)">Ativo</button></td>
+        </tr>
+        <tr>
+          <td><a onclick="abrirPedidos('Maria Souza')">Maria Souza</a></td>
+          <td>(51) 98888-8888</td>
+          <td>maria@email.com</td>
+          <td>987.654.321-00</td>
+          <td><button onclick="toggleStatus(this)">Ativo</button></td>
+        </tr>
+      </tbody>
     </table>
-
-    <!-- Modal de cadastro/edição de cliente -->
-    <div id="clienteModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Cadastro / Edição de Cliente</h2>
-          <span class="close" onclick="closeClienteModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="clienteId">
-          <label for="nomeCliente">Nome:</label>
-          <input type="text" id="nomeCliente" placeholder="Nome do cliente">
-          <label for="telefoneCliente">Telefone:</label>
-          <input type="text" id="telefoneCliente" placeholder="Telefone">
-          <label for="emailCliente">E-mail:</label>
-          <input type="email" id="emailCliente" placeholder="E-mail">
-          <label for="cpfCliente">CPF:</label>
-          <input type="text" id="cpfCliente" placeholder="CPF">
-          <label for="dataNascCliente">Data de Nascimento:</label>
-          <input type="date" id="dataNascCliente">
-          <h3>📦 Histórico de Pedidos</h3>
-          <table style="width:100%; margin-top:10px; border-collapse:collapse;">
-            <thead>
-              <tr style="background:#2c3e50; color:#fff;">
-                <th>ID</th>
-                <th>Data</th>
-                <th>Produtos</th>
-                <th>Valor</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="historicoPedidos"></tbody>
-          </table>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-close" onclick="closeClienteModal()">Fechar</button>
-          <button class="btn-save" onclick="salvarCliente()">Salvar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de detalhes do pedido -->
-    <div id="pedidoModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Detalhes do Pedido</h2>
-          <span class="close" onclick="closePedidoModal()">&times;</span>
-        </div>
-        <div class="modal-body" id="pedidoDetalheBody"></div>
-        <div class="modal-footer">
-          <button class="btn-close" onclick="closePedidoModal()">Fechar</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 
-<script>
-const clientesMock = {
-  "001": { 
-    nome:"Maria Silva", telefone:"(51) 99999-1111", email:"maria@email.com", cpf:"123.456.789-00", dataNasc:"1990-05-10",
-    dataCadastro:"20/08/2025 08:00", pedidos: [
-      {id:"101", data:"20/08/2025", produtos:[{nome:"Ração Premium (10kg)", qtd:1, valor:120}], status:"Finalizado"},
-      {id:"102", data:"15/08/2025", produtos:[{nome:"Petisco", qtd:2, valor:20},{nome:"Shampoo", qtd:1, valor:5}], status:"Finalizado"}
-    ]
-  },
-  "002": { 
-    nome:"João Pereira", telefone:"(51) 98888-2222", email:"joao@email.com", cpf:"987.654.321-00", dataNasc:"1985-11-20",
-    dataCadastro:"19/08/2025 10:30", pedidos: [
-      {id:"103", data:"19/08/2025", produtos:[{nome:"Antipulgas", qtd:1, valor:85}], status:"Em separação"}
-    ]
-  }
-};
+  <!-- Modal Pedidos -->
+  <div id="modalPedidos" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="fecharModal('modalPedidos')">&times;</span>
+      <h2>Pedidos de <span id="clienteNome"></span></h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID Pedido</th>
+            <th>Data</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="listaPedidos">
+          <!-- Inserido via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-function showPage(pageId, event){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
-  document.querySelectorAll('.sidebar a').forEach(link=>link.classList.remove('active'));
-  event.target.classList.add('active');
-}
+  <!-- Modal Detalhes Pedido -->
+  <div id="modalDetalhes" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="fecharModal('modalDetalhes')">&times;</span>
+      <h2>Detalhes do Pedido</h2>
+      <p><strong>ID:</strong> <span id="detalheId"></span></p>
+      <p><strong>Data:</strong> <span id="detalheData"></span></p>
+      <p><strong>Valor:</strong> <span id="detalheValor"></span></p>
+      <p><strong>Produtos:</strong></p>
+      <ul id="detalheProdutos"></ul>
+    </div>
+  </div>
 
-function openClienteModal(id){
-  document.getElementById("clienteModal").style.display="flex";
-  const historicoTbody = document.getElementById("historicoPedidos");
-  historicoTbody.innerHTML="";
-  
-  if(id){
-    const c = clientesMock[id];
-    document.getElementById("clienteId").value=id;
-    document.getElementById("nomeCliente").value=c.nome;
-    document.getElementById("telefoneCliente").value=c.telefone;
-    document.getElementById("emailCliente").value=c.email;
-    document.getElementById("cpfCliente").value=c.cpf;
-    document.getElementById("dataNascCliente").value=c.dataNasc;
-    
-    c.pedidos.forEach(p=>{
-      const tr = document.createElement("tr");
-      tr.innerHTML=`
-        <td><a href="#" onclick="abrirPedidoDetalhe('${id}','${p.id}', event)">${p.id}</a></td>
-        <td>${p.data}</td>
-        <td>${p.produtos.map(prod=>" "+prod.nome).join(", ")}</td>
-        <td>R$ ${p.produtos.reduce((acc,prod)=>acc+prod.valor,0).toFixed(2)}</td>
-        <td>${p.status}</td>
-      `;
-      historicoTbody.appendChild(tr);
-    });
-  } else {
-    document.getElementById("clienteId").value="";
-    document.getElementById("nomeCliente").value="";
-    document.getElementById("telefoneCliente").value="";
-    document.getElementById("emailCliente").value="";
-    document.getElementById("cpfCliente").value="";
-    document.getElementById("dataNascCliente").value="";
-  }
-}
+  <script>
+    // Simulação de pedidos
+    const pedidosExemplo = {
+      "João Silva": [
+        {id: "PED001", data: "2025-08-01", valor: "R$ 200,00", produtos: ["Ração 10kg", "Antipulgas"]},
+        {id: "PED002", data: "2025-08-10", valor: "R$ 95,00", produtos: ["Banho e tosa"]}
+      ],
+      "Maria Souza": [
+        {id: "PED003", data: "2025-08-05", valor: "R$ 350,00", produtos: ["Ração 15kg", "Brinquedo"]}
+      ]
+    };
 
-function closeClienteModal(){ document.getElementById("clienteModal").style.display="none"; }
+    function abrirPedidos(nome) {
+      document.getElementById("clienteNome").innerText = nome;
+      let lista = document.getElementById("listaPedidos");
+      lista.innerHTML = "";
+      pedidosExemplo[nome].forEach(p => {
+        let tr = document.createElement("tr");
+        tr.innerHTML = `<td><a onclick="abrirDetalhes('${p.id}', '${p.data}', '${p.valor}', '${p.produtos.join(", ")}')">${p.id}</a></td>
+                        <td>${p.data}</td>
+                        <td>${p.valor}</td>`;
+        lista.appendChild(tr);
+      });
+      document.getElementById("modalPedidos").style.display = "flex";
+    }
 
-function salvarCliente(){
-  const id=document.getElementById("clienteId").value || (Math.floor(Math.random()*1000).toString().padStart(3,'0'));
-  if(!clientesMock[id]) clientesMock[id] = { pedidos: [] };
-  clientesMock[id].nome=document.getElementById("nomeCliente").value;
-  clientesMock[id].telefone=document.getElementById("telefoneCliente").value;
-  clientesMock[id].email=document.getElementById("emailCliente").value;
-  clientesMock[id].cpf=document.getElementById("cpfCliente").value;
-  clientesMock[id].dataNasc=document.getElementById("dataNascCliente").value;
-  if(!clientesMock[id].dataCadastro) {
-    const now = new Date();
-    clientesMock[id].dataCadastro = now.toLocaleDateString() + " " + now.toLocaleTimeString();
-  }
+    function abrirDetalhes(id, data, valor, produtos) {
+      document.getElementById("detalheId").innerText = id;
+      document.getElementById("detalheData").innerText = data;
+      document.getElementById("detalheValor").innerText = valor;
+      let lista = document.getElementById("detalheProdutos");
+      lista.innerHTML = "";
+      produtos.split(", ").forEach(prod => {
+        let li = document.createElement("li");
+        li.textContent = prod;
+        lista.appendChild(li);
+      });
+      document.getElementById("modalDetalhes").style.display = "flex";
+    }
 
-  alert(`Cliente ${clientesMock[id].nome} salvo!`);
-  closeClienteModal();
-  atualizarResumoClientes();
-}
+    function fecharModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
 
-function atualizarResumoClientes(){
-  const total=Object.keys(clientesMock).length;
-  const ativos=total;
-  const inativos=0;
-  const novos=0; 
-  document.getElementById("totalClientes").innerText=total;
-  document.getElementById("clientesAtivos").innerText=ativos;
-  document.getElementById("clientesInativos").innerText=inativos;
-  document.getElementById("novosClientes").innerText=novos;
-
-  const tbody=document.getElementById("clientesTable");
-  tbody.innerHTML="";
-  Object.entries(clientesMock).forEach(([id,c])=>{
-    const totalPedidos = c.pedidos.reduce((acc,p)=>acc+p.produtos.reduce((a,b)=>a+b.valor,0),0).toFixed(2);
-    const tr=document.createElement("tr");
-    tr.onclick = () => openClienteModal(id);
-    tr.innerHTML=`
-      <td>${id}</td>
-      <td>${c.nome}</td>
-      <td>${c.email} / ${c.telefone} / ${c.cpf}</td>
-      <td>${c.dataNasc}</td>
-      <td>${c.pedidos.length}</td>
-      <td>R$ ${totalPedidos}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function filtrarClientes(){
-  const search = document.getElementById("searchCliente").value.toLowerCase();
-  document.querySelectorAll("#clientesTable tr").forEach(tr=>{
-    const rowText = tr.innerText.toLowerCase();
-    tr.style.display = rowText.includes(search) ? "" : "none";
-  });
-}
-
-function abrirPedidoDetalhe(clienteId, pedidoId, event){
-  event.stopPropagation(); // evita abrir modal do cliente
-  const pedido = clientesMock[clienteId].pedidos.find(p=>p.id===pedidoId);
-  const body = document.getElementById("pedidoDetalheBody");
-  body.innerHTML=`<p><b>ID:</b> ${pedido.id}</p>
-  <p><b>Data:</b> ${pedido.data}</p>
-  <p><b>Status:</b> ${pedido.status}</p>
-  <h3>Produtos:</h3>
-  <ul>${pedido.produtos.map(prod=>`<li>${prod.qtd} x ${prod.nome} - R$ ${prod.valor.toFixed(2)}</li>`).join("")}</ul>
-  <p><b>Valor Total:</b> R$ ${pedido.produtos.reduce((acc,prod)=>acc+prod.valor,0).toFixed(2)}</p>`;
-  document.getElementById("pedidoModal").style.display="flex";
-}
-
-function closePedidoModal(){ document.getElementById("pedidoModal").style.display="none"; }
-
-atualizarResumoClientes();
-</script>
+    function toggleStatus(btn) {
+      btn.textContent = btn.textContent === "Ativo" ? "Inativo" : "Ativo";
+      btn.style.background = btn.textContent === "Ativo" ? "#27ae60" : "#c0392b";
+      btn.style.color = "white";
+    }
+  </script>
 </body>
 </html>
