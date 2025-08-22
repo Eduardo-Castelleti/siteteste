@@ -114,6 +114,7 @@ tr:hover { background:#f1f1f1; cursor:pointer; }
           <input class="input" id="estado" placeholder="Estado">
         </div>
       </div>
+
       <div class="tab" id="tab-servicos">
         <div class="section-title">Serviços oferecidos</div>
         <div class="checkline">
@@ -127,6 +128,7 @@ tr:hover { background:#f1f1f1; cursor:pointer; }
         </div>
         <input class="input" id="descricaoOutros" placeholder="Descrever outros serviços (opcional)">
       </div>
+
       <div class="tab" id="tab-responsavel">
         <div class="section-title">Responsável</div>
         <div class="form-grid">
@@ -136,6 +138,7 @@ tr:hover { background:#f1f1f1; cursor:pointer; }
           <input class="input" id="respCargo" placeholder="Cargo / Função">
         </div>
       </div>
+
       <div class="tab" id="tab-financeiro">
         <div class="section-title">Financeiro</div>
         <div class="form-grid">
@@ -149,9 +152,10 @@ tr:hover { background:#f1f1f1; cursor:pointer; }
         </div>
         <textarea class="textarea" id="observacoes" rows="3" placeholder="Observações"></textarea>
       </div>
+
       <div class="footer-actions">
         <button type="button" onclick="fecharModal()">Cancelar</button>
-        <button type="submit"><span>Salvar Parceiro</span></button>
+        <button type="submit">Salvar Parceiro</button>
       </div>
     </form>
   </div>
@@ -164,6 +168,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, getDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCLBni8BY6zjHGMuoybZ06SBK4U9c1BhyE",
   authDomain: "petdudis-db2b2.firebaseapp.com",
@@ -175,67 +180,70 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
-const parceirosRef = collection(db, "parceiros");
+const auth = getAuth();
+const parceirosRef = collection(db,'parceiros');
 
-const toastEl = document.getElementById('toast');
-function showToast(msg, isError=false){
-  toastEl.textContent = msg;
-  toastEl.classList.toggle('error', !!isError);
-  toastEl.style.display='block';
-  setTimeout(()=>toastEl.style.display='none',2500);
+const toast = document.getElementById('toast');
+function showToast(msg, error=false) {
+  toast.textContent = msg;
+  toast.className = 'toast' + (error?' error':'');
+  toast.style.display = 'block';
+  setTimeout(()=>toast.style.display='none',3000);
 }
 
-const modal = document.getElementById('modalParceiro');
-const form = document.getElementById('formParceiro');
-const tbody = document.getElementById('parceirosTable');
-let editId=null;
-
-window.abrirModal=()=>{ editId=null; document.getElementById('modalTitle').textContent="Novo Parceiro"; form.reset(); setActiveTab('tab-empresa'); modal.style.display='flex';};
-window.fecharModal=()=>{ modal.style.display='none';};
-
-function setActiveTab(id){
-  document.querySelectorAll('.tabBtn').forEach(b=>b.classList.remove('active'));
+// Tabs
+const tabs = document.querySelectorAll('.tabBtn');
+tabs.forEach(btn => btn.addEventListener('click',()=>{
+  tabs.forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  const btn=document.querySelector(`.tabBtn[data-tab="${id}"]`);
-  if(btn) btn.classList.add('active');
-  const tab=document.getElementById(id);
-  if(tab) tab.classList.add('active');
+  document.getElementById(btn.dataset.tab).classList.add('active');
+}));
+
+// Modal
+function abrirModal(){
+  document.getElementById('modalParceiro').style.display='flex';
+  document.getElementById('formParceiro').reset();
+  document.getElementById('modalTitle').textContent = 'Novo Parceiro';
+  document.getElementById('parceiroId').value = '';
 }
-document.getElementById('tabsHeader').addEventListener('click', e=>{
-  const btn=e.target.closest('.tabBtn'); if(!btn) return;
-  setActiveTab(btn.dataset.tab);
-});
+function fecharModal(){ document.getElementById('modalParceiro').style.display='none'; }
 
+// CEP via API
 document.getElementById('cep').addEventListener('blur', async ()=>{
-  const cep=document.getElementById('cep').value.replace(/\D/g,'');
-  if(cep.length!==8) return;
-  try{
-    const res=await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-    const data=await res.json();
-    if(data.erro) return;
-    document.getElementById('rua').value=data.logradouro||'';
-    document.getElementById('bairro').value=data.bairro||'';
-    document.getElementById('cidade').value=data.localidade||'';
-    document.getElementById('estado').value=data.uf||'';
-  }catch(err){ console.error(err); }
+  const cep = document.getElementById('cep').value.replace(/\D/g,'');
+  if(cep.length===8){
+    try{
+      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await res.json();
+      if(!data.erro){
+        document.getElementById('rua').value = data.logradouro || '';
+        document.getElementById('bairro').value = data.bairro || '';
+        document.getElementById('cidade').value = data.localidade || '';
+        document.getElementById('estado').value = data.uf || '';
+      }
+    }catch(e){console.error(e);}
+  }
 });
 
-function coletarDadosForm(){
-  return {
+// Salvar parceiro
+document.getElementById('formParceiro').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const id = document.getElementById('parceiroId').value;
+  const parceiroData = {
     nomeEmpresa: document.getElementById('nomeEmpresa').value,
     cnpjCpf: document.getElementById('cnpjCpf').value,
     telefoneEmpresa: document.getElementById('telefoneEmpresa').value,
-    website: document.getElementById('website').value||'',
-    endereco:{
-      cep: document.getElementById('cep').value||'',
-      rua: document.getElementById('rua').value||'',
-      numero: document.getElementById('numero').value||'',
-      bairro: document.getElementById('bairro').value||'',
-      cidade: document.getElementById('cidade').value||'',
-      estado: document.getElementById('estado').value||''
+    website: document.getElementById('website').value,
+    endereco: {
+      cep: document.getElementById('cep').value,
+      rua: document.getElementById('rua').value,
+      numero: document.getElementById('numero').value,
+      bairro: document.getElementById('bairro').value,
+      cidade: document.getElementById('cidade').value,
+      estado: document.getElementById('estado').value
     },
-    servicos:{
+    servicos: {
       banhoTosa: document.getElementById('srvBanhoTosa').checked,
       creche: document.getElementById('srvCreche').checked,
       hospedagem: document.getElementById('srvHospedagem').checked,
@@ -243,135 +251,112 @@ function coletarDadosForm(){
       petSitter: document.getElementById('srvPetSitter').checked,
       adestramento: document.getElementById('srvAdestramento').checked,
       outros: document.getElementById('srvOutros').checked,
-      descricaoOutros: document.getElementById('descricaoOutros').value||''
+      descricaoOutros: document.getElementById('descricaoOutros').value
     },
-    responsavel:{
+    responsavel: {
       nome: document.getElementById('respNome').value,
       telefone: document.getElementById('respTelefone').value,
       email: document.getElementById('respEmail').value,
-      cargo: document.getElementById('respCargo').value||''
+      cargo: document.getElementById('respCargo').value
     },
-    financeiro:{
-      faixaFaturamento: document.getElementById('faixaFaturamento').value||'',
-      formasPagamento: document.getElementById('formasPagamento').value||'',
-      limiteCredito: document.getElementById('limiteCredito').value||''
+    financeiro: {
+      faixaFaturamento: document.getElementById('faixaFaturamento').value,
+      formasPagamento: document.getElementById('formasPagamento').value,
+      limiteCredito: document.getElementById('limiteCredito').value,
+      status: document.getElementById('statusParceiro').value,
+      observacoes: document.getElementById('observacoes').value
     },
-    status: document.getElementById('statusParceiro').value,
-    observacoes: document.getElementById('observacoes').value||''
+    createdAt: serverTimestamp()
   };
-}
 
-function tipoAPartirServicos(s={}){
-  if(s.banhoTosa) return 'Banho & Tosa';
-  if(s.creche) return 'Creche';
-  if(s.hospedagem) return 'Hospedagem';
-  if(s.dogWalker) return 'Dog Walker';
-  if(s.petSitter) return 'Pet Sitter';
-  if(s.adestramento) return 'Adestramento';
-  if(s.outros) return 'Outros';
-  return '—';
-}
-
-async function enviarResetSenha(email, telefone){
   try{
-    await sendPasswordResetEmail(auth,email);
-    const link = `https://seusite.com/login`; // Aqui poderia gerar link dinâmico se necessário
-    console.log(`Enviar SMS para ${telefone}: ${link}`); // substitua pela API SMS real
-    showToast('Link de redefinição enviado por e-mail e SMS!');
-  }catch(err){ console.error(err); showToast('Erro ao enviar link de redefinição',true); }
-}
+    if(id){
+      const parceiroDoc = doc(db,'parceiros',id);
+      await updateDoc(parceiroDoc, parceiroData);
+      showToast('Parceiro atualizado com sucesso!');
+    } else {
+      const docRef = await addDoc(parceirosRef, parceiroData);
+      showToast('Parceiro cadastrado com sucesso!');
 
-form.addEventListener('submit', async e=>{
-  e.preventDefault();
-  const payload=coletarDadosForm();
-  if(!payload.nomeEmpresa||!payload.cnpjCpf||!payload.telefoneEmpresa||!payload.responsavel.email) return showToast('Preencha campos obrigatórios',true);
-  
-  try{
-    if(editId){
-      await updateDoc(doc(db,'parceiros',editId), {...payload, atualizadoEm: serverTimestamp()});
-    }else{
-      const docRef = await addDoc(parceirosRef, {...payload, criadoEm: serverTimestamp()});
-      editId = docRef.id;
-      
-      // Criar usuário Firebase Auth com senha padrão
-      await createUserWithEmailAndPassword(auth, payload.responsavel.email, '123456');
+      // Cria login no Firebase Auth
+      const email = parceiroData.responsavel.email;
+      const senha = '123456';
+      try {
+        await createUserWithEmailAndPassword(auth, email, senha);
+        showToast('Login criado com sucesso! Email: '+email);
+      } catch(err){ console.error(err); }
     }
-    showToast('Parceiro salvo com sucesso!');
     fecharModal();
-  }catch(err){ console.error(err); showToast('Erro ao salvar parceiro',true);}
+  } catch(err){ console.error(err); showToast('Erro ao salvar parceiro: '+err.message,true);}
 });
 
-function atualizarTabela(docs){
+// Exibir parceiros
+onSnapshot(query(parceirosRef, orderBy('createdAt','desc')), snapshot=>{
+  const tbody = document.getElementById('parceirosTable');
   tbody.innerHTML='';
   let total=0, ativos=0, inativos=0;
-  docs.forEach(d=>{
-    const p=d.data(); total++;
-    if(p.status==='Ativo') ativos++; else inativos++;
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td>${p.nomeEmpresa||'—'}</td>
-      <td>${tipoAPartirServicos(p.servicos)}</td>
-      <td>${p.telefoneEmpresa||'—'}</td>
-      <td>${p.responsavel.email||'—'}</td>
-      <td><button class="status-btn ${p.status==='Ativo'?'ativo':'inativo'}" onclick="toggleStatus('${d.id}','${p.status}')">${p.status}</button></td>
-      <td><button onclick="enviarResetSenha('${p.responsavel.email}','${p.responsavel.telefone}')">Redefinir Senha</button></td>
+  snapshot.forEach(docSnap=>{
+    const p = docSnap.data();
+    total++;
+    if(p.financeiro.status==='Ativo') ativos++; else inativos++;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${p.nomeEmpresa}</td>
+      <td>${p.servicos.banhoTosa ? 'Banho & Tosa' : ''}</td>
+      <td>${p.telefoneEmpresa}</td>
+      <td>${p.responsavel.email}</td>
+      <td><button class="status-btn ${p.financeiro.status==='Ativo'?'ativo':'inativo'}">${p.financeiro.status}</button></td>
+      <td><button onclick="redefinirSenha('${p.responsavel.email}')">Redefinir Senha</button></td>
     `;
-    tr.addEventListener('click', e=>{
-      if(e.target.tagName==='BUTTON') return; // evita abrir modal ao clicar em botão
-      abrirEdicao(d.id);
+    tr.addEventListener('click', ()=>{
+      abrirModal();
+      document.getElementById('modalTitle').textContent = 'Editar Parceiro';
+      document.getElementById('parceiroId').value = docSnap.id;
+      document.getElementById('nomeEmpresa').value = p.nomeEmpresa;
+      document.getElementById('cnpjCpf').value = p.cnpjCpf;
+      document.getElementById('telefoneEmpresa').value = p.telefoneEmpresa;
+      document.getElementById('website').value = p.website;
+      document.getElementById('cep').value = p.endereco.cep;
+      document.getElementById('rua').value = p.endereco.rua;
+      document.getElementById('numero').value = p.endereco.numero;
+      document.getElementById('bairro').value = p.endereco.bairro;
+      document.getElementById('cidade').value = p.endereco.cidade;
+      document.getElementById('estado').value = p.endereco.estado;
+      document.getElementById('srvBanhoTosa').checked = p.servicos.banhoTosa;
+      document.getElementById('srvCreche').checked = p.servicos.creche;
+      document.getElementById('srvHospedagem').checked = p.servicos.hospedagem;
+      document.getElementById('srvDogWalker').checked = p.servicos.dogWalker;
+      document.getElementById('srvPetSitter').checked = p.servicos.petSitter;
+      document.getElementById('srvAdestramento').checked = p.servicos.adestramento;
+      document.getElementById('srvOutros').checked = p.servicos.outros;
+      document.getElementById('descricaoOutros').value = p.servicos.descricaoOutros;
+      document.getElementById('respNome').value = p.responsavel.nome;
+      document.getElementById('respTelefone').value = p.responsavel.telefone;
+      document.getElementById('respEmail').value = p.responsavel.email;
+      document.getElementById('respCargo').value = p.responsavel.cargo;
+      document.getElementById('faixaFaturamento').value = p.financeiro.faixaFaturamento;
+      document.getElementById('formasPagamento').value = p.financeiro.formasPagamento;
+      document.getElementById('limiteCredito').value = p.financeiro.limiteCredito;
+      document.getElementById('statusParceiro').value = p.financeiro.status;
+      document.getElementById('observacoes').value = p.financeiro.observacoes;
     });
     tbody.appendChild(tr);
   });
-  document.getElementById('totalParceiros').textContent=total;
-  document.getElementById('ativosParceiros').textContent=ativos;
-  document.getElementById('inativosParceiros').textContent=inativos;
-}
-
-onSnapshot(query(parceirosRef, orderBy('criadoEm','desc')), snapshot=>{
-  atualizarTabela(snapshot.docs);
+  document.getElementById('totalParceiros').textContent = total;
+  document.getElementById('ativosParceiros').textContent = ativos;
+  document.getElementById('inativosParceiros').textContent = inativos;
 });
 
-async function toggleStatus(id, atual){
-  const novo=atual==='Ativo'?'Inativo':'Ativo';
-  await updateDoc(doc(db,'parceiros',id),{status:novo});
-}
+// Redefinir senha
+async function redefinirSenha(email){
+  if(!email){ showToast('Email não encontrado.',true); return; }
+  try{
+    await sendPasswordResetEmail(auth,email);
+    showToast('Email de redefinição enviado para: '+email);
 
-async function abrirEdicao(id){
-  const docSnap = await getDoc(doc(db,'parceiros',id));
-  if(!docSnap.exists()) return showToast('Parceiro não encontrado',true);
-  const p = docSnap.data();
-  editId=id;
-  document.getElementById('modalTitle').textContent='Editar Parceiro';
-  // Preencher form
-  document.getElementById('nomeEmpresa').value=p.nomeEmpresa||'';
-  document.getElementById('cnpjCpf').value=p.cnpjCpf||'';
-  document.getElementById('telefoneEmpresa').value=p.telefoneEmpresa||'';
-  document.getElementById('website').value=p.website||'';
-  document.getElementById('cep').value=p.endereco?.cep||'';
-  document.getElementById('rua').value=p.endereco?.rua||'';
-  document.getElementById('numero').value=p.endereco?.numero||'';
-  document.getElementById('bairro').value=p.endereco?.bairro||'';
-  document.getElementById('cidade').value=p.endereco?.cidade||'';
-  document.getElementById('estado').value=p.endereco?.estado||'';
-  document.getElementById('srvBanhoTosa').checked=p.servicos?.banhoTosa||false;
-  document.getElementById('srvCreche').checked=p.servicos?.creche||false;
-  document.getElementById('srvHospedagem').checked=p.servicos?.hospedagem||false;
-  document.getElementById('srvDogWalker').checked=p.servicos?.dogWalker||false;
-  document.getElementById('srvPetSitter').checked=p.servicos?.petSitter||false;
-  document.getElementById('srvAdestramento').checked=p.servicos?.adestramento||false;
-  document.getElementById('srvOutros').checked=p.servicos?.outros||false;
-  document.getElementById('descricaoOutros').value=p.servicos?.descricaoOutros||'';
-  document.getElementById('respNome').value=p.responsavel?.nome||'';
-  document.getElementById('respTelefone').value=p.responsavel?.telefone||'';
-  document.getElementById('respEmail').value=p.responsavel?.email||'';
-  document.getElementById('respCargo').value=p.responsavel?.cargo||'';
-  document.getElementById('faixaFaturamento').value=p.financeiro?.faixaFaturamento||'';
-  document.getElementById('formasPagamento').value=p.financeiro?.formasPagamento||'';
-  document.getElementById('limiteCredito').value=p.financeiro?.limiteCredito||'';
-  document.getElementById('statusParceiro').value=p.status||'Ativo';
-  document.getElementById('observacoes').value=p.observacoes||'';
-  setActiveTab('tab-empresa');
-  modal.style.display='flex';
+    // Simulação SMS
+    showToast('(Simulação) Link enviado para telefone cadastrado!');
+  } catch(err){ console.error(err); showToast('Erro ao enviar redefinição: '+err.message,true);}
 }
 </script>
 
