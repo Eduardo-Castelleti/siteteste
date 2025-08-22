@@ -27,6 +27,21 @@ tr:hover { background:#f1f1f1; cursor:pointer; }
 .status-btn { cursor:pointer; padding:5px 10px; border:none; border-radius:5px; color:white; }
 .ativo { background:#27ae60; }
 .inativo { background:#c0392b; }
+.modal { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+.modal-content { background:white; padding:20px; border-radius:8px; width:700px; max-width:95%; max-height:90%; overflow-y:auto; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.close { cursor:pointer; padding:5px 10px; border:none; background:#c0392b; color:white; border-radius:5px; }
+.nav-tabs { display:flex; gap:10px; margin-bottom:15px; }
+.nav-tabs button { padding:8px 15px; border:none; border-radius:5px; cursor:pointer; background:#bdc3c7; color:#fff; }
+.nav-tabs button.active { background:#3498db; }
+.tab { display:none; }
+.tab.active { display:block; }
+.section-title { font-weight:700; margin:10px 0; }
+.form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:10px; }
+.input, .select, .textarea { width:100%; padding:8px; border:1px solid #ccc; border-radius:5px; }
+.checkline { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px; }
+.footer-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:15px; }
+.footer-actions button { padding:8px 15px; }
 .toast { position:fixed; right:16px; bottom:16px; background:#2ecc71; color:#fff; padding:10px 14px; border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,.2); display:none; z-index:9999; }
 .toast.error { background:#e74c3c; }
 </style>
@@ -53,6 +68,8 @@ tr:hover { background:#f1f1f1; cursor:pointer; }
     <div class="card"><h3>Inativos</h3><p id="inativosParceiros">0</p></div>
   </div>
 
+  <button onclick="abrirModal()">+ Cadastrar Parceiro</button>
+
   <table>
     <thead>
       <tr>
@@ -68,14 +85,96 @@ tr:hover { background:#f1f1f1; cursor:pointer; }
   </table>
 </div>
 
+<!-- Modal Cadastro/Visualização -->
+<div class="modal" id="modalParceiro">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Novo Parceiro</h2>
+      <button class="close" onclick="fecharModal()">Fechar</button>
+    </div>
+    <div class="nav-tabs" id="tabsHeader">
+      <button class="tabBtn active" data-tab="tab-empresa">Empresa</button>
+      <button class="tabBtn" data-tab="tab-servicos">Serviços</button>
+      <button class="tabBtn" data-tab="tab-responsavel">Responsável</button>
+      <button class="tabBtn" data-tab="tab-financeiro">Financeiro</button>
+    </div>
+
+    <form id="formParceiro">
+      <input type="hidden" id="parceiroId">
+
+      <div class="tab active" id="tab-empresa">
+        <div class="section-title">Dados da Empresa</div>
+        <div class="form-grid">
+          <input class="input" id="nomeEmpresa" placeholder="Nome da Empresa *" required>
+          <input class="input" id="cnpjCpf" placeholder="CNPJ / CPF *" required>
+          <input class="input" id="telefoneEmpresa" placeholder="Telefone *" required>
+          <input class="input" id="website" placeholder="Website / Redes sociais">
+        </div>
+        <div class="section-title" style="margin-top:10px;">Endereço</div>
+        <div class="form-grid">
+          <input class="input" id="cep" placeholder="CEP *" maxlength="9" required>
+          <input class="input" id="rua" placeholder="Rua">
+          <input class="input" id="numero" placeholder="Número *" required>
+          <input class="input" id="bairro" placeholder="Bairro">
+          <input class="input" id="cidade" placeholder="Cidade">
+          <input class="input" id="estado" placeholder="Estado">
+        </div>
+      </div>
+
+      <div class="tab" id="tab-servicos">
+        <div class="section-title">Serviços oferecidos</div>
+        <div class="checkline">
+          <label><input type="checkbox" id="srvBanhoTosa"> Banho & Tosa</label>
+          <label><input type="checkbox" id="srvCreche"> Creche</label>
+          <label><input type="checkbox" id="srvHospedagem"> Hospedagem</label>
+          <label><input type="checkbox" id="srvDogWalker"> Dog Walker</label>
+          <label><input type="checkbox" id="srvPetSitter"> Pet Sitter</label>
+          <label><input type="checkbox" id="srvAdestramento"> Adestramento</label>
+          <label><input type="checkbox" id="srvOutros"> Outros</label>
+        </div>
+        <input class="input" id="descricaoOutros" placeholder="Descrever outros serviços (opcional)">
+      </div>
+
+      <div class="tab" id="tab-responsavel">
+        <div class="section-title">Responsável</div>
+        <div class="form-grid">
+          <input class="input" id="respNome" placeholder="Nome *" required>
+          <input class="input" id="respTelefone" placeholder="Telefone *" required>
+          <input class="input" id="respEmail" type="email" placeholder="E-mail *" required>
+          <input class="input" id="respCargo" placeholder="Cargo / Função">
+        </div>
+      </div>
+
+      <div class="tab" id="tab-financeiro">
+        <div class="section-title">Financeiro</div>
+        <div class="form-grid">
+          <input class="input" id="faixaFaturamento" placeholder="Faixa de Faturamento">
+          <input class="input" id="formasPagamento" placeholder="Formas de pagamento">
+          <input class="input" id="limiteCredito" placeholder="Limite de Crédito">
+          <select class="select" id="statusParceiro">
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+        </div>
+        <textarea class="textarea" id="observacoes" rows="3" placeholder="Observações"></textarea>
+      </div>
+
+      <div class="footer-actions">
+        <button type="button" onclick="fecharModal()">Cancelar</button>
+        <button type="submit"><span>Salvar Parceiro</span></button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, onSnapshot, query, orderBy, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, getDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// Config Firebase
+// Config
 const firebaseConfig = {
   apiKey: "AIzaSyCLBni8BY6zjHGMuoybZ06SBK4U9c1BhyE",
   authDomain: "petdudis-db2b2.firebaseapp.com",
@@ -84,22 +183,93 @@ const firebaseConfig = {
   messagingSenderId: "410321083813",
   appId: "1:410321083813:web:eaf0082878a8281eab5c4c"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth();
+const auth = getAuth(app);
 const parceirosRef = collection(db, "parceiros");
 
-// Toast
+// Utilidades
 const toastEl = document.getElementById('toast');
-function showToast(msg, isError=false){
+function showToast(msg,isError=false){
   toastEl.textContent = msg;
   toastEl.classList.toggle('error', !!isError);
   toastEl.style.display = 'block';
-  setTimeout(()=> toastEl.style.display='none', 2500);
+  setTimeout(()=> toastEl.style.display='none',2500);
 }
 
-// Função para determinar tipo a partir dos serviços
-function tipoAPartirServicos(s = {}) {
+const modal = document.getElementById('modalParceiro');
+const form = document.getElementById('formParceiro');
+const tbody = document.getElementById('parceirosTable');
+let editId = null;
+
+// Modal
+window.abrirModal = ()=>{
+  editId=null;
+  document.getElementById('modalTitle').textContent="Novo Parceiro";
+  form.reset();
+  setActiveTab('tab-empresa');
+  modal.style.display='flex';
+};
+window.fecharModal = ()=>{ modal.style.display='none'; };
+
+// Tabs
+function setActiveTab(id){
+  document.querySelectorAll('.tabBtn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  const btn=document.querySelector(`.tabBtn[data-tab="${id}"]`);
+  if(btn) btn.classList.add('active');
+  const tab=document.getElementById(id);
+  if(tab) tab.classList.add('active');
+}
+document.getElementById('tabsHeader').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.tabBtn'); if(!btn) return; setActiveTab(btn.dataset.tab);
+});
+
+// Coleta dados
+function coletarDadosForm(){
+  const servicos={
+    banhoTosa: document.getElementById('srvBanhoTosa').checked,
+    creche: document.getElementById('srvCreche').checked,
+    hospedagem: document.getElementById('srvHospedagem').checked,
+    dogWalker: document.getElementById('srvDogWalker').checked,
+    petSitter: document.getElementById('srvPetSitter').checked,
+    adestramento: document.getElementById('srvAdestramento').checked,
+    outros: document.getElementById('srvOutros').checked,
+    descricaoOutros: document.getElementById('descricaoOutros').value||''
+  };
+  const endereco={
+    cep: document.getElementById('cep').value||'',
+    rua: document.getElementById('rua').value||'',
+    numero: document.getElementById('numero').value||'',
+    bairro: document.getElementById('bairro').value||'',
+    cidade: document.getElementById('cidade').value||'',
+    estado: document.getElementById('estado').value||''
+  };
+  const responsavel={
+    nome: document.getElementById('respNome').value||'',
+    telefone: document.getElementById('respTelefone').value||'',
+    email: document.getElementById('respEmail').value||'',
+    cargo: document.getElementById('respCargo').value||''
+  };
+  const financeiro={
+    faixaFaturamento: document.getElementById('faixaFaturamento').value||'',
+    formasPagamento: document.getElementById('formasPagamento').value||'',
+    limiteCredito: document.getElementById('limiteCredito').value||''
+  };
+  return {
+    nomeEmpresa: document.getElementById('nomeEmpresa').value,
+    cnpjCpf: document.getElementById('cnpjCpf').value,
+    telefoneEmpresa: document.getElementById('telefoneEmpresa').value||'',
+    website: document.getElementById('website').value||'',
+    endereco, servicos, responsavel, financeiro,
+    observacoes: document.getElementById('observacoes').value||'',
+    status: document.getElementById('statusParceiro').value||'Ativo'
+  };
+}
+
+// Tipo a partir dos serviços
+function tipoAPartirServicos(s={}){
   if(s.banhoTosa) return 'Banho & Tosa';
   if(s.creche) return 'Creche';
   if(s.hospedagem) return 'Hospedagem';
@@ -110,60 +280,132 @@ function tipoAPartirServicos(s = {}) {
   return '—';
 }
 
+// Preencher formulário para edição/visualização
+function preencherFormulario(id,p){
+  editId=id||null;
+  document.getElementById('modalTitle').textContent="Editar Parceiro";
+  document.getElementById('parceiroId').value=id||'';
+  document.getElementById('nomeEmpresa').value=p.nomeEmpresa||'';
+  document.getElementById('cnpjCpf').value=p.cnpjCpf||'';
+  document.getElementById('telefoneEmpresa').value=p.telefoneEmpresa||'';
+  document.getElementById('website').value=p.website||'';
+  const e=p.endereco||{};
+  document.getElementById('cep').value=e.cep||'';
+  document.getElementById('rua').value=e.rua||'';
+  document.getElementById('numero').value=e.numero||'';
+  document.getElementById('bairro').value=e.bairro||'';
+  document.getElementById('cidade').value=e.cidade||'';
+  document.getElementById('estado').value=e.estado||'';
+  const s=p.servicos||{};
+  document.getElementById('srvBanhoTosa').checked=!!s.banhoTosa;
+  document.getElementById('srvCreche').checked=!!s.creche;
+  document.getElementById('srvHospedagem').checked=!!s.hospedagem;
+  document.getElementById('srvDogWalker').checked=!!s.dogWalker;
+  document.getElementById('srvPetSitter').checked=!!s.petSitter;
+  document.getElementById('srvAdestramento').checked=!!s.adestramento;
+  document.getElementById('srvOutros').checked=!!s.outros;
+  document.getElementById('descricaoOutros').value=s.descricaoOutros||'';
+  const r=p.responsavel||{};
+  document.getElementById('respNome').value=r.nome||'';
+  document.getElementById('respTelefone').value=r.telefone||'';
+  document.getElementById('respEmail').value=r.email||'';
+  document.getElementById('respCargo').value=r.cargo||'';
+  const f=p.financeiro||{};
+  document.getElementById('faixaFaturamento').value=f.faixaFaturamento||'';
+  document.getElementById('formasPagamento').value=f.formasPagamento||'';
+  document.getElementById('limiteCredito').value=f.limiteCredito||'';
+  document.getElementById('statusParceiro').value=p.status||'Ativo';
+  setActiveTab('tab-empresa');
+  modal.style.display='flex';
+}
+
+// Salvar parceiro + criar login
+form.addEventListener('submit', async e=>{
+  e.preventDefault();
+  try{
+    const payload=coletarDadosForm();
+    if(!payload.nomeEmpresa||!payload.cnpjCpf||!payload.responsavel.email){
+      showToast('Preencha Nome da Empresa, CNPJ/CPF e E-mail do responsável.',true);
+      return;
+    }
+
+    if(editId){
+      await updateDoc(doc(db,'parceiros',editId),{...payload, atualizadoEm: serverTimestamp()});
+      showToast('Parceiro atualizado!');
+    }else{
+      const docRef=await addDoc(parceirosRef,{...payload, criadoEm: serverTimestamp()});
+      showToast('Parceiro salvo!');
+
+      // Criar login no Auth com senha padrão 123456
+      try{
+        await createUserWithEmailAndPassword(auth,payload.responsavel.email,'123456');
+      }catch(err){
+        console.error('Erro ao criar login:',err.message);
+      }
+    }
+
+    fecharModal();
+  }catch(err){
+    console.error(err);
+    showToast('Erro ao salvar parceiro: '+(err.message||''),true);
+  }
+});
+
 // Listagem em tempo real
-const tbody = document.getElementById('parceirosTable');
-onSnapshot(query(parceirosRef, orderBy('criadoEm','desc')), (snap)=>{
-  tbody.innerHTML = '';
-  let total=0, ativos=0, inativos=0;
+onSnapshot(query(parceirosRef,orderBy('criadoEm','desc')),(snap)=>{
+  tbody.innerHTML='';
+  let total=0,ativos=0,inativos=0;
   snap.forEach(d=>{
     total++;
-    const p = d.data();
-    const status = p.status === 'Inativo' ? 'Inativo' : 'Ativo';
+    const p=d.data();
+    const status=p.status==='Inativo'?'Inativo':'Ativo';
     if(status==='Ativo') ativos++; else inativos++;
 
-    const emailExibir = (p.responsavel && p.responsavel.email) || '';
-    const tipo = tipoAPartirServicos(p.servicos);
+    const emailExibir=(p.responsavel && p.responsavel.email)||'';
+    const tipo=tipoAPartirServicos(p.servicos);
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${p.nomeEmpresa || ''}</td>
+    const tr=document.createElement('tr');
+    tr.dataset.id=d.id;
+    tr.innerHTML=`
+      <td>${p.nomeEmpresa||''}</td>
       <td>${tipo}</td>
-      <td>${p.telefoneEmpresa || ''}</td>
+      <td>${p.telefoneEmpresa||''}</td>
       <td>${emailExibir}</td>
       <td><button class="status-btn ${status==='Ativo'?'ativo':'inativo'}" data-id="${d.id}" data-status="${status}">${status}</button></td>
-      <td>
-        <button class="btn-reset-senha" data-email="${emailExibir}">Redefinir Senha</button>
-      </td>
+      <td><button class="btn-reset" data-email="${emailExibir}">Redefinir Senha</button></td>
     `;
     tbody.appendChild(tr);
   });
-  document.getElementById('totalParceiros').textContent = total;
-  document.getElementById('ativosParceiros').textContent = ativos;
-  document.getElementById('inativosParceiros').textContent = inativos;
-}, (err)=> { console.error(err); showToast('Erro ao carregar parceiros.', true); });
+  document.getElementById('totalParceiros').textContent=total;
+  document.getElementById('ativosParceiros').textContent=ativos;
+  document.getElementById('inativosParceiros').textContent=inativos;
+},err=>{ console.error(err); showToast('Erro ao carregar parceiros',true); });
 
-// Ações da tabela (delegação)
-tbody.addEventListener('click', async (e)=>{
-  const btnStatus = e.target.closest('.status-btn');
-  const btnReset = e.target.closest('.btn-reset-senha');
+// Ações tabela
+tbody.addEventListener('click',async e=>{
+  const btnStatus=e.target.closest('.status-btn');
+  const btnReset=e.target.closest('.btn-reset');
+  const tr=e.target.closest('tr');
 
   if(btnStatus){
-    const id = btnStatus.dataset.id;
-    const atual = btnStatus.dataset.status === 'Ativo' ? 'Ativo' : 'Inativo';
-    const novo = atual==='Ativo' ? 'Inativo' : 'Ativo';
+    const id=btnStatus.dataset.id;
+    const atual=btnStatus.dataset.status==='Ativo'?'Ativo':'Inativo';
+    const novo=atual==='Ativo'?'Inativo':'Ativo';
     try{
-      await updateDoc(doc(db,'parceiros',id), { status:novo });
-      showToast(`Status atualizado para ${novo}`);
-    }catch(err){ console.error(err); showToast('Erro ao atualizar status.', true);}
-  }
-
-  if(btnReset){
-    const email = btnReset.dataset.email;
-    if(!email){ showToast('Parceiro não possui e-mail cadastrado.', true); return; }
+      await updateDoc(doc(db,'parceiros',id),{status:novo});
+      showToast('Status atualizado!');
+    }catch(err){ console.error(err); showToast('Erro ao atualizar status',true); }
+  }else if(btnReset){
+    const email=btnReset.dataset.email;
     try{
-      await sendPasswordResetEmail(auth, email);
-      showToast(`E-mail de redefinição enviado para ${email}`);
-    }catch(err){ console.error(err); showToast('Erro ao enviar e-mail: '+(err.message||''), true);}
+      await sendPasswordResetEmail(auth,email);
+      showToast('E-mail de redefinição enviado!');
+    }catch(err){ console.error(err); showToast('Erro ao enviar e-mail',true); }
+  }else if(tr && tr.dataset.id){
+    const docSnap=await getDoc(doc(db,'parceiros',tr.dataset.id));
+    if(docSnap.exists()){
+      preencherFormulario(tr.dataset.id,docSnap.data());
+    }
   }
 });
 </script>
