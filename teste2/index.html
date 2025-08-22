@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pet Dudis - Início</title>
+
+  <!-- Estilos globais -->
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+
+  <style>
+    /* ---------- Cabeçalho e dropdown ---------- */
+    .acoes-usuario { position: relative; display: flex; align-items: center; gap: 18px; font-size: 0.95rem; }
+    .acoes-usuario a, .acoes-usuario span { color: #333; text-decoration: none; cursor: pointer; }
+    .acoes-usuario a:hover, .acoes-usuario span:hover { color: #5e2ca5; }
+    .usuario-logado { display: none; align-items: center; gap: 8px; position: relative; }
+    .usuario-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #e5e5e5; border-radius: 999px; background: #fff; transition: box-shadow .2s ease, transform .05s ease; user-select: none; }
+    .usuario-chip:hover { box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+    .usuario-iniciais { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #5e2ca5; color: #fff; font-weight: 700; font-size: 0.9rem; }
+    .usuario-nome { font-weight: 700; }
+    .usuario-seta { margin-left: 2px; transform: rotate(0deg); transition: transform .2s ease; font-size: 0.9rem; color: #777; }
+    .usuario-chip[aria-expanded="true"] .usuario-seta { transform: rotate(180deg); }
+
+    /* ---------- Painel lateral ---------- */
+    .painel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease; z-index: 1000; }
+    .painel-overlay.ativo { opacity: 1; visibility: visible; }
+    .painel-cliente { position: fixed; top: 0; right: 0; height: 100vh; width: min(92vw, 360px); background: #fff; box-shadow: -10px 0 30px rgba(0,0,0,.15); transform: translateX(100%); transition: transform .25s ease; z-index: 1001; display: flex; flex-direction: column; }
+    .painel-cliente.ativo { transform: translateX(0); }
+    .painel-topo { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-bottom: 1px solid #f0f0f0; }
+    .painel-topo .foto { width: 40px; height: 40px; border-radius: 50%; display:flex; align-items:center; justify-content:center; background: #5e2ca5; color:#fff; font-weight:700; }
+    .painel-topo .info { flex: 1; }
+    .painel-topo .info .nome { font-weight: 800; color:#333; line-height: 1.15; }
+    .painel-topo .info .email { font-size: .85rem; color:#777; }
+    .painel-fechar { background: transparent; border: none; font-size: 1.1rem; cursor: pointer; color: #666; }
+
+    .painel-lista { padding: 10px 10px 18px; overflow-y: auto; flex: 1; }
+    .secao { margin-top: 12px; border: 1px solid #efefef; border-radius: 12px; overflow: hidden; }
+    .secao-titulo { padding: 10px 12px; font-size: .85rem; letter-spacing: .02em; font-weight: 800; color: #5e2ca5; background: #faf8ff; border-bottom: 1px solid #efefef; }
+    .link-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-decoration: none; color: #333; border-bottom: 1px solid #f5f5f5; }
+    .link-item:last-child { border-bottom: 0; }
+    .link-item:hover { background: #f9f9ff; }
+    .link-item i { width: 22px; text-align: center; color: #5e2ca5; }
+    .chip-role { margin-left: auto; font-size: .75rem; padding: 3px 8px; background: #eef3ff; color: #3556d1; border-radius: 999px; border: 1px solid #dbe4ff; font-weight: 700; }
+    .painel-rodape { padding: 10px 12px 16px; border-top: 1px solid #f0f0f0; display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-sair, .btn-ir-area { display: inline-flex; align-items:center; gap:8px; padding: 10px 12px; border-radius: 10px; border: 1px solid #eee; background: #fff; cursor: pointer; font-weight: 700; color:#333; }
+    .btn-ir-area { background:#5e2ca5; color:#fff; border-color:#5e2ca5; }
+    .btn-sair:hover { background:#f9f9f9; }
+    .btn-ir-area:hover { filter: brightness(0.97); }
+
+    /* ---------- Modal Login/Cadastro ---------- */
+    .modal-login { display:none; position:fixed; z-index:1100; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.6);}
+    .modal-login-content { background:#fff; margin:8% auto; padding:20px; border-radius:12px; width:90%; max-width:420px; position:relative; box-shadow:0 18px 50px rgba(0,0,0,.25); }
+    .modal-login-content h2 { text-align:center; margin-bottom:20px; }
+    .modal-login-content input { width:100%; padding:12px; margin:6px 0; border:1px solid #ddd; border-radius:8px; }
+    .modal-login-content button { width:100%; padding:12px; margin:10px 0; background:#5e2ca5; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:800; }
+    .modal-login-content .fechar { position:absolute; top:10px; right:15px; font-size:24px; cursor:pointer; }
+    .tab-login { display:flex; justify-content:space-around; margin-bottom:15px; cursor:pointer; }
+    .tab-login div { padding:10px 20px; border-bottom:2px solid transparent; }
+    .tab-login .ativo { border-bottom:2px solid #5e2ca5; font-weight:800; color:#5e2ca5; }
+
+    /* Acessibilidade mínima para foco */
+    .usuario-chip:focus, .link-item:focus, .btn-sair:focus, .btn-ir-area:focus, .painel-fechar:focus {
+      outline: 2px solid #5e2ca5;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- CABEÇALHO -->
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <div class="logo-container"><img src="img/logo.png" alt="Pet Dudis" class="logo"/></div>
+    <div class="cep-busca">
+      <div class="cep-input-wrapper"><span>📍</span><input type="text" placeholder="Informar CEP" class="cep-input"></div>
+      <div class="busca-input-wrapper"><span>🔍</span><input type="text" placeholder="O que seu pet precisa?" class="busca-input"><button class="btn-busca">🔍</button></div>
+    </div>
+    <div class="acoes-usuario">
+      <a id="abrirLogin">Login</a>
+      <div class="usuario-logado" id="usuarioLogado">
+        <div class="usuario-chip" tabindex="0" aria-expanded="false" id="usuarioChip">
+          <span class="usuario-iniciais" id="usuarioIniciais">JD</span>
+          <span class="usuario-nome" id="usuarioNome">João</span>
+          <i class="fa-solid fa-chevron-down usuario-seta"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MODAL LOGIN/CADASTRO -->
+<div id="modalLogin" class="modal-login">
+  <div class="modal-login-content">
+    <span class="fechar" id="fecharModal">&times;</span>
+    <h2>Entrar / Cadastrar</h2>
+    <div class="tab-login">
+      <div id="tabEntrar" class="ativo">Entrar</div>
+      <div id="tabCadastrar">Cadastrar</div>
+    </div>
+    <form id="formLogin">
+      <input type="email" placeholder="Email" id="emailLogin" required>
+      <input type="password" placeholder="Senha" id="senhaLogin" required>
+      <button type="submit" id="btnLogin">Entrar</button>
+    </form>
+    <form id="formCadastrar" style="display:none;">
+      <input type="text" placeholder="Nome" id="nomeCadastrar" required>
+      <input type="email" placeholder="Email" id="emailCadastrar" required>
+      <input type="password" placeholder="Senha" id="senhaCadastrar" required>
+      <select id="roleCadastrar" required>
+        <option value="">Selecione a função</option>
+        <option value="cliente">Cliente</option>
+        <option value="parceiro">Parceiro</option>
+        <option value="funcionario">Funcionário</option>
+        <option value="admin">Administrador</option>
+      </select>
+      <button type="submit" id="btnCadastrar">Cadastrar</button>
+    </form>
+  </div>
+</div>
+
+<!-- PAINEL LATERAL -->
+<div class="painel-overlay" id="painelOverlay"></div>
+<div class="painel-cliente" id="painelCliente">
+  <div class="painel-topo">
+    <div class="foto" id="painelFoto">JD</div>
+    <div class="info">
+      <div class="nome" id="painelNome">João</div>
+      <div class="email" id="painelEmail">email@exemplo.com</div>
+    </div>
+    <button class="painel-fechar" id="fecharPainel">&times;</button>
+  </div>
+  <div class="painel-lista" id="painelLista">
+    <!-- Links dinâmicos -->
+  </div>
+  <div class="painel-rodape">
+    <button class="btn-sair" id="btnSair"><i class="fa-solid fa-right-from-bracket"></i>Sair</button>
+    <button class="btn-ir-area" id="btnIrArea"><i class="fa-solid fa-arrow-right-to-bracket"></i>Ir para Área</button>
+  </div>
+</div>
+
+<!-- SCRIPT FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script>
+  // CONFIGURAÇÃO FIREBASE
+  const firebaseConfig = {
+  apiKey: "AIzaSyCLBni8BY6zjHGMuoybZ06SBK4U9c1BhyE",
+  authDomain: "petdudis-db2b2.firebaseapp.com",
+  projectId: "petdudis-db2b2",
+  storageBucket: "petdudis-db2b2.firebasestorage.app",
+  messagingSenderId: "410321083813",
+  appId: "1:410321083813:web:eaf0082878a8281eab5c4c"
+};
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // ELEMENTOS
+  const abrirLogin = document.getElementById("abrirLogin");
+  const modalLogin = document.getElementById("modalLogin");
+  const fecharModal = document.getElementById("fecharModal");
+  const tabEntrar = document.getElementById("tabEntrar");
+  const tabCadastrar = document.getElementById("tabCadastrar");
+  const formLogin = document.getElementById("formLogin");
+  const formCadastrar = document.getElementById("formCadastrar");
+  const usuarioLogado = document.getElementById("usuarioLogado");
+  const usuarioChip = document.getElementById("usuarioChip");
+  const painelCliente = document.getElementById("painelCliente");
+  const painelOverlay = document.getElementById("painelOverlay");
+  const painelNome = document.getElementById("painelNome");
+  const painelEmail = document.getElementById("painelEmail");
+  const painelFoto = document.getElementById("painelFoto");
+  const painelLista = document.getElementById("painelLista");
+  const btnSair = document.getElementById("btnSair");
+  const btnIrArea = document.getElementById("btnIrArea");
+
+  // ABRIR MODAL
+  abrirLogin.onclick = () => modalLogin.style.display = "block";
+  fecharModal.onclick = () => modalLogin.style.display = "none";
+
+  // TABS
+  tabEntrar.onclick = () => { formLogin.style.display="block"; formCadastrar.style.display="none"; tabEntrar.classList.add("ativo"); tabCadastrar.classList.remove("ativo"); };
+  tabCadastrar.onclick = () => { formLogin.style.display="none"; formCadastrar.style.display="block"; tabEntrar.classList.remove("ativo"); tabCadastrar.classList.add("ativo"); };
+
+  // LOGIN
+  formLogin.addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const email = document.getElementById("emailLogin").value;
+    const senha = document.getElementById("senhaLogin").value;
+    auth.signInWithEmailAndPassword(email, senha)
+      .then(cred => {
+        modalLogin.style.display = "none";
+        exibirUsuarioLogado(cred.user.uid);
+      })
+      .catch(err=>alert(err.message));
+  });
+
+  // CADASTRO
+  formCadastrar.addEventListener("submit", (e)=>{
+    e.preventDefault();
+    const nome = document.getElementById("nomeCadastrar").value;
+    const email = document.getElementById("emailCadastrar").value;
+    const senha = document.getElementById("senhaCadastrar").value;
+    const role = document.getElementById("roleCadastrar").value;
+
+    auth.createUserWithEmailAndPassword(email, senha)
+      .then(cred=>{
+        return db.collection("usuarios").doc(cred.user.uid).set({nome,email,role});
+      })
+      .then(()=>{
+        modalLogin.style.display = "none";
+        exibirUsuarioLogado(auth.currentUser.uid);
+      })
+      .catch(err=>alert(err.message));
+  });
+
+  // FUNÇÃO PARA MOSTRAR USUÁRIO LOGADO
+  function exibirUsuarioLogado(uid){
+    db.collection("usuarios").doc(uid).get().then(doc=>{
+      if(doc.exists){
+        const data = doc.data();
+        usuarioLogado.style.display = "flex";
+        abrirLogin.style.display = "none";
+        usuarioChip.querySelector("#usuarioNome").textContent = data.nome;
+        usuarioChip.querySelector("#usuarioIniciais").textContent = data.nome.split(" ").map(n=>n[0]).join("").substring(0,2).toUpperCase();
+        painelNome.textContent = data.nome;
+        painelEmail.textContent = data.email;
+        painelFoto.textContent = data.nome.split(" ").map(n=>n[0]).join("").substring(0,2).toUpperCase();
+
+        // Links dinâmicos
+        painelLista.innerHTML = "";
+        const links = gerarLinksPorRole(data.role);
+        links.forEach(l=>{
+          const a = document.createElement("a");
+          a.href = l.href;
+          a.className = "link-item";
+          a.innerHTML = `<i class="${l.icon}"></i> ${l.text} <span class="chip-role">${data.role}</span>`;
+          painelLista.appendChild(a);
+        });
+      }
+    });
+  }
+
+  function gerarLinksPorRole(role){
+    switch(role){
+      case "admin": return [{text:"Painel Admin", href:"#", icon:"fa-solid fa-user-gear"}];
+      case "funcionario": return [{text:"Produtos", href:"#", icon:"fa-solid fa-box"}];
+      case "parceiro": return [{text:"Pedidos", href:"#", icon:"fa-solid fa-cart-shopping"}];
+      default: return [{text:"Minha Conta", href:"#", icon:"fa-solid fa-user"}];
+    }
+  }
+
+  // PAINEL LATERAL
+  usuarioChip.onclick = ()=>{
+    const expanded = usuarioChip.getAttribute("aria-expanded") === "true";
+    usuarioChip.setAttribute("aria-expanded", !expanded);
+    painelCliente.classList.toggle("ativo");
+    painelOverlay.classList.toggle("ativo");
+  };
+  painelOverlay.onclick = ()=>{
+    painelCliente.classList.remove("ativo");
+    painelOverlay.classList.remove("ativo");
+    usuarioChip.setAttribute("aria-expanded", false);
+  };
+  document.getElementById("fecharPainel").onclick = ()=>{
+    painelCliente.classList.remove("ativo");
+    painelOverlay.classList.remove("ativo");
+    usuarioChip.setAttribute("aria-expanded", false);
+  };
+
+  // SAIR
+  btnSair.onclick = ()=>{
+    auth.signOut().then(()=>{
+      usuarioLogado.style.display = "none";
+      abrirLogin.style.display = "block";
+      painelCliente.classList.remove("ativo");
+      painelOverlay.classList.remove("ativo");
+    });
+  };
+
+  // REDIRECIONAR PARA ÁREA
+  btnIrArea.onclick = ()=>{
+    db.collection("usuarios").doc(auth.currentUser.uid).get().then(doc=>{
+      if(doc.exists){
+        const role = doc.data().role;
+        switch(role){
+          case "admin": window.location.href="admin.html"; break;
+          case "funcionario": window.location.href="funcionario.html"; break;
+          case "parceiro": window.location.href="parceiro.html"; break;
+          default: window.location.href="cliente.html"; break;
+        }
+      }
+    });
+  };
+
+  // VERIFICAR LOGIN AO CARREGAR PÁGINA
+  auth.onAuthStateChanged(user=>{
+    if(user) exibirUsuarioLogado(user.uid);
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+</body>
+</html>
