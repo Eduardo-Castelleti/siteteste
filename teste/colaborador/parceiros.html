@@ -204,13 +204,7 @@ const tbody = document.getElementById('parceirosTable');
 let editId = null;
 
 // Modal
-window.abrirModal = ()=>{
-  editId=null;
-  document.getElementById('modalTitle').textContent="Novo Parceiro";
-  form.reset();
-  setActiveTab('tab-empresa');
-  modal.style.display='flex';
-};
+window.abrirModal = ()=>{ editId=null; document.getElementById('modalTitle').textContent="Novo Parceiro"; form.reset(); setActiveTab('tab-empresa'); modal.style.display='flex'; };
 window.fecharModal = ()=>{ modal.style.display='none'; };
 
 // Tabs
@@ -222,9 +216,7 @@ function setActiveTab(id){
   const tab=document.getElementById(id);
   if(tab) tab.classList.add('active');
 }
-document.getElementById('tabsHeader').addEventListener('click', (e)=>{
-  const btn = e.target.closest('.tabBtn'); if(!btn) return; setActiveTab(btn.dataset.tab);
-});
+document.getElementById('tabsHeader').addEventListener('click', (e)=>{ const btn = e.target.closest('.tabBtn'); if(!btn) return; setActiveTab(btn.dataset.tab); });
 
 // Coleta dados
 function coletarDadosForm(){
@@ -269,16 +261,7 @@ function coletarDadosForm(){
 }
 
 // Tipo a partir dos serviços
-function tipoAPartirServicos(s={}){
-  if(s.banhoTosa) return 'Banho & Tosa';
-  if(s.creche) return 'Creche';
-  if(s.hospedagem) return 'Hospedagem';
-  if(s.dogWalker) return 'Dog Walker';
-  if(s.petSitter) return 'Pet Sitter';
-  if(s.adestramento) return 'Adestramento';
-  if(s.outros) return 'Outros';
-  return '—';
-}
+function tipoAPartirServicos(s={}){ if(s.banhoTosa) return 'Banho & Tosa'; if(s.creche) return 'Creche'; if(s.hospedagem) return 'Hospedagem'; if(s.dogWalker) return 'Dog Walker'; if(s.petSitter) return 'Pet Sitter'; if(s.adestramento) return 'Adestramento'; if(s.outros) return 'Outros'; return '—'; }
 
 // Preencher formulário para edição/visualização
 function preencherFormulario(id,p){
@@ -315,98 +298,79 @@ function preencherFormulario(id,p){
   document.getElementById('formasPagamento').value=f.formasPagamento||'';
   document.getElementById('limiteCredito').value=f.limiteCredito||'';
   document.getElementById('statusParceiro').value=p.status||'Ativo';
-  setActiveTab('tab-empresa');
-  modal.style.display='flex';
+  document.getElementById('observacoes').value=p.observacoes||'';
 }
 
-// Salvar parceiro + criar login
-form.addEventListener('submit', async e=>{
+// Salvar parceiro
+form.addEventListener('submit', async (e)=>{
   e.preventDefault();
+  const data=coletarDadosForm();
   try{
-    const payload=coletarDadosForm();
-    if(!payload.nomeEmpresa||!payload.cnpjCpf||!payload.responsavel.email){
-      showToast('Preencha Nome da Empresa, CNPJ/CPF e E-mail do responsável.',true);
-      return;
-    }
-
     if(editId){
-      await updateDoc(doc(db,'parceiros',editId),{...payload, atualizadoEm: serverTimestamp()});
-      showToast('Parceiro atualizado!');
-    }else{
-      const docRef=await addDoc(parceirosRef,{...payload, criadoEm: serverTimestamp()});
-      showToast('Parceiro salvo!');
-
-      // Criar login no Auth com senha padrão 123456
-      try{
-        await createUserWithEmailAndPassword(auth,payload.responsavel.email,'123456');
-      }catch(err){
-        console.error('Erro ao criar login:',err.message);
-      }
+      const docRef=doc(db,'parceiros',editId);
+      await updateDoc(docRef, {...data, updatedAt: serverTimestamp()});
+      showToast('Parceiro atualizado com sucesso!');
+    } else {
+      await addDoc(parceirosRef,{...data, createdAt: serverTimestamp()});
+      showToast('Parceiro cadastrado com sucesso!');
     }
-
     fecharModal();
-  }catch(err){
-    console.error(err);
-    showToast('Erro ao salvar parceiro: '+(err.message||''),true);
-  }
+  } catch(err){ console.error(err); showToast('Erro ao salvar parceiro',true); }
 });
 
-// Listagem em tempo real
-onSnapshot(query(parceirosRef,orderBy('criadoEm','desc')),(snap)=>{
+// Escutar parceiros
+onSnapshot(query(parceirosRef, orderBy('createdAt','desc')), snap=>{
   tbody.innerHTML='';
-  let total=0,ativos=0,inativos=0;
-  snap.forEach(d=>{
-    total++;
-    const p=d.data();
-    const status=p.status==='Inativo'?'Inativo':'Ativo';
-    if(status==='Ativo') ativos++; else inativos++;
-
-    const emailExibir=(p.responsavel && p.responsavel.email)||'';
-    const tipo=tipoAPartirServicos(p.servicos);
-
+  let total=0, ativos=0, inativos=0;
+  snap.forEach(doc=>{
+    const p=doc.data();
     const tr=document.createElement('tr');
-    tr.dataset.id=d.id;
     tr.innerHTML=`
-      <td>${p.nomeEmpresa||''}</td>
-      <td>${tipo}</td>
-      <td>${p.telefoneEmpresa||''}</td>
-      <td>${emailExibir}</td>
-      <td><button class="status-btn ${status==='Ativo'?'ativo':'inativo'}" data-id="${d.id}" data-status="${status}">${status}</button></td>
-      <td><button class="btn-reset" data-email="${emailExibir}">Redefinir Senha</button></td>
-    `;
+      <td>${p.nomeEmpresa||'—'}</td>
+      <td>${tipoAPartirServicos(p.servicos)}</td>
+      <td>${p.telefoneEmpresa||'—'}</td>
+      <td>${p.responsavel?.email||'—'}</td>
+      <td><button class="status-btn ${p.status==='Ativo'?'ativo':'inativo'}" onclick="toggleStatus('${doc.id}', '${p.status}')">${p.status||'Ativo'}</button></td>
+      <td>
+        <button onclick="preencherFormulario('${doc.id}', ${JSON.stringify(p).replace(/'/g,"\\'")})">Editar</button>
+      </td>`;
     tbody.appendChild(tr);
+    total++;
+    if(p.status==='Ativo') ativos++; else inativos++;
   });
   document.getElementById('totalParceiros').textContent=total;
   document.getElementById('ativosParceiros').textContent=ativos;
   document.getElementById('inativosParceiros').textContent=inativos;
-},err=>{ console.error(err); showToast('Erro ao carregar parceiros',true); });
+});
 
-// Ações tabela
-tbody.addEventListener('click',async e=>{
-  const btnStatus=e.target.closest('.status-btn');
-  const btnReset=e.target.closest('.btn-reset');
-  const tr=e.target.closest('tr');
+// Alternar status
+window.toggleStatus = async (id, status)=>{
+  try{
+    const docRef = doc(db,'parceiros',id);
+    await updateDoc(docRef,{status: status==='Ativo'?'Inativo':'Ativo', updatedAt: serverTimestamp()});
+  } catch(err){ console.error(err); showToast('Erro ao alterar status',true); }
+};
 
-  if(btnStatus){
-    const id=btnStatus.dataset.id;
-    const atual=btnStatus.dataset.status==='Ativo'?'Ativo':'Inativo';
-    const novo=atual==='Ativo'?'Inativo':'Ativo';
-    try{
-      await updateDoc(doc(db,'parceiros',id),{status:novo});
-      showToast('Status atualizado!');
-    }catch(err){ console.error(err); showToast('Erro ao atualizar status',true); }
-  }else if(btnReset){
-    const email=btnReset.dataset.email;
-    try{
-      await sendPasswordResetEmail(auth,email);
-      showToast('E-mail de redefinição enviado!');
-    }catch(err){ console.error(err); showToast('Erro ao enviar e-mail',true); }
-  }else if(tr && tr.dataset.id){
-    const docSnap=await getDoc(doc(db,'parceiros',tr.dataset.id));
-    if(docSnap.exists()){
-      preencherFormulario(tr.dataset.id,docSnap.data());
-    }
-  }
+// CEP auto-complete via ViaCEP
+document.getElementById('cep').addEventListener('blur', async ()=>{
+  let cep = document.getElementById('cep').value.replace(/\D/g,'');
+  if(cep.length!==8) return;
+  try{
+    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const data = await res.json();
+    if(data.erro){ showToast('CEP não encontrado',true); return; }
+    document.getElementById('rua').value = data.logradouro||'';
+    document.getElementById('bairro').value = data.bairro||'';
+    document.getElementById('cidade').value = data.localidade||'';
+    document.getElementById('estado').value = data.uf||'';
+  } catch(err){ console.error(err); showToast('Erro ao buscar endereço',true); }
+});
+
+// Máscara CEP
+document.getElementById('cep').addEventListener('input', e=>{
+  let v=e.target.value.replace(/\D/g,'');
+  if(v.length>5) v=v.replace(/(\d{5})(\d)/,'$1-$2');
+  e.target.value=v;
 });
 </script>
 
