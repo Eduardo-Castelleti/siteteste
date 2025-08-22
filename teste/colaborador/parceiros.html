@@ -160,8 +160,9 @@ tr:hover { background:#f1f1f1; cursor:pointer; }
       </div>
 
       <div class="footer-actions">
-        <button type="button" onclick="fecharModal()">Cancelar</button>
-        <button type="submit"><span>Salvar Parceiro</span></button>
+        <button type="button" id="btnRedefinirSenha">Redefinir Senha</button>
+        <button type="button" id="btnCancelar" onclick="fecharModal()">Cancelar</button>
+        <button type="submit">Salvar Parceiro</button>
       </div>
     </form>
   </div>
@@ -171,31 +172,30 @@ tr:hover { background:#f1f1f1; cursor:pointer; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, getDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, getDoc, query, orderBy, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// Config
-const firebaseConfig = { 
-apiKey: "SUA_API_KEY", 
-authDomain: "SEU_AUTH_DOMAIN", 
-projectId: "SEU_PROJECT_ID", 
-storageBucket: "SEU_STORAGE_BUCKET", 
-messagingSenderId: "SEU_MESSAGING_SENDER_ID", 
-appId: "SEU_APP_ID" 
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCLBni8BY6zjHGMuoybZ06SBK4U9c1BhyE",
+  authDomain: "petdudis-db2b2.firebaseapp.com",
+  projectId: "petdudis-db2b2",
+  storageBucket: "petdudis-db2b2.firebasestorage.app",
+  messagingSenderId: "410321083813",
+  appId: "1:410321083813:web:eaf0082878a8281eab5c4c"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const parceirosRef = collection(db, "parceiros");
+const parceirosRef = collection(db,'parceiros');
 
-// Utilidades
 const toastEl = document.getElementById('toast');
 function showToast(msg,isError=false){
-  toastEl.textContent = msg;
-  toastEl.classList.toggle('error', !!isError);
-  toastEl.style.display = 'block';
-  setTimeout(()=> toastEl.style.display='none',2500);
+  toastEl.textContent=msg;
+  toastEl.classList.toggle('error',!!isError);
+  toastEl.style.display='block';
+  setTimeout(()=>toastEl.style.display='none',2500);
 }
 
 const modal = document.getElementById('modalParceiro');
@@ -203,7 +203,6 @@ const form = document.getElementById('formParceiro');
 const tbody = document.getElementById('parceirosTable');
 let editId = null;
 
-// Modal
 window.abrirModal = ()=>{
   editId=null;
   document.getElementById('modalTitle').textContent="Novo Parceiro";
@@ -226,7 +225,7 @@ document.getElementById('tabsHeader').addEventListener('click', (e)=>{
   const btn = e.target.closest('.tabBtn'); if(!btn) return; setActiveTab(btn.dataset.tab);
 });
 
-// Coleta dados
+// Coletar dados
 function coletarDadosForm(){
   const servicos={
     banhoTosa: document.getElementById('srvBanhoTosa').checked,
@@ -315,121 +314,95 @@ function preencherFormulario(id,p){
   document.getElementById('formasPagamento').value=f.formasPagamento||'';
   document.getElementById('limiteCredito').value=f.limiteCredito||'';
   document.getElementById('statusParceiro').value=p.status||'Ativo';
-  setActiveTab('tab-empresa');
-  modal.style.display='flex';
+  document.getElementById('observacoes').value=p.observacoes||'';
 }
 
-// Salvar parceiro + criar login
+// CNPJ duplicado
+async function cnpjDuplicado(cnpj){
+  const q=query(parceirosRef, orderBy('cnpjCpf'));
+  let exists=false;
+  const snapshot=await getDocs(q);
+  snapshot.forEach(docSnap=>{
+    if(docSnap.data().cnpjCpf===cnpj && docSnap.id!==editId) exists=true;
+  });
+  return exists;
+}
+
+// Submit
 form.addEventListener('submit', async e=>{
   e.preventDefault();
+  const payload=coletarDadosForm();
+  if(!payload.nomeEmpresa || !payload.cnpjCpf || !payload.responsavel.email){
+    showToast('Preencha Nome, CNPJ/CPF e E-mail do responsável',true);
+    return;
+  }
+  if(await cnpjDuplicado(payload.cnpjCpf)){
+    showToast('Já existe um parceiro cadastrado com esse CNPJ/CPF',true);
+    return;
+  }
   try{
-    const payload=coletarDadosForm();
-    if(!payload.nomeEmpresa||!payload.cnpjCpf||!payload.responsavel.email){
-      showToast('Preencha Nome da Empresa, CNPJ/CPF e E-mail do responsável.',true);
-      return;
-    }
-
     if(editId){
-      await updateDoc(doc(db,'parceiros',editId),{...payload, atualizadoEm: serverTimestamp()});
-      showToast('Parceiro atualizado!');
+      await updateDoc(doc(db,'parceiros',editId), {...payload, updatedAt:serverTimestamp()});
+      showToast('Parceiro atualizado com sucesso!');
     }else{
-      const docRef=await addDoc(parceirosRef,{...payload, criadoEm: serverTimestamp()});
-      showToast('Parceiro salvo!');
-
-      // Criar login no Auth com senha padrão 123456
+      const docRef=await addDoc(parceirosRef,{...payload, createdAt:serverTimestamp()});
       try{
         await createUserWithEmailAndPassword(auth,payload.responsavel.email,'123456');
-      }catch(err){
-        console.error('Erro ao criar login:',err.message);
-      }
+        await sendPasswordResetEmail(auth,payload.responsavel.email);
+      }catch(err){ console.error('Auth error',err); }
+      showToast('Parceiro cadastrado com sucesso!');
     }
-
     fecharModal();
   }catch(err){
     console.error(err);
-    showToast('Erro ao salvar parceiro: '+(err.message||''),true);
+    showToast('Erro ao salvar parceiro',true);
   }
 });
 
-// Listagem em tempo real
-onSnapshot(query(parceirosRef,orderBy('criadoEm','desc')),(snap)=>{
+// Botão redefinir senha
+document.getElementById('btnRedefinirSenha').addEventListener('click', async ()=>{
+  const email=document.getElementById('respEmail').value.trim();
+  if(!email){ showToast('Preencha o e-mail do responsável',true); return; }
+  try{
+    await sendPasswordResetEmail(auth,email);
+    showToast('E-mail de redefinição enviado!');
+  }catch(err){ console.error(err); showToast('Erro ao enviar e-mail',true); }
+});
+
+// Atualizar tabela em tempo real
+onSnapshot(parceirosRef, snapshot=>{
   tbody.innerHTML='';
-  let total=0,ativos=0,inativos=0;
-  snap.forEach(d=>{
-    total++;
-    const p=d.data();
-    const status=p.status==='Inativo'?'Inativo':'Ativo';
-    if(status==='Ativo') ativos++; else inativos++;
-
-    const emailExibir=(p.responsavel && p.responsavel.email)||'';
-    const tipo=tipoAPartirServicos(p.servicos);
-
+  let total=0, ativos=0, inativos=0;
+  snapshot.forEach(docSnap=>{
+    const p=docSnap.data(); total++;
+    if(p.status==='Ativo') ativos++; else inativos++;
     const tr=document.createElement('tr');
-    tr.dataset.id=d.id;
     tr.innerHTML=`
-      <td>${p.nomeEmpresa||''}</td>
-      <td>${tipo}</td>
-      <td>${p.telefoneEmpresa||''}</td>
-      <td>${emailExibir}</td>
-      <td><button class="status-btn ${status==='Ativo'?'ativo':'inativo'}" data-id="${d.id}" data-status="${status}">${status}</button></td>
-      <td><button class="btn-reset" data-email="${emailExibir}">Redefinir Senha</button></td>
+      <td>${p.nomeEmpresa||'—'}</td>
+      <td>${tipoAPartirServicos(p.servicos)}</td>
+      <td>${p.telefoneEmpresa||'—'}</td>
+      <td>${p.responsavel?.email||'—'}</td>
+      <td><button class="status-btn ${p.status==='Ativo'?'ativo':'inativo'}" onclick="toggleStatus('${docSnap.id}','${p.status}')">${p.status}</button></td>
+      <td><button onclick="editarParceiro('${docSnap.id}')">Editar</button></td>
     `;
     tbody.appendChild(tr);
   });
   document.getElementById('totalParceiros').textContent=total;
   document.getElementById('ativosParceiros').textContent=ativos;
   document.getElementById('inativosParceiros').textContent=inativos;
-},err=>{ console.error(err); showToast('Erro ao carregar parceiros',true); });
-
-// Ações tabela
-tbody.addEventListener('click',async e=>{
-  const btnStatus=e.target.closest('.status-btn');
-  const btnReset=e.target.closest('.btn-reset');
-  const tr=e.target.closest('tr');
-
-  if(btnStatus){
-    const id=btnStatus.dataset.id;
-    const atual=btnStatus.dataset.status==='Ativo'?'Ativo':'Inativo';
-    const novo=atual==='Ativo'?'Inativo':'Ativo';
-    try{
-      await updateDoc(doc(db,'parceiros',id),{status:novo});
-      showToast('Status atualizado!');
-    }catch(err){ console.error(err); showToast('Erro ao atualizar status',true); }
-  }else if(btnReset){
-    const email=btnReset.dataset.email;
-    try{
-      await sendPasswordResetEmail(auth,email);
-      showToast('E-mail de redefinição enviado!');
-    }catch(err){ console.error(err); showToast('Erro ao enviar e-mail',true); }
-  }else if(tr && tr.dataset.id){
-    const docSnap=await getDoc(doc(db,'parceiros',tr.dataset.id));
-    if(docSnap.exists()){
-      preencherFormulario(tr.dataset.id,docSnap.data());
-    }
-  }
 });
 
-  document.getElementById('cep').addEventListener('blur', async () => {
-  let cep = document.getElementById('cep').value.replace(/\D/g,''); // Remove não-dígitos
-  if(cep.length !== 8) return; // CEP inválido
+// Editar
+window.editarParceiro=async id=>{
+  const docSnap=await getDoc(doc(parceirosRef,id));
+  if(docSnap.exists()){ preencherFormulario(id,docSnap.data()); abrirModal(); }
+};
 
-  try {
-    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-    const data = await res.json();
-    if(data.erro){
-      showToast('CEP não encontrado', true);
-      return;
-    }
-
-    document.getElementById('rua').value = data.logradouro || '';
-    document.getElementById('bairro').value = data.bairro || '';
-    document.getElementById('cidade').value = data.localidade || '';
-    document.getElementById('estado').value = data.uf || '';
-  } catch(err){
-    console.error(err);
-    showToast('Erro ao buscar endereço', true);
-  }
-});
+// Toggle status
+window.toggleStatus=async(id,status)=>{
+  const newStatus=status==='Ativo'?'Inativo':'Ativo';
+  await updateDoc(doc(parceirosRef,id),{status:newStatus,updatedAt:serverTimestamp()});
+};
 </script>
 
 </body>
