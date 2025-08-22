@@ -171,7 +171,7 @@ tr:hover { background:#f1f1f1; cursor:pointer; }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, getDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, getDoc, query, orderBy, serverTimestamp, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Config
@@ -320,31 +320,51 @@ function preencherFormulario(id,p){
 }
 
 // Salvar parceiro + criar login
-if(!editId){
-  // Verifica se já existe parceiro com o mesmo CNPJ
-  const q = query(parceirosRef, where('cnpjCpf', '==', payload.cnpjCpf));
-  const querySnap = await getDocs(q);
-  if(!querySnap.empty){
-    showToast('Já existe um parceiro cadastrado com este CNPJ.', true);
-    return;
-  }
+// Salvar parceiro + criar login
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    const payload = coletarDadosForm();
 
-  const docRef = await addDoc(parceirosRef, {...payload, criadoEm: serverTimestamp()});
-  showToast('Parceiro salvo!');
+    // Normaliza CNPJ (evita duplicidade por formatação diferente)
+    payload.cnpjCpf = (payload.cnpjCpf || '').replace(/\D/g, '');
 
-  // Criar login no Auth com senha padrão 123456
-  try{
-    await createUserWithEmailAndPassword(auth,payload.responsavel.email,'123456');
-  }catch(err){
-    console.error('Erro ao criar login:',err.message);
-  }
-}
+    // Validação mínima
+    if (!payload.nomeEmpresa || !payload.cnpjCpf || !payload.responsavel?.email) {
+      showToast('Preencha Nome da Empresa, CNPJ/CPF e E-mail do responsável.', true);
+      return;
+    }
 
+    if (editId) {
+      // Edição
+      await updateDoc(doc(db, 'parceiros', editId), { ...payload, atualizadoEm: serverTimestamp() });
+      showToast('Parceiro atualizado!');
+    } else {
+      // Verifica duplicidade de CNPJ
+      const q = query(parceirosRef, where('cnpjCpf', '==', payload.cnpjCpf));
+      const querySnap = await getDocs(q);
+      if (!querySnap.empty) {
+        showToast('Já existe um parceiro cadastrado com este CNPJ.', true);
+        return;
+      }
+
+      // Cria o parceiro
+      const docRef = await addDoc(parceirosRef, { ...payload, criadoEm: serverTimestamp() });
+      showToast('Parceiro salvo!');
+
+      // Cria login no Auth com senha padrão
+      try {
+        await createUserWithEmailAndPassword(auth, payload.responsavel.email.trim(), '123456');
+      } catch (err) {
+        console.error('Erro ao criar login:', err.message);
+        // Não bloqueia o fluxo se o Auth falhar
+      }
+    }
 
     fecharModal();
-  }catch(err){
+  } catch (err) {
     console.error(err);
-    showToast('Erro ao salvar parceiro: '+(err.message||''),true);
+    showToast('Erro ao salvar parceiro: ' + (err.message || ''), true);
   }
 });
 
