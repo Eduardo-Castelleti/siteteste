@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Pet - Agendamentos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      height: 100vh;
+      background: #f4f6f8;
+    }
+body {display:flex; min-height:100vh; background:#f4f6f9;}
+.sidebar {width:260px; background:#2c3e50; color:#ecf0f1; flex-shrink:0; display:flex; flex-direction:column;}
+.sidebar h2 {text-align:center; padding:20px 0; border-bottom:1px solid #34495e;}
+.sidebar a {padding:15px 25px; display:flex; align-items:center; color:#ecf0f1; text-decoration:none; border-bottom:1px solid #34495e; transition:0.3s;}
+.sidebar a:hover {background:#34495e;}
+.sidebar a i {margin-right:15px;}
+.badge {background:#e74c3c; color:white; border-radius:12px; padding:2px 8px; font-size:12px; margin-left:auto;}
+.main-content {flex:1; padding:20px; overflow-y:auto;}    
+
+      .main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .kpi {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .kpi:hover { transform: scale(1.05); }
+    .kpi h3 { margin: 0; font-size: 18px; }
+    .kpi p { font-size: 24px; margin: 10px 0 0; font-weight: bold; }
+    .filter {
+      margin-bottom: 20px;
+    }
+    #calendar {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+<h2>Admin Pet</h2>
+<a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+<a href="clientes.html"><i class="fas fa-user"></i> Clientes</a>
+<a href="parceiros.html"><i class="fas fa-building"></i> Parceiros</a>
+<a href="funcionarios.html"><i class="fas fa-users"></i> Funcionários</a>
+<a href="produtos.html"><i class="fas fa-box"></i> Produtos</a>
+<a href="agendamentos.html"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+<a href="vendas.html"><i class="fas fa-dollar-sign"></i> Vendas</a>
+<a href="financeiro.html"><i class="fas fa-wallet"></i> Financeiro</a>
+<a href="marketing.html"><i class="fas fa-bullhorn"></i> Marketing / Promoções</a>
+<a href="relatorios.html"><i class="fas fa-chart-line"></i> Relatórios / Resumos</a>
+<a href="configuracoes.html"><i class="fas fa-cog"></i> Configurações</a>
+<a href="feedback.html"><i class="fas fa-comment-dots"></i> Feedback / Reclamações</a>
+<a href="notificacoes.html"><i class="fas fa-bell"></i> Notificações <span class="badge">3</span></a>
+</div>
+
+  <div class="main">
+    <h1>Agendamentos</h1>
+    <div class="kpis">
+      <div class="kpi" id="kpiTotal"><h3>Total do Mês</h3><p>0</p></div>
+      <div class="kpi" id="kpiConfirmados"><h3>Confirmados</h3><p>0</p></div>
+      <div class="kpi" id="kpiPendentes"><h3>Pendentes</h3><p>0</p></div>
+      <div class="kpi" id="kpiCancelados"><h3>Cancelados</h3><p>0</p></div>
+    </div>
+
+    <div class="filter">
+      <label for="parceiroSelect">Filtrar por Parceiro:</label>
+      <select id="parceiroSelect">
+        <option value="">Todos</option>
+      </select>
+    </div>
+
+    <div id="calendar"></div>
+  </div>
+
+  <script>
+    // 🔥 Config Firebase
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_AUTH_DOMAIN",
+      projectId: "SEU_PROJECT_ID",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const parceiroSelect = document.getElementById("parceiroSelect");
+    const calendarEl = document.getElementById("calendar");
+
+    let calendar;
+
+    async function carregarParceiros() {
+      const snapshot = await db.collection("parceiros").get();
+      snapshot.forEach(doc => {
+        const option = document.createElement("option");
+        option.value = doc.id;
+        option.textContent = doc.data().nome || "Sem Nome";
+        parceiroSelect.appendChild(option);
+      });
+    }
+
+    async function carregarAgendamentos(parceiroId = "") {
+      let query = db.collection("agendamentos");
+      if (parceiroId) query = query.where("parceiroId", "==", parceiroId);
+
+      const snapshot = await query.get();
+      const eventos = [];
+      let total = 0, confirmados = 0, pendentes = 0, cancelados = 0;
+
+      snapshot.forEach(doc => {
+        const ag = doc.data();
+        eventos.push({
+          title: ag.petNome + " - " + (ag.status || "Pendente"),
+          start: ag.data,
+          color: ag.status === "Confirmado" ? "#27ae60" : 
+                 ag.status === "Cancelado" ? "#e74c3c" : "#f39c12"
+        });
+
+        total++;
+        if (ag.status === "Confirmado") confirmados++;
+        else if (ag.status === "Cancelado") cancelados++;
+        else pendentes++;
+      });
+
+      // Atualiza KPI
+      document.querySelector("#kpiTotal p").textContent = total;
+      document.querySelector("#kpiConfirmados p").textContent = confirmados;
+      document.querySelector("#kpiPendentes p").textContent = pendentes;
+      document.querySelector("#kpiCancelados p").textContent = cancelados;
+
+      // Atualiza calendário
+      if (calendar) {
+        calendar.removeAllEvents();
+        calendar.addEventSource(eventos);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        locale: "pt-br",
+        height: 650
+      });
+      calendar.render();
+
+      carregarParceiros().then(() => carregarAgendamentos());
+
+      parceiroSelect.addEventListener("change", e => {
+        carregarAgendamentos(e.target.value);
+      });
+    });
+  </script>
+</body>
+</html>
