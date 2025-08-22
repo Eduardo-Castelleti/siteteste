@@ -56,15 +56,16 @@
 </style>
 </head>
 <body>
-  <div class="sidebar">
+    <!-- Sidebar -->
+    <div class="sidebar">
     <h2>Colaborador</h2>
-    <a href="index.html" class="active" onclick="showPage('pedidos', event)">📦 Pedidos</a>
-    <a href="clientes.html" onclick="showPage('clientes', event)">👥 Clientes</a>
-    <a href="pareciros.html" onclick="showPage('parceiros', event)">🤝 Parceiros</a>
-    <a href="produtos.html" onclick="showPage('produtos', event)">🛒 Produtos</a>
-    <a href="agenda.html" onclick="showPage('agenda', event)">📅 Agenda</a>
-    <a href="marketing.html" onclick="showPage('marketing', event)">📢 Marketing</a>
-    <a href="kpi.html" onclick="showPage('kpis', event)">📊 KPI’s</a>
+    <a href="index.html" class="active" onclick="showPage('pedidos')">📦 Pedidos</a>
+    <a href="clientes.html" onclick="showPage('clientes')">👥 Clientes</a>
+    <a href="parceiros.html" onclick="showPage('parceiros')">🤝 Parceiros</a>
+    <a href="produtos.html" onclick="showPage('produtos')">🛒 Produtos</a>
+    <a href="agenda.html" onclick="showPage('agenda')">📅 Agenda</a>
+    <a href="marketing.html" onclick="showPage('marketing')">📢 Marketing</a>
+    <a href="kpi.html" onclick="showPage('kpis')">📊 KPI’s</a>
   </div>
 
   <div class="content">
@@ -96,13 +97,6 @@
         <tbody id="tabelaPedidos"></tbody>
       </table>
     </div>
-    <div id="clientes" class="page">👥 Clientes</div>
-    <div id="parceiros" class="page">🤝 Parceiros</div>
-    <div id="produtos" class="page">🛒 Produtos</div>
-    <div id="agenda" class="page">📅 Agenda</div>
-    <div id="marketing" class="page">📢 Marketing</div>
-    <div id="kpis" class="page">📊 KPI’s</div>
-  </div>
 
   <!-- Modal -->
   <div id="pedidoModal" class="modal">
