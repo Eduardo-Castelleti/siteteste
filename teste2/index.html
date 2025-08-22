@@ -1,56 +1,61 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pet Dudis - Início</title>
 
   <!-- Estilos globais -->
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 
   <style>
-    /* ---------- Cabeçalho e dropdown ---------- */
-    .acoes-usuario { position: relative; display: flex; align-items: center; gap: 18px; font-size: 0.95rem; }
+    /* ========================= CABEÇALHO ========================= */
+    .acoes-usuario {
+      position: relative; display: flex; align-items: center; gap: 18px; font-size: .95rem;
+    }
     .acoes-usuario a, .acoes-usuario span { color: #333; text-decoration: none; cursor: pointer; }
     .acoes-usuario a:hover, .acoes-usuario span:hover { color: #5e2ca5; }
+
     .usuario-logado { display: none; align-items: center; gap: 8px; position: relative; }
-    .usuario-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #e5e5e5; border-radius: 999px; background: #fff; transition: box-shadow .2s ease, transform .05s ease; user-select: none; }
-    .usuario-chip:hover { box-shadow: 0 6px 18px rgba(0,0,0,.08); }
-    .usuario-iniciais { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: #5e2ca5; color: #fff; font-weight: 700; font-size: 0.9rem; }
-    .usuario-nome { font-weight: 700; }
-    .usuario-seta { margin-left: 2px; transform: rotate(0deg); transition: transform .2s ease; font-size: 0.9rem; color: #777; }
-    .usuario-chip[aria-expanded="true"] .usuario-seta { transform: rotate(180deg); }
+    .usuario-chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border:1px solid #e5e5e5; border-radius:999px; background:#fff; transition: box-shadow .2s ease, transform .05s ease; user-select:none; }
+    .usuario-chip:hover { box-shadow:0 6px 18px rgba(0,0,0,.08); }
+    .usuario-iniciais { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#5e2ca5; color:#fff; font-weight:700; font-size:.9rem; }
+    .usuario-nome { font-weight:700; }
+    .usuario-seta { margin-left:2px; transform:rotate(0deg); transition:transform .2s ease; font-size:.9rem; color:#777; }
+    .usuario-chip[aria-expanded="true"] .usuario-seta { transform:rotate(180deg); }
 
-    /* ---------- Painel lateral ---------- */
-    .painel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease; z-index: 1000; }
-    .painel-overlay.ativo { opacity: 1; visibility: visible; }
-    .painel-cliente { position: fixed; top: 0; right: 0; height: 100vh; width: min(92vw, 360px); background: #fff; box-shadow: -10px 0 30px rgba(0,0,0,.15); transform: translateX(100%); transition: transform .25s ease; z-index: 1001; display: flex; flex-direction: column; }
-    .painel-cliente.ativo { transform: translateX(0); }
-    .painel-topo { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-bottom: 1px solid #f0f0f0; }
-    .painel-topo .foto { width: 40px; height: 40px; border-radius: 50%; display:flex; align-items:center; justify-content:center; background: #5e2ca5; color:#fff; font-weight:700; }
-    .painel-topo .info { flex: 1; }
-    .painel-topo .info .nome { font-weight: 800; color:#333; line-height: 1.15; }
-    .painel-topo .info .email { font-size: .85rem; color:#777; }
-    .painel-fechar { background: transparent; border: none; font-size: 1.1rem; cursor: pointer; color: #666; }
+    /* ========================= PAINEL LATERAL ========================= */
+    .painel-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); opacity:0; visibility:hidden; transition:opacity .2s, visibility .2s; z-index:1000; }
+    .painel-overlay.ativo { opacity:1; visibility:visible; }
+    .painel-cliente { position:fixed; top:0; right:0; height:100vh; width:min(92vw,360px); background:#fff; box-shadow:-10px 0 30px rgba(0,0,0,.15); transform:translateX(100%); transition:transform .25s ease; z-index:1001; display:flex; flex-direction:column; }
+    .painel-cliente.ativo { transform:translateX(0); }
 
-    .painel-lista { padding: 10px 10px 18px; overflow-y: auto; flex: 1; }
-    .secao { margin-top: 12px; border: 1px solid #efefef; border-radius: 12px; overflow: hidden; }
-    .secao-titulo { padding: 10px 12px; font-size: .85rem; letter-spacing: .02em; font-weight: 800; color: #5e2ca5; background: #faf8ff; border-bottom: 1px solid #efefef; }
-    .link-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; text-decoration: none; color: #333; border-bottom: 1px solid #f5f5f5; }
-    .link-item:last-child { border-bottom: 0; }
-    .link-item:hover { background: #f9f9ff; }
-    .link-item i { width: 22px; text-align: center; color: #5e2ca5; }
-    .chip-role { margin-left: auto; font-size: .75rem; padding: 3px 8px; background: #eef3ff; color: #3556d1; border-radius: 999px; border: 1px solid #dbe4ff; font-weight: 700; }
-    .painel-rodape { padding: 10px 12px 16px; border-top: 1px solid #f0f0f0; display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn-sair, .btn-ir-area { display: inline-flex; align-items:center; gap:8px; padding: 10px 12px; border-radius: 10px; border: 1px solid #eee; background: #fff; cursor: pointer; font-weight: 700; color:#333; }
+    .painel-topo { display:flex; align-items:center; gap:12px; padding:16px 18px; border-bottom:1px solid #f0f0f0; }
+    .painel-topo .foto { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#5e2ca5; color:#fff; font-weight:700; }
+    .painel-topo .info { flex:1; }
+    .painel-topo .info .nome { font-weight:800; color:#333; line-height:1.15; }
+    .painel-topo .info .email { font-size:.85rem; color:#777; }
+    .painel-fechar { background:transparent; border:none; font-size:1.1rem; cursor:pointer; color:#666; }
+
+    .painel-lista { padding:10px 10px 18px; overflow-y:auto; flex:1; }
+    .secao { margin-top:12px; border:1px solid #efefef; border-radius:12px; overflow:hidden; }
+    .secao-titulo { padding:10px 12px; font-size:.85rem; letter-spacing:.02em; font-weight:800; color:#5e2ca5; background:#faf8ff; border-bottom:1px solid #efefef; }
+    .link-item { display:flex; align-items:center; gap:12px; padding:12px 14px; text-decoration:none; color:#333; border-bottom:1px solid #f5f5f5; }
+    .link-item:last-child { border-bottom:0; }
+    .link-item:hover { background:#f9f9ff; }
+    .link-item i { width:22px; text-align:center; color:#5e2ca5; }
+    .chip-role { margin-left:auto; font-size:.75rem; padding:3px 8px; background:#eef3ff; color:#3556d1; border-radius:999px; border:1px solid #dbe4ff; font-weight:700; }
+
+    .painel-rodape { padding:10px 12px 16px; border-top:1px solid #f0f0f0; display:flex; gap:8px; flex-wrap:wrap; }
+    .btn-sair, .btn-ir-area { display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:10px; border:1px solid #eee; background:#fff; cursor:pointer; font-weight:700; color:#333; }
     .btn-ir-area { background:#5e2ca5; color:#fff; border-color:#5e2ca5; }
     .btn-sair:hover { background:#f9f9f9; }
-    .btn-ir-area:hover { filter: brightness(0.97); }
+    .btn-ir-area:hover { filter:brightness(0.97); }
 
-    /* ---------- Modal Login/Cadastro ---------- */
-    .modal-login { display:none; position:fixed; z-index:1100; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.6);}
+    /* ========================= MODAL LOGIN ========================= */
+    .modal-login { display:none; position:fixed; z-index:1100; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.6); }
     .modal-login-content { background:#fff; margin:8% auto; padding:20px; border-radius:12px; width:90%; max-width:420px; position:relative; box-shadow:0 18px 50px rgba(0,0,0,.25); }
     .modal-login-content h2 { text-align:center; margin-bottom:20px; }
     .modal-login-content input { width:100%; padding:12px; margin:6px 0; border:1px solid #ddd; border-radius:8px; }
@@ -60,11 +65,8 @@
     .tab-login div { padding:10px 20px; border-bottom:2px solid transparent; }
     .tab-login .ativo { border-bottom:2px solid #5e2ca5; font-weight:800; color:#5e2ca5; }
 
-    /* Acessibilidade mínima para foco */
-    .usuario-chip:focus, .link-item:focus, .btn-sair:focus, .btn-ir-area:focus, .painel-fechar:focus {
-      outline: 2px solid #5e2ca5;
-      outline-offset: 2px;
-    }
+    /* ========================= ACESSIBILIDADE ========================= */
+    .usuario-chip:focus, .link-item:focus, .btn-sair:focus, .btn-ir-area:focus, .painel-fechar:focus { outline:2px solid #5e2ca5; outline-offset:2px; }
   </style>
 </head>
 <body>
@@ -72,236 +74,194 @@
 <!-- CABEÇALHO -->
 <header class="cabecalho">
   <div class="cabecalho-conteudo">
-    <div class="logo-container"><img src="img/logo.png" alt="Pet Dudis" class="logo"/></div>
+    <div class="logo-container"><img src="img/logo.png" alt="Pet Dudis" class="logo"></div>
     <div class="cep-busca">
       <div class="cep-input-wrapper"><span>📍</span><input type="text" placeholder="Informar CEP" class="cep-input"></div>
       <div class="busca-input-wrapper"><span>🔍</span><input type="text" placeholder="O que seu pet precisa?" class="busca-input"><button class="btn-busca">🔍</button></div>
     </div>
     <div class="acoes-usuario">
-      <a id="abrirLogin">Login</a>
-      <div class="usuario-logado" id="usuarioLogado">
-        <div class="usuario-chip" tabindex="0" aria-expanded="false" id="usuarioChip">
-          <span class="usuario-iniciais" id="usuarioIniciais">JD</span>
-          <span class="usuario-nome" id="usuarioNome">João</span>
-          <i class="fa-solid fa-chevron-down usuario-seta"></i>
-        </div>
+      <a href="#"><i class="fas fa-sync-alt"></i> Recorrência</a>
+      <a href="#"><i class="fas fa-box"></i> Pedidos</a>
+      <span id="botao-login"><i class="fas fa-user"></i> Entrar | Cadastrar</span>
+      <div class="usuario-logado" id="usuario-logado">
+        <button id="usuario-chip" class="usuario-chip" aria-expanded="false" aria-controls="painel-cliente">
+          <div class="usuario-iniciais" id="usuario-iniciais">AB</div>
+          <div class="usuario-nome" id="usuario-nome">Nome</div>
+          <i class="usuario-seta fas fa-chevron-down"></i>
+        </button>
       </div>
     </div>
   </div>
 </header>
 
-<!-- MODAL LOGIN/CADASTRO -->
-<div id="modalLogin" class="modal-login">
-  <div class="modal-login-content">
-    <span class="fechar" id="fecharModal">&times;</span>
-    <h2>Entrar / Cadastrar</h2>
-    <div class="tab-login">
-      <div id="tabEntrar" class="ativo">Entrar</div>
-      <div id="tabCadastrar">Cadastrar</div>
-    </div>
-    <form id="formLogin">
-      <input type="email" placeholder="Email" id="emailLogin" required>
-      <input type="password" placeholder="Senha" id="senhaLogin" required>
-      <button type="submit" id="btnLogin">Entrar</button>
-    </form>
-    <form id="formCadastrar" style="display:none;">
-      <input type="text" placeholder="Nome" id="nomeCadastrar" required>
-      <input type="email" placeholder="Email" id="emailCadastrar" required>
-      <input type="password" placeholder="Senha" id="senhaCadastrar" required>
-      <select id="roleCadastrar" required>
-        <option value="">Selecione a função</option>
-        <option value="cliente">Cliente</option>
-        <option value="parceiro">Parceiro</option>
-        <option value="funcionario">Funcionário</option>
-        <option value="admin">Administrador</option>
-      </select>
-      <button type="submit" id="btnCadastrar">Cadastrar</button>
-    </form>
-  </div>
-</div>
-
 <!-- PAINEL LATERAL -->
-<div class="painel-overlay" id="painelOverlay"></div>
-<div class="painel-cliente" id="painelCliente">
+<div class="painel-overlay" id="painel-overlay"></div>
+<div class="painel-cliente" id="painel-cliente">
   <div class="painel-topo">
-    <div class="foto" id="painelFoto">JD</div>
+    <div class="foto" id="painel-foto">AB</div>
     <div class="info">
-      <div class="nome" id="painelNome">João</div>
-      <div class="email" id="painelEmail">email@exemplo.com</div>
+      <div class="nome" id="painel-nome">Nome do Usuário</div>
+      <div class="email" id="painel-email">email@exemplo.com</div>
     </div>
-    <button class="painel-fechar" id="fecharPainel">&times;</button>
+    <button class="painel-fechar" id="painel-fechar">&times;</button>
   </div>
-  <div class="painel-lista" id="painelLista">
-    <!-- Links dinâmicos -->
+  <div class="painel-lista" id="painel-lista">
+    <div class="secao">
+      <div class="secao-titulo">Seções</div>
+      <a href="#" class="link-item"><i class="fas fa-shopping-cart"></i> Pedidos <span class="chip-role">Cliente</span></a>
+      <a href="#" class="link-item"><i class="fas fa-paw"></i> Meus Pets <span class="chip-role">Cliente</span></a>
+    </div>
   </div>
   <div class="painel-rodape">
-    <button class="btn-sair" id="btnSair"><i class="fa-solid fa-right-from-bracket"></i>Sair</button>
-    <button class="btn-ir-area" id="btnIrArea"><i class="fa-solid fa-arrow-right-to-bracket"></i>Ir para Área</button>
+    <button class="btn-sair" id="btn-sair"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    <button class="btn-ir-area" id="btn-ir-area"><i class="fas fa-home"></i> Ir para Área</button>
   </div>
 </div>
 
-<!-- SCRIPT FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<!-- MODAL LOGIN/CADASTRO -->
+<div class="modal-login" id="modal-login">
+  <div class="modal-login-content">
+    <span class="fechar" id="modal-fechar">&times;</span>
+    <div class="tab-login">
+      <div class="ativo" id="tab-entrar">Entrar</div>
+      <div id="tab-cadastrar">Cadastrar</div>
+    </div>
+    <div id="login-form">
+      <input type="email" id="email-login" placeholder="Email">
+      <input type="password" id="senha-login" placeholder="Senha">
+      <button id="btn-login">Entrar</button>
+    </div>
+    <div id="cadastro-form" style="display:none;">
+      <input type="text" id="nome-cadastro" placeholder="Nome">
+      <input type="text" id="telefone-cadastro" placeholder="Telefone">
+      <input type="email" id="email-cadastro" placeholder="Email">
+      <input type="password" id="senha-cadastro" placeholder="Senha">
+      <button id="btn-cadastrar">Cadastrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
-  // CONFIGURAÇÃO FIREBASE
+  // ====== CONFIG FIREBASE ======
   const firebaseConfig = {
-  apiKey: "AIzaSyCLBni8BY6zjHGMuoybZ06SBK4U9c1BhyE",
-  authDomain: "petdudis-db2b2.firebaseapp.com",
-  projectId: "petdudis-db2b2",
-  storageBucket: "petdudis-db2b2.firebasestorage.app",
-  messagingSenderId: "410321083813",
-  appId: "1:410321083813:web:eaf0082878a8281eab5c4c"
-};
+    apiKey: "SUA_API_KEY",
+    authDomain: "SEU_DOMINIO.firebaseapp.com",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_BUCKET.appspot.com",
+    messagingSenderId: "SEU_MESSAGING_ID",
+    appId: "SEU_APP_ID"
+  };
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // ELEMENTOS
-  const abrirLogin = document.getElementById("abrirLogin");
-  const modalLogin = document.getElementById("modalLogin");
-  const fecharModal = document.getElementById("fecharModal");
-  const tabEntrar = document.getElementById("tabEntrar");
-  const tabCadastrar = document.getElementById("tabCadastrar");
-  const formLogin = document.getElementById("formLogin");
-  const formCadastrar = document.getElementById("formCadastrar");
-  const usuarioLogado = document.getElementById("usuarioLogado");
-  const usuarioChip = document.getElementById("usuarioChip");
-  const painelCliente = document.getElementById("painelCliente");
-  const painelOverlay = document.getElementById("painelOverlay");
-  const painelNome = document.getElementById("painelNome");
-  const painelEmail = document.getElementById("painelEmail");
-  const painelFoto = document.getElementById("painelFoto");
-  const painelLista = document.getElementById("painelLista");
-  const btnSair = document.getElementById("btnSair");
-  const btnIrArea = document.getElementById("btnIrArea");
+  // ====== ELEMENTOS ======
+  const botaoLogin = document.getElementById('botao-login');
+  const modalLogin = document.getElementById('modal-login');
+  const modalFechar = document.getElementById('modal-fechar');
+  const tabEntrar = document.getElementById('tab-entrar');
+  const tabCadastrar = document.getElementById('tab-cadastrar');
+  const loginForm = document.getElementById('login-form');
+  const cadastroForm = document.getElementById('cadastro-form');
 
-  // ABRIR MODAL
-  abrirLogin.onclick = () => modalLogin.style.display = "block";
-  fecharModal.onclick = () => modalLogin.style.display = "none";
+  const usuarioLogadoWrap = document.getElementById('usuario-logado');
+  const usuarioChip = document.getElementById('usuario-chip');
+  const usuarioNome = document.getElementById('usuario-nome');
+  const usuarioIniciais = document.getElementById('usuario-iniciais');
 
-  // TABS
-  tabEntrar.onclick = () => { formLogin.style.display="block"; formCadastrar.style.display="none"; tabEntrar.classList.add("ativo"); tabCadastrar.classList.remove("ativo"); };
-  tabCadastrar.onclick = () => { formLogin.style.display="none"; formCadastrar.style.display="block"; tabEntrar.classList.remove("ativo"); tabCadastrar.classList.add("ativo"); };
+  const painelOverlay = document.getElementById('painel-overlay');
+  const painelCliente = document.getElementById('painel-cliente');
+  const painelFecharBtn = document.getElementById('painel-fechar');
+  const painelNome = document.getElementById('painel-nome');
+  const painelEmail = document.getElementById('painel-email');
+  const painelFoto = document.getElementById('painel-foto');
 
-  // LOGIN
-  formLogin.addEventListener("submit", (e)=>{
-    e.preventDefault();
-    const email = document.getElementById("emailLogin").value;
-    const senha = document.getElementById("senhaLogin").value;
-    auth.signInWithEmailAndPassword(email, senha)
-      .then(cred => {
-        modalLogin.style.display = "none";
-        exibirUsuarioLogado(cred.user.uid);
-      })
-      .catch(err=>alert(err.message));
+  const btnSair = document.getElementById('btn-sair');
+
+  // ====== MODAL LOGIN ======
+  botaoLogin.addEventListener('click', () => modalLogin.style.display='block');
+  modalFechar.addEventListener('click', () => modalLogin.style.display='none');
+  tabEntrar.addEventListener('click', () => { loginForm.style.display='block'; cadastroForm.style.display='none'; tabEntrar.classList.add('ativo'); tabCadastrar.classList.remove('ativo'); });
+  tabCadastrar.addEventListener('click', () => { loginForm.style.display='none'; cadastroForm.style.display='block'; tabCadastrar.classList.add('ativo'); tabEntrar.classList.remove('ativo'); });
+
+  // ====== PAINEL ======
+  usuarioChip.addEventListener('click', () => {
+    const ativo = painelCliente.classList.toggle('ativo');
+    usuarioChip.setAttribute('aria-expanded', ativo);
+    painelOverlay.classList.toggle('ativo', ativo);
   });
+  painelOverlay.addEventListener('click', () => { painelCliente.classList.remove('ativo'); painelOverlay.classList.remove('ativo'); usuarioChip.setAttribute('aria-expanded','false'); });
+  painelFecharBtn.addEventListener('click', () => { painelCliente.classList.remove('ativo'); painelOverlay.classList.remove('ativo'); usuarioChip.setAttribute('aria-expanded','false'); });
 
-  // CADASTRO
-  formCadastrar.addEventListener("submit", (e)=>{
-    e.preventDefault();
-    const nome = document.getElementById("nomeCadastrar").value;
-    const email = document.getElementById("emailCadastrar").value;
-    const senha = document.getElementById("senhaCadastrar").value;
-    const role = document.getElementById("roleCadastrar").value;
-
-    auth.createUserWithEmailAndPassword(email, senha)
-      .then(cred=>{
-        return db.collection("usuarios").doc(cred.user.uid).set({nome,email,role});
-      })
-      .then(()=>{
-        modalLogin.style.display = "none";
-        exibirUsuarioLogado(auth.currentUser.uid);
-      })
-      .catch(err=>alert(err.message));
-  });
-
-  // FUNÇÃO PARA MOSTRAR USUÁRIO LOGADO
-  function exibirUsuarioLogado(uid){
-    db.collection("usuarios").doc(uid).get().then(doc=>{
-      if(doc.exists){
-        const data = doc.data();
-        usuarioLogado.style.display = "flex";
-        abrirLogin.style.display = "none";
-        usuarioChip.querySelector("#usuarioNome").textContent = data.nome;
-        usuarioChip.querySelector("#usuarioIniciais").textContent = data.nome.split(" ").map(n=>n[0]).join("").substring(0,2).toUpperCase();
-        painelNome.textContent = data.nome;
-        painelEmail.textContent = data.email;
-        painelFoto.textContent = data.nome.split(" ").map(n=>n[0]).join("").substring(0,2).toUpperCase();
-
-        // Links dinâmicos
-        painelLista.innerHTML = "";
-        const links = gerarLinksPorRole(data.role);
-        links.forEach(l=>{
-          const a = document.createElement("a");
-          a.href = l.href;
-          a.className = "link-item";
-          a.innerHTML = `<i class="${l.icon}"></i> ${l.text} <span class="chip-role">${data.role}</span>`;
-          painelLista.appendChild(a);
-        });
-      }
-    });
+  function preencherChipENome(usuario){
+    usuarioNome.textContent = usuario.nome || usuario.displayName || 'Usuário';
+    usuarioIniciais.textContent = usuario.nome ? usuario.nome.slice(0,2).toUpperCase() : 'AB';
+    painelNome.textContent = usuario.nome || usuario.displayName || 'Usuário';
+    painelEmail.textContent = usuario.email || '';
+    painelFoto.textContent = usuario.nome ? usuario.nome.slice(0,2).toUpperCase() : 'AB';
   }
 
-  function gerarLinksPorRole(role){
-    switch(role){
-      case "admin": return [{text:"Painel Admin", href:"#", icon:"fa-solid fa-user-gear"}];
-      case "funcionario": return [{text:"Produtos", href:"#", icon:"fa-solid fa-box"}];
-      case "parceiro": return [{text:"Pedidos", href:"#", icon:"fa-solid fa-cart-shopping"}];
-      default: return [{text:"Minha Conta", href:"#", icon:"fa-solid fa-user"}];
-    }
+  async function getPerfil(uid){
+    const doc = await db.collection('usuarios').doc(uid).get();
+    return doc.exists ? doc.data() : {};
   }
 
-  // PAINEL LATERAL
-  usuarioChip.onclick = ()=>{
-    const expanded = usuarioChip.getAttribute("aria-expanded") === "true";
-    usuarioChip.setAttribute("aria-expanded", !expanded);
-    painelCliente.classList.toggle("ativo");
-    painelOverlay.classList.toggle("ativo");
-  };
-  painelOverlay.onclick = ()=>{
-    painelCliente.classList.remove("ativo");
-    painelOverlay.classList.remove("ativo");
-    usuarioChip.setAttribute("aria-expanded", false);
-  };
-  document.getElementById("fecharPainel").onclick = ()=>{
-    painelCliente.classList.remove("ativo");
-    painelOverlay.classList.remove("ativo");
-    usuarioChip.setAttribute("aria-expanded", false);
-  };
+  // ====== CADASTRO ======
+  document.getElementById('btn-cadastrar').addEventListener('click', async () => {
+    const nome = document.getElementById('nome-cadastro').value.trim();
+    const telefone = document.getElementById('telefone-cadastro').value.trim();
+    const email = document.getElementById('email-cadastro').value.trim();
+    const senha = document.getElementById('senha-cadastro').value;
 
-  // SAIR
-  btnSair.onclick = ()=>{
-    auth.signOut().then(()=>{
-      usuarioLogado.style.display = "none";
-      abrirLogin.style.display = "block";
-      painelCliente.classList.remove("ativo");
-      painelOverlay.classList.remove("ativo");
-    });
-  };
+    if(!nome || !telefone || !email || !senha){ alert('Preencha todos os campos'); return; }
 
-  // REDIRECIONAR PARA ÁREA
-  btnIrArea.onclick = ()=>{
-    db.collection("usuarios").doc(auth.currentUser.uid).get().then(doc=>{
-      if(doc.exists){
-        const role = doc.data().role;
-        switch(role){
-          case "admin": window.location.href="admin.html"; break;
-          case "funcionario": window.location.href="funcionario.html"; break;
-          case "parceiro": window.location.href="parceiro.html"; break;
-          default: window.location.href="cliente.html"; break;
-        }
-      }
-    });
-  };
+    try{
+      const cred = await auth.createUserWithEmailAndPassword(email, senha);
+      await cred.user.updateProfile({ displayName: nome });
+      await db.collection('usuarios').doc(cred.user.uid).set({
+        nome, telefone, email, role:'cliente', criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert('Cadastro realizado com sucesso!');
+      modalLogin.style.display='none';
+      usuarioLogadoWrap.style.display='flex';
+      preencherChipENome({nome,email});
+    } catch(error){ alert('Erro: '+error.message); console.error(error); }
+  });
 
-  // VERIFICAR LOGIN AO CARREGAR PÁGINA
-  auth.onAuthStateChanged(user=>{
-    if(user) exibirUsuarioLogado(user.uid);
+  // ====== LOGIN ======
+  document.getElementById('btn-login').addEventListener('click', async () => {
+    const email = document.getElementById('email-login').value.trim();
+    const senha = document.getElementById('senha-login').value;
+    if(!email || !senha){ alert('Preencha email e senha'); return; }
+
+    try{
+      const cred = await auth.signInWithEmailAndPassword(email, senha);
+      const perfil = await getPerfil(cred.user.uid);
+      modalLogin.style.display='none';
+      usuarioLogadoWrap.style.display='flex';
+      botaoLogin.style.display='none';
+      preencherChipENome(perfil);
+    } catch(error){ alert('Erro: '+error.message); console.error(error); }
+  });
+
+  // ====== LOGOUT ======
+  btnSair.addEventListener('click', async () => { await auth.signOut(); usuarioLogadoWrap.style.display='none'; botaoLogin.style.display='inline'; painelCliente.classList.remove('ativo'); painelOverlay.classList.remove('ativo'); });
+
+  // ====== VERIFICA LOGIN AO CARREGAR ======
+  auth.onAuthStateChanged(async (user) => {
+    if(user){
+      const perfil = await getPerfil(user.uid);
+      usuarioLogadoWrap.style.display='flex';
+      botaoLogin.style.display='none';
+      preencherChipENome(perfil);
+    } else { usuarioLogadoWrap.style.display='none'; botaoLogin.style.display='inline'; }
   });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
 </body>
 </html>
