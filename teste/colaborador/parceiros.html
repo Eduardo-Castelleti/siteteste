@@ -320,29 +320,26 @@ function preencherFormulario(id,p){
 }
 
 // Salvar parceiro + criar login
-form.addEventListener('submit', async e=>{
-  e.preventDefault();
+if(!editId){
+  // Verifica se já existe parceiro com o mesmo CNPJ
+  const q = query(parceirosRef, where('cnpjCpf', '==', payload.cnpjCpf));
+  const querySnap = await getDocs(q);
+  if(!querySnap.empty){
+    showToast('Já existe um parceiro cadastrado com este CNPJ.', true);
+    return;
+  }
+
+  const docRef = await addDoc(parceirosRef, {...payload, criadoEm: serverTimestamp()});
+  showToast('Parceiro salvo!');
+
+  // Criar login no Auth com senha padrão 123456
   try{
-    const payload=coletarDadosForm();
-    if(!payload.nomeEmpresa||!payload.cnpjCpf||!payload.responsavel.email){
-      showToast('Preencha Nome da Empresa, CNPJ/CPF e E-mail do responsável.',true);
-      return;
-    }
+    await createUserWithEmailAndPassword(auth,payload.responsavel.email,'123456');
+  }catch(err){
+    console.error('Erro ao criar login:',err.message);
+  }
+}
 
-    if(editId){
-      await updateDoc(doc(db,'parceiros',editId),{...payload, atualizadoEm: serverTimestamp()});
-      showToast('Parceiro atualizado!');
-    }else{
-      const docRef=await addDoc(parceirosRef,{...payload, criadoEm: serverTimestamp()});
-      showToast('Parceiro salvo!');
-
-      // Criar login no Auth com senha padrão 123456
-      try{
-        await createUserWithEmailAndPassword(auth,payload.responsavel.email,'123456');
-      }catch(err){
-        console.error('Erro ao criar login:',err.message);
-      }
-    }
 
     fecharModal();
   }catch(err){
