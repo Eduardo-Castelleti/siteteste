@@ -14,27 +14,21 @@
       background: #f4f6f9;
     }
     /* Menu lateral */
-  .sidebar {
-    width: 250px;
-    background-color: #2c3e50;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    padding-top: 20px;
-  }
-  .sidebar h2 { text-align:center; margin-bottom:30px; font-size:20px; font-weight:700; }
-  .sidebar a { padding:15px 20px; text-decoration:none; color:#ecf0f1; display:block; transition:0.3s; font-weight:500; }
-  .sidebar a:hover { background-color: #34495e; }
-  .sidebar a.active { background-color:#1abc9c; color:#fff; }
-  .content { flex:1; padding:20px; overflow-y:auto; }
-  h1 { font-size:24px; margin-bottom:20px; color:#2c3e50; }
-    /* Conteúdo */
-    .content {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
+    .sidebar {
+      width: 250px;
+      background-color: #2c3e50;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding-top: 20px;
     }
-    h1 { margin-bottom: 20px; }
+    .sidebar h2 { text-align:center; margin-bottom:30px; font-size:20px; font-weight:700; }
+    .sidebar a { padding:15px 20px; text-decoration:none; color:#ecf0f1; display:block; transition:0.3s; font-weight:500; }
+    .sidebar a:hover { background-color: #34495e; }
+    .sidebar a.active { background-color:#1abc9c; color:#fff; }
+    .content { flex:1; padding:20px; overflow-y:auto; }
+    h1 { font-size:24px; margin-bottom:20px; color:#2c3e50; }
+
     /* Cards */
     .cards {
       display: flex;
@@ -51,6 +45,7 @@
     }
     .card h3 { margin: 0; font-size: 18px; color: #555; }
     .card p { font-size: 22px; margin: 5px 0 0; font-weight: bold; }
+
     /* Botão */
     button {
       background: #3498db;
@@ -61,6 +56,7 @@
       cursor: pointer;
     }
     button:hover { background: #2980b9; }
+
     /* Tabela */
     table {
       width: 100%;
@@ -76,6 +72,7 @@
     }
     th { background: #f8f9fa; }
     tr:hover { background: #f1f1f1; cursor: pointer; }
+
     /* Modal */
     .modal {
       display: none;
@@ -116,15 +113,15 @@
 <body>
 
   <!-- Sidebar -->
-    <div class="sidebar">
+  <div class="sidebar">
     <h2>Colaborador</h2>
-    <a href="index.html" class="active" onclick="showPage('pedidos')">📦 Pedidos</a>
-    <a href="clientes.html" onclick="showPage('clientes')">👥 Clientes</a>
-    <a href="parceiros.html" onclick="showPage('parceiros')">🤝 Parceiros</a>
-    <a href="produtos.html" onclick="showPage('produtos')">🛒 Produtos</a>
-    <a href="agenda.html" onclick="showPage('agenda')">📅 Agenda</a>
-    <a href="marketing.html" onclick="showPage('marketing')">📢 Marketing</a>
-    <a href="kpi.html" onclick="showPage('kpis')">📊 KPI’s</a>
+    <a href="index.html" class="active">📦 Pedidos</a>
+    <a href="clientes.html">👥 Clientes</a>
+    <a href="parceiros.html">🤝 Parceiros</a>
+    <a href="produtos.html">🛒 Produtos</a>
+    <a href="agenda.html">📅 Agenda</a>
+    <a href="marketing.html">📢 Marketing</a>
+    <a href="kpi.html">📊 KPI’s</a>
   </div>
 
   <!-- Conteúdo -->
@@ -135,15 +132,15 @@
     <div class="cards">
       <div class="card">
         <h3>Total de Clientes</h3>
-        <p>120</p>
+        <p id="totalClientes">0</p>
       </div>
       <div class="card">
         <h3>Ativos</h3>
-        <p>110</p>
+        <p id="clientesAtivos">0</p>
       </div>
       <div class="card">
         <h3>Inativos</h3>
-        <p>10</p>
+        <p id="clientesInativos">0</p>
       </div>
     </div>
 
@@ -160,21 +157,7 @@
           <th>Status</th>
         </tr>
       </thead>
-      <tbody>
-        <tr onclick="openPedidos('João da Silva')">
-          <td>João da Silva</td>
-          <td>(51) 99999-9999</td>
-          <td>joao@email.com</td>
-          <td>123.456.789-00</td>
-          <td>Ativo</td>
-        </tr>
-        <tr onclick="openPedidos('Maria Oliveira')">
-          <td>Maria Oliveira</td>
-          <td>(51) 98888-8888</td>
-          <td>maria@email.com</td>
-          <td>987.654.321-00</td>
-          <td>Ativo</td>
-        </tr>
+      <tbody id="listaClientes">
       </tbody>
     </table>
   </div>
@@ -210,78 +193,89 @@
     </div>
   </div>
 
-  <!-- Modal Pedidos -->
-  <div class="modal" id="modalPedidos">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Pedidos de <span id="nomeCliente"></span></h2>
-        <span class="close" onclick="closePedidos()">&times;</span>
-      </div>
-      <table>
-        <thead>
+  <!-- Firebase + Firestore -->
+  <script type="module">
+    // Importando SDK do Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
+    // Configuração do Firebase (substitua pelos seus dados)
+    const firebaseConfig = {
+  apiKey: "AIzaSyCLBni8BY6zjHGMuoybZ06SBK4U9c1BhyE",
+  authDomain: "petdudis-db2b2.firebaseapp.com",
+  projectId: "petdudis-db2b2",
+  storageBucket: "petdudis-db2b2.firebasestorage.app",
+  messagingSenderId: "410321083813",
+  appId: "1:410321083813:web:eaf0082878a8281eab5c4c"
+};
+
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Abrir/Fechar Modal
+    window.openModal = () => document.getElementById('modalCliente').style.display = 'flex';
+    window.closeModal = () => document.getElementById('modalCliente').style.display = 'none';
+
+    // Salvar Cliente no Firestore
+    window.salvarCliente = async () => {
+      const nome = document.getElementById('nome').value;
+      const telefone = document.getElementById('telefone').value;
+      const email = document.getElementById('email').value;
+      const cpf = document.getElementById('cpf').value;
+      const nascimento = document.getElementById('nascimento').value;
+
+      if(!nome || !telefone) {
+        alert("Preencha os campos obrigatórios!");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "clientes"), {
+          nome,
+          telefone,
+          email,
+          cpf,
+          nascimento,
+          status: "Ativo",
+          createdAt: new Date()
+        });
+        closeModal();
+      } catch (error) {
+        console.error("Erro ao salvar cliente: ", error);
+      }
+    };
+
+    // Listar Clientes em tempo real
+    const listaClientes = document.getElementById("listaClientes");
+    const totalClientes = document.getElementById("totalClientes");
+    const clientesAtivos = document.getElementById("clientesAtivos");
+    const clientesInativos = document.getElementById("clientesInativos");
+
+    onSnapshot(collection(db, "clientes"), (snapshot) => {
+      listaClientes.innerHTML = "";
+      let ativos = 0, inativos = 0;
+
+      snapshot.forEach((doc) => {
+        const cliente = doc.data();
+        if(cliente.status === "Ativo") ativos++;
+        else inativos++;
+
+        listaClientes.innerHTML += `
           <tr>
-            <th>ID Pedido</th>
-            <th>Data</th>
-            <th>Valor</th>
+            <td>${cliente.nome}</td>
+            <td>${cliente.telefone}</td>
+            <td>${cliente.email || "-"}</td>
+            <td>${cliente.cpf || "-"}</td>
+            <td>${cliente.status}</td>
           </tr>
-        </thead>
-        <tbody>
-          <tr onclick="detalhesPedido('PED123')">
-            <td>PED123</td>
-            <td>20/08/2025</td>
-            <td>R$ 150,00</td>
-          </tr>
-          <tr onclick="detalhesPedido('PED124')">
-            <td>PED124</td>
-            <td>21/08/2025</td>
-            <td>R$ 200,00</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+        `;
+      });
 
-  <!-- Modal Detalhes Pedido -->
-  <div class="modal" id="modalDetalhes">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Detalhes do Pedido</h2>
-        <span class="close" onclick="closeDetalhes()">&times;</span>
-      </div>
-      <p><b>ID:</b> <span id="pedidoId"></span></p>
-      <p><b>Itens:</b> Ração Special Dog 10kg, Petisco Bifinho</p>
-      <p><b>Valor:</b> R$ 150,00</p>
-      <p><b>Status:</b> Pago</p>
-    </div>
-  </div>
-
-  <script>
-    function openModal() {
-      document.getElementById('modalCliente').style.display = 'flex';
-    }
-    function closeModal() {
-      document.getElementById('modalCliente').style.display = 'none';
-    }
-    function salvarCliente() {
-      alert("Cliente salvo com sucesso (mock)!");
-      closeModal();
-    }
-
-    function openPedidos(nome) {
-      document.getElementById('nomeCliente').innerText = nome;
-      document.getElementById('modalPedidos').style.display = 'flex';
-    }
-    function closePedidos() {
-      document.getElementById('modalPedidos').style.display = 'none';
-    }
-
-    function detalhesPedido(id) {
-      document.getElementById('pedidoId').innerText = id;
-      document.getElementById('modalDetalhes').style.display = 'flex';
-    }
-    function closeDetalhes() {
-      document.getElementById('modalDetalhes').style.display = 'none';
-    }
+      totalClientes.textContent = snapshot.size;
+      clientesAtivos.textContent = ativos;
+      clientesInativos.textContent = inativos;
+    });
   </script>
 
 </body>
