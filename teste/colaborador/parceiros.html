@@ -344,7 +344,7 @@ form.addEventListener('submit', async (e) => {
       const q = query(parceirosRef, where('cnpjCpf', '==', payload.cnpjCpf));
       const querySnap = await getDocs(q);
       if (!querySnap.empty) {
-        showToast('Já existe um parceiro cadastrado com este CNPJ.', true);
+        alert('Já existe um parceiro cadastrado com este CNPJ.', true);
         return;
       }
 
