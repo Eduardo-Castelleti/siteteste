@@ -5,142 +5,108 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Pet - Produtos</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Roboto', sans-serif; margin: 0; display: flex; }
-    .sidebar { width: 220px; background: #2c3e50; color: #fff; min-height: 100vh; padding: 20px; }
-    .sidebar h2 { font-size: 20px; margin-bottom: 20px; }
-    .sidebar a { display: block; color: #fff; text-decoration: none; padding: 10px 0; }
-    .content { flex: 1; padding: 20px; background: #f5f6fa; }
-
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .header input, .header select { padding: 8px; margin-right: 10px; }
-
-    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; cursor: pointer; }
-    th { background: #ecf0f1; }
-
-    .status-btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
-    .ativo { background: #2ecc71; color: #fff; }
-    .inativo { background: #e74c3c; color: #fff; }
-
-    /* Modal */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-    .modal-content { background: #fff; padding: 20px; border-radius: 8px; width: 600px; max-height: 80vh; overflow-y: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; }
-    .close { cursor: pointer; font-size: 20px; }
-    .modal-content h3 { margin-top: 0; }
-    .modal-content label { display: block; margin-top: 10px; font-weight: 500; }
-    .modal-content input, .modal-content textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; }
-    .modal-content img { width: 100px; margin: 5px 0; }
-    .btn-edit { background: #3498db; color: #fff; border: none; padding: 10px 15px; border-radius: 5px; margin-top: 15px; cursor: pointer; }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <!-- Menu lateral -->
-  <div class="sidebar">
-    <h2>Admin Pet</h2>
-    <a href="#">Dashboard</a>
-    <a href="#">Parceiros</a>
-    <a href="#">Funcionários</a>
-    <a href="#" class="active">Produtos</a>
-    <a href="#">Agendamentos</a>
+<body class="font-roboto bg-gray-100">
+  <div class="flex min-h-screen">
+    <!-- Menu lateral (já existente no padrão) -->
+    <aside class="w-64 bg-blue-900 text-white p-6">
+      <h2 class="text-2xl font-bold mb-6">Admin Pet</h2>
+      <nav class="space-y-4">
+        <a href="#" class="block hover:text-blue-300">Dashboard</a>
+        <a href="#" class="block hover:text-blue-300">Parceiros</a>
+        <a href="#" class="block hover:text-blue-300">Funcionários</a>
+        <a href="#" class="block text-blue-300 font-semibold">Produtos</a>
+        <a href="#" class="block hover:text-blue-300">Agendamentos</a>
+      </nav>
+    </aside>
+
+    <!-- Conteúdo principal -->
+    <main class="flex-1 p-8">
+      <!-- Cards resumo -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow p-6 text-center">
+          <h3 class="text-gray-600">Produtos cadastrados</h3>
+          <p class="text-3xl font-bold text-blue-900" id="total-produtos">0</p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6 text-center">
+          <h3 class="text-gray-600">Produtos inativos</h3>
+          <p class="text-3xl font-bold text-yellow-600" id="produtos-inativos">0</p>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6 text-center">
+          <h3 class="text-gray-600">Validade < 30 dias</h3>
+          <p class="text-3xl font-bold text-red-600" id="produtos-vencendo">0</p>
+        </div>
+      </div>
+
+      <!-- Cabeçalho da tabela -->
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">Produtos</h2>
+        <button class="bg-blue-900 hover:bg-blue-700 text-white px-5 py-2 rounded-lg shadow" onclick="abrirModal()">+ Cadastrar Produto</button>
+      </div>
+
+      <!-- Tabela de produtos -->
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="p-3">Nome</th>
+              <th class="p-3">Categoria</th>
+              <th class="p-3">Marca</th>
+              <th class="p-3">Pet</th>
+              <th class="p-3">Peso</th>
+              <th class="p-3">Preço</th>
+              <th class="p-3">Status</th>
+              <th class="p-3 text-center">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="lista-produtos">
+            <tr>
+              <td class="p-3">Ração Premium</td>
+              <td class="p-3">Ração</td>
+              <td class="p-3">Special Dog</td>
+              <td class="p-3">Cachorro</td>
+              <td class="p-3">15kg</td>
+              <td class="p-3">R$ 120,00</td>
+              <td class="p-3"><span class="px-2 py-1 bg-green-100 text-green-700 rounded">Ativo</span></td>
+              <td class="p-3 text-center space-x-2">
+                <button class="text-blue-600 hover:underline">Editar</button>
+                <button class="text-yellow-600 hover:underline">Inativar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
   </div>
 
-  <!-- Conteúdo principal -->
-  <div class="content">
-    <div class="header">
-      <div>
-        <input type="text" id="searchInput" placeholder="Buscar por nome, marca ou categoria...">
-        <select id="statusFilter">
-          <option value="">Todos os Status</option>
-          <option value="ativo">Ativo</option>
-          <option value="inativo">Inativo</option>
-        </select>
-        <select id="fornecedorFilter">
-          <option value="">Todos os Fornecedores</option>
-          <option value="Fornecedor A">Fornecedor A</option>
-          <option value="Fornecedor B">Fornecedor B</option>
-        </select>
-      </div>
-    </div>
-
-    <table id="productTable">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Categoria</th>
-          <th>Marca</th>
-          <th>Preço</th>
-          <th>Validade</th>
-          <th>Estoque</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr onclick="openModal(1)">
-          <td>Ração Premium 10kg</td>
-          <td>Ração</td>
-          <td>Special Dog</td>
-          <td>R$ 199,90</td>
-          <td>12/2025</td>
-          <td>25</td>
-          <td><button class="status-btn ativo">Ativo</button></td>
-        </tr>
-        <tr onclick="openModal(2)">
-          <td>Shampoo Pet 500ml</td>
-          <td>Higiene</td>
-          <td>PetClean</td>
-          <td>R$ 29,90</td>
-          <td>08/2026</td>
-          <td>50</td>
-          <td><button class="status-btn inativo">Inativo</button></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="productModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="modalTitle">Detalhes do Produto</h3>
-        <span class="close" onclick="closeModal()">&times;</span>
-      </div>
-      <div id="modalBody">
-        <label>Peso/Volume:</label>
-        <input type="text" value="10kg" readonly>
-        
-        <label>Fornecedor:</label>
-        <input type="text" value="Fornecedor A" readonly>
-        
-        <label>Data de Validade:</label>
-        <input type="text" value="12/2025" readonly>
-        
-        <label>Código SKU:</label>
-        <input type="text" value="SKU12345" readonly>
-        
-        <label>Descrição:</label>
-        <textarea readonly>Ração premium para cães adultos.</textarea>
-        
-        <label>Imagens:</label>
-        <img src="https://via.placeholder.com/100" alt="Produto">
-        
-        <label>Observações Internas:</label>
-        <textarea readonly>Estoque alto, boa saída.</textarea>
-        
-        <button class="btn-edit">Editar Produto</button>
-      </div>
+  <!-- Modal cadastro produto -->
+  <div id="modalCadastro" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
+      <h2 class="text-xl font-bold mb-4">Cadastrar Produto</h2>
+      <form class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <input type="text" placeholder="Nome do Produto" class="border p-2 rounded w-full">
+          <input type="text" placeholder="Categoria" class="border p-2 rounded w-full">
+          <input type="text" placeholder="Marca" class="border p-2 rounded w-full">
+          <input type="text" placeholder="Para qual pet" class="border p-2 rounded w-full">
+          <input type="text" placeholder="Peso (kg, g, L)" class="border p-2 rounded w-full">
+          <input type="number" placeholder="Preço" class="border p-2 rounded w-full">
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="fecharModal()" class="px-4 py-2 rounded bg-gray-300">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded bg-blue-900 text-white">Salvar</button>
+        </div>
+      </form>
     </div>
   </div>
 
   <script>
-    function openModal(id) {
-      document.getElementById("productModal").style.display = "flex";
-      document.getElementById("modalTitle").innerText = "Produto ID " + id;
+    function abrirModal() {
+      document.getElementById('modalCadastro').classList.remove('hidden');
     }
-
-    function closeModal() {
-      document.getElementById("productModal").style.display = "none";
+    function fecharModal() {
+      document.getElementById('modalCadastro').classList.add('hidden');
     }
   </script>
 </body>
