@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Parceiro</title>
+  <!-- TailwindCSS CDN for quick styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --sidebar-w: 260px; }
+    html, body, #app { height: 100%; }
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+    .scroll-smooth { scroll-behavior: smooth; }
+    .sidebar-link { @apply flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-gray-100 transition; }
+    .active-link { @apply bg-gray-900 text-white hover:bg-gray-900; }
+    .chip { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100; }
+    .btn { @apply inline-flex items-center justify-center px-3 py-2 rounded-xl border border-gray-300 text-sm font-medium hover:bg-gray-50; }
+    .btn-primary { @apply bg-gray-900 text-white border-gray-900 hover:bg-black; }
+    .btn-danger { @apply bg-red-600 text-white border-red-600 hover:bg-red-700; }
+    .card { @apply bg-white rounded-2xl shadow-sm border border-gray-100; }
+    .input { @apply w-full px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900; }
+    .table { @apply min-w-full text-sm; }
+    .table th { @apply text-left font-semibold text-gray-600 px-4 py-2; }
+    .table td { @apply px-4 py-2; }
+    .badge { @apply text-[11px] px-2 py-1 rounded-md font-medium; }
+  </style>
+  <!-- Chart.js for dashboard graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div id="app" class="flex h-full">
+    <!-- Sidebar -->
+    <aside class="hidden md:flex flex-col w-[var(--sidebar-w)] p-4 gap-3 border-r bg-white">
+      <div class="flex items-center gap-3 px-2 py-1">
+        <div class="w-9 h-9 rounded-xl bg-gray-900 text-white grid place-items-center font-bold">P</div>
+        <div>
+          <p class="text-sm text-gray-500 leading-tight">Painel</p>
+          <p class="text-base font-semibold leading-tight">Parceiro</p>
+        </div>
+      </div>
+      <nav id="sidebar" class="mt-2 flex-1 space-y-1">
+        <button data-route="dashboard" class="sidebar-link active-link"><span class="i">🏠</span>Dashboard</button>
+        <button data-route="catalogo" class="sidebar-link"><span>🛒</span>Catálogo</button>
+        <button data-route="agenda" class="sidebar-link"><span>🗓️</span>Agenda</button>
+        <button data-route="servicos" class="sidebar-link"><span>🧼</span>Serviços</button>
+        <button data-route="album" class="sidebar-link"><span>🖼️</span>Álbum</button>
+        <button data-route="materiais" class="sidebar-link"><span>📦</span>Materiais</button>
+        <button data-route="suporte" class="sidebar-link"><span>💬</span>Suporte</button>
+        <button data-route="perfil" class="sidebar-link"><span>👤</span>Perfil</button>
+      </nav>
+      <div class="mt-auto">
+        <button id="btnSair" class="sidebar-link text-red-600 hover:bg-red-50"><span>⏻</span>Sair</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 min-w-0">
+      <!-- Topbar -->
+      <header class="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-3">
+          <div class="md:hidden">
+            <select id="routeSelect" class="input">
+              <option value="dashboard">Dashboard</option>
+              <option value="catalogo">Catálogo</option>
+              <option value="agenda">Agenda</option>
+              <option value="servicos">Serviços</option>
+              <option value="album">Álbum</option>
+              <option value="materiais">Materiais</option>
+              <option value="suporte">Suporte</option>
+              <option value="perfil">Perfil</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-3">
+            <input id="search" placeholder="Buscar..." class="hidden md:block input w-[320px]" />
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="text-right">
+              <div id="partnerName" class="text-sm font-semibold">Parceiro</div>
+              <div class="text-xs text-gray-500" id="partnerRole">Banho & Tosa</div>
+            </div>
+            <img id="partnerAvatar" class="w-9 h-9 rounded-xl object-cover" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" alt="avatar" />
+          </div>
+        </div>
+      </header>
+
+      <section id="router" class="max-w-7xl mx-auto px-4 md:px-8 py-6 space-y-6">
+        <!-- DASHBOARD -->
+        <div data-view="dashboard" class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="card p-4">
+              <p class="text-sm text-gray-500">Clientes agendados (mês)</p>
+              <p id="kpiClientes" class="text-3xl font-semibold mt-1">0</p>
+            </div>
+            <div class="card p-4">
+              <p class="text-sm text-gray-500">Dia mais produtivo</p>
+              <p id="kpiMelhorDia" class="text-3xl font-semibold mt-1">—</p>
+            </div>
+            <div class="card p-4">
+              <p class="text-sm text-gray-500">Faturamento do mês</p>
+              <p id="kpiFaturamento" class="text-3xl font-semibold mt-1">R$ 0,00</p>
+            </div>
+            <div class="card p-4">
+              <p class="text-sm text-gray-500">Tempo médio por serviço</p>
+              <p id="kpiTempoMedio" class="text-3xl font-semibold mt-1">—</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="card p-4 lg:col-span-2">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold">Agendamentos no mês</h3>
+                <div class="chip" id="rangeLabel">Últimos 30 dias</div>
+              </div>
+              <canvas id="chartAgenda" height="100"></canvas>
+            </div>
+            <div class="card p-4">
+              <h3 class="font-semibold mb-3">Próximos do dia</h3>
+              <ul id="listaProximos" class="space-y-3 text-sm"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- CATALOGO -->
+        <div data-view="catalogo" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Catálogo</h2>
+            <div class="flex gap-2">
+              <button class="btn" id="btnAtualizarProdutos">Atualizar</button>
+            </div>
+          </div>
+          <div class="card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="table">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>Produto</th>
+                    <th>Preço</th>
+                    <th>Estoque</th>
+                    <th class="w-52">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyProdutos" class="divide-y"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- AGENDA -->
+        <div data-view="agenda" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Agenda do dia</h2>
+            <div class="flex gap-2">
+              <input type="date" id="agendaDate" class="input" />
+              <button class="btn" id="btnNovaReserva">Novo agendamento</button>
+            </div>
+          </div>
+          <div class="card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="table">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Pet</th>
+                    <th>Serviço</th>
+                    <th>Horário</th>
+                    <th>Status</th>
+                    <th class="w-64">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyAgenda" class="divide-y"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SERVIÇOS -->
+        <div data-view="servicos" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Serviços ofertados</h2>
+            <button id="btnNovoServico" class="btn">Novo serviço</button>
+          </div>
+          <div id="listaServicos" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- ALBUM -->
+        <div data-view="album" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Álbum</h2>
+            <div>
+              <input type="file" id="fileAlbum" accept="image/*,video/*" class="hidden" multiple />
+              <button class="btn" onclick="document.getElementById('fileAlbum').click()">Enviar mídia</button>
+            </div>
+          </div>
+          <div id="gridAlbum" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        </div>
+
+        <!-- MATERIAIS -->
+        <div data-view="materiais" class="hidden space-y-4">
+          <h2 class="text-xl font-semibold">Materiais de marketing</h2>
+          <div id="listaMateriais" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- SUPORTE -->
+        <div data-view="suporte" class="hidden space-y-4">
+          <h2 class="text-xl font-semibold">Suporte</h2>
+          <form id="formSuporte" class="card p-4 space-y-3 max-w-2xl">
+            <div>
+              <label class="text-sm text-gray-600">Assunto</label>
+              <input name="assunto" class="input" required />
+            </div>
+            <div>
+              <label class="text-sm text-gray-600">Descrição</label>
+              <textarea name="descricao" class="input" rows="4" required></textarea>
+            </div>
+            <button class="btn-primary">Abrir chamado</button>
+            <p id="suporteOK" class="hidden text-green-600 text-sm">Chamado enviado! #<span></span></p>
+          </form>
+        </div>
+
+        <!-- PERFIL -->
+        <div data-view="perfil" class="hidden space-y-4">
+          <h2 class="text-xl font-semibold">Seu perfil</h2>
+          <form id="formPerfil" class="card p-4 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+            <div>
+              <label class="text-sm text-gray-600">Nome</label>
+              <input id="perfilNome" class="input" />
+            </div>
+            <div>
+              <label class="text-sm text-gray-600">E-mail</label>
+              <input id="perfilEmail" class="input" />
+            </div>
+            <div>
+              <label class="text-sm text-gray-600">Telefone</label>
+              <input id="perfilTelefone" class="input" />
+            </div
