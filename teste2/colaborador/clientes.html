@@ -131,6 +131,10 @@
     <!-- Cards -->
     <div class="cards">
       <div class="card">
+        <h3>Clientes que compraram no mês</h3>
+        <p id="clientesCompraram">0</p>
+      </div>
+      <div class="card">
         <h3>Total de Clientes</h3>
         <p id="totalClientes">0</p>
       </div>
@@ -297,7 +301,29 @@
       clientesAtivos.textContent = ativos;
       clientesInativos.textContent = inativos;
     });
-  </script>
+
+    <script>
+  // --- CARD: Clientes que compraram no mês ---
+  async function contarClientesCompraramMes() {
+    const agora = new Date();
+    const primeiroDia = new Date(agora.getFullYear(), agora.getMonth(), 1);
+    const ultimoDia = new Date(agora.getFullYear(), agora.getMonth() + 1, 0);
+
+    try {
+      const snapshot = await db.collection("clientes")
+        .where("ultimaCompra", ">=", primeiroDia)
+        .where("ultimaCompra", "<=", ultimoDia)
+        .get();
+
+      const total = snapshot.size;
+      document.getElementById("clientes-compraram-mes").textContent = total;
+    } catch (error) {
+      console.error("Erro ao contar clientes:", error);
+    }
+  }
+
+  contarClientesCompraramMes();
+</script>
 
 </body>
 </html>
