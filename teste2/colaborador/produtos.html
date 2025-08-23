@@ -10,7 +10,9 @@
       margin: 0;
       font-family: 'Roboto', sans-serif;
       display: flex;
+      background-color: #f4f4f4;
     }
+
     /* Menu lateral */
     .sidebar {
       width: 250px;
@@ -20,61 +22,44 @@
       flex-direction: column;
       padding-top: 20px;
     }
-    .sidebar h2 { text-align:center; margin-bottom:30px; font-size:20px; font-weight:700; }
-    .sidebar a { padding:15px 20px; text-decoration:none; color:#ecf0f1; display:block; transition:0.3s; font-weight:500; }
+    .sidebar h2 { 
+      text-align:center; 
+      margin-bottom:30px; 
+      font-size:20px; 
+      font-weight:700; 
+    }
+    .sidebar a { 
+      padding:15px 20px; 
+      text-decoration:none; 
+      color:#ecf0f1; 
+      display:block; 
+      transition:0.3s; 
+      font-weight:500; 
+    }
     .sidebar a:hover { background-color: #34495e; }
     .sidebar a.active { background-color:#1abc9c; color:#fff; }
-    .content { flex:1; padding:20px; overflow-y:auto; }
+
+    /* Conteúdo */
+    .content { 
+      flex:1; 
+      padding:20px; 
+      overflow-y:auto; 
+    }
     h1 { font-size:24px; margin-bottom:20px; color:#2c3e50; }
 
     /* Cards */
-    .cards {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
+    .cards { display:flex; gap:20px; margin-bottom:20px; }
     .card {
-      flex: 1;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      flex:1;
+      background:#fff;
+      padding:20px;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.1);
+      text-align:center;
     }
-    .card h3 { margin: 0; font-size: 18px; color: #555; }
-    .card p { font-size: 22px; margin: 5px 0 0; font-weight: bold; }
+    .card h3 { margin:0; font-size:18px; color:#555; }
+    .card p { font-size:22px; margin:5px 0 0; font-weight:bold; }
 
-    .content {
-      margin-left: 240px;
-      padding: 20px;
-      width: 100%;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    .cards {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    .card {
-      flex: 1;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .card h3 {
-      margin: 0;
-      font-size: 20px;
-      color: #2c3e50;
-    }
-    .card p {
-      font-size: 18px;
-      margin: 5px 0 0;
-      font-weight: bold;
-    }
     button {
       background-color: #3498db;
       color: white;
@@ -85,9 +70,8 @@
       font-size: 14px;
       margin-bottom: 20px;
     }
-    button:hover {
-      background-color: #2980b9;
-    }
+    button:hover { background-color: #2980b9; }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -101,10 +85,8 @@
       border-bottom: 1px solid #ddd;
       text-align: left;
     }
-    table th {
-      background-color: #3498db;
-      color: white;
-    }
+    table th { background-color: #3498db; color: white; }
+
     .status-btn {
       padding: 5px 10px;
       border-radius: 4px;
@@ -112,12 +94,9 @@
       cursor: pointer;
       color: #fff;
     }
-    .ativo {
-      background-color: #2ecc71;
-    }
-    .inativo {
-      background-color: #e74c3c;
-    }
+    .ativo { background-color: #2ecc71; }
+    .inativo { background-color: #e74c3c; }
+
     /* Modal */
     .modal {
       display: none;
@@ -127,6 +106,7 @@
       background: rgba(0,0,0,0.5);
       justify-content: center;
       align-items: center;
+      z-index: 1000;
     }
     .modal-content {
       background: #fff;
@@ -136,37 +116,27 @@
       max-height: 90vh;
       overflow-y: auto;
     }
-    .modal-content h2 {
-      margin-top: 0;
-    }
-    .form-group {
-      margin-bottom: 12px;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 14px;
-    }
-    .form-group input, .form-group textarea {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+    .modal-content h2 { margin-top: 0; }
+
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display:block; margin-bottom:4px; font-size:14px; }
+    .form-group input, .form-group textarea { width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; }
+
   </style>
 </head>
 <body>
   <!-- Sidebar -->
   <div class="sidebar">
     <h2>Colaborador</h2>
-    <a href="index.html" class="active">📦 Pedidos</a>
+    <a href="index.html">📦 Pedidos</a>
     <a href="clientes.html">👥 Clientes</a>
     <a href="parceiros.html">🤝 Parceiros</a>
-    <a href="produtos.html">🛒 Produtos</a>
+    <a href="produtos.html" class="active">🛒 Produtos</a>
     <a href="agenda.html">📅 Agenda</a>
     <a href="marketing.html">📢 Marketing</a>
     <a href="kpi.html">📊 KPI’s</a>
   </div>
+
   <div class="content">
     <h1>Produtos</h1>
 
@@ -201,73 +171,37 @@
           <th>Status</th>
         </tr>
       </thead>
-      <tbody id="produtosTable">
-        <!-- Produtos aqui -->
-      </tbody>
+      <tbody id="produtosTable"></tbody>
     </table>
   </div>
 
-  <!-- Modal de Cadastro -->
+  <!-- Modal -->
   <div class="modal" id="produtoModal">
     <div class="modal-content">
       <h2>Cadastrar Produto</h2>
       <form id="produtoForm">
-        <div class="form-group">
-          <label>Nome</label>
-          <input type="text" name="nome" required>
-        </div>
-        <div class="form-group">
-          <label>Categoria</label>
-          <input type="text" name="categoria" required>
-        </div>
-        <div class="form-group">
-          <label>Marca</label>
-          <input type="text" name="marca">
-        </div>
-        <div class="form-group">
-          <label>Preço de venda</label>
-          <input type="number" step="0.01" name="preco" required>
-        </div>
-        <div class="form-group">
-          <label>Estoque</label>
-          <input type="number" name="estoque" required>
-        </div>
-        <div class="form-group">
-          <label>Data de validade</label>
-          <input type="date" name="validade">
-        </div>
-        <div class="form-group">
-          <label>Peso/Volume</label>
-          <input type="text" name="peso">
-        </div>
-        <div class="form-group">
-          <label>Fornecedor</label>
-          <input type="text" name="fornecedor">
-        </div>
-        <div class="form-group">
-          <label>Código SKU</label>
-          <input type="text" name="sku">
-        </div>
-        <div class="form-group">
-          <label>Descrição</label>
-          <textarea name="descricao"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Observações internas</label>
-          <textarea name="observacoes"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Imagens</label>
-          <input type="file" name="imagens" multiple>
-        </div>
+        <div class="form-group"><label>Nome</label><input type="text" name="nome" required></div>
+        <div class="form-group"><label>Categoria</label><input type="text" name="categoria" required></div>
+        <div class="form-group"><label>Marca</label><input type="text" name="marca"></div>
+        <div class="form-group"><label>Preço de venda</label><input type="number" step="0.01" name="preco" required></div>
+        <div class="form-group"><label>Estoque</label><input type="number" name="estoque" required></div>
+        <div class="form-group"><label>Data de validade</label><input type="date" name="validade"></div>
+        <div class="form-group"><label>Peso/Volume</label><input type="text" name="peso"></div>
+        <div class="form-group"><label>Fornecedor</label><input type="text" name="fornecedor"></div>
+        <div class="form-group"><label>Código SKU</label><input type="text" name="sku"></div>
+        <div class="form-group"><label>Descrição</label><textarea name="descricao"></textarea></div>
+        <div class="form-group"><label>Observações internas</label><textarea name="observacoes"></textarea></div>
+        <div class="form-group"><label>Imagens</label><input type="file" name="imagens" multiple></div>
         <button type="submit">Salvar</button>
         <button type="button" onclick="closeModal()" style="background:#7f8c8d;">Cancelar</button>
       </form>
     </div>
   </div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script>
-    // Firebase config (ajuste para o seu projeto)
     const firebaseConfig = {
       apiKey: "SUA_APIKEY",
       authDomain: "SEU_AUTHDOMAIN",
@@ -277,15 +211,9 @@
     const db = firebase.firestore();
 
     const modal = document.getElementById('produtoModal');
+    function openModal() { modal.style.display = 'flex'; }
+    function closeModal() { modal.style.display = 'none'; }
 
-    function openModal() {
-      modal.style.display = 'flex';
-    }
-    function closeModal() {
-      modal.style.display = 'none';
-    }
-
-    // Salvar produto no Firestore
     document.getElementById('produtoForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(e.target).entries());
@@ -294,12 +222,13 @@
         await db.collection("produtos").add(data);
         alert("Produto cadastrado com sucesso!");
         closeModal();
+        carregarProdutos(); // Atualiza tabela após cadastro
+        e.target.reset();
       } catch (err) {
         console.error("Erro ao salvar produto:", err);
       }
     });
 
-    // Carregar produtos
     async function carregarProdutos() {
       const snapshot = await db.collection("produtos").get();
       const tbody = document.getElementById("produtosTable");
@@ -326,11 +255,7 @@
             <td>R$ ${p.preco || ""}</td>
             <td>${p.validade || ""}</td>
             <td>${p.estoque || ""}</td>
-            <td>
-              <button class="status-btn ${p.status === "ativo" ? "ativo" : "inativo"}">
-                ${p.status || ""}
-              </button>
-            </td>
+            <td><button class="status-btn ${p.status === "ativo" ? "ativo" : "inativo"}">${p.status || ""}</button></td>
           </tr>
         `;
       });
@@ -342,8 +267,5 @@
 
     carregarProdutos();
   </script>
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </body>
 </html>
