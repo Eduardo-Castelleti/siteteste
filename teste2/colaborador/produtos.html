@@ -6,227 +6,142 @@
   <title>Admin Pet - Produtos</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Roboto', sans-serif; margin: 0; display: flex; height: 100vh; background: #f4f6f9; }
-    /* Menu lateral */
-    .sidebar {
-      width: 250px;
-      background-color: #2c3e50;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      padding-top: 20px;
-    }
-    .sidebar h2 { text-align:center; margin-bottom:30px; font-size:20px; font-weight:700; }
-    .sidebar a { padding:15px 20px; text-decoration:none; color:#ecf0f1; display:block; transition:0.3s; font-weight:500; }
-    .sidebar a:hover { background-color: #34495e; }
-    .sidebar a.active { background-color:#1abc9c; color:#fff; }
-    /* Conteúdo */
-    .content { flex:1; padding:20px; overflow-y:auto; }
-    h1 { font-size:24px; margin-bottom:20px; color:#2c3e50; }
-    /* Botão */
-    button { background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; }
-    button:hover { background: #2980b9; }
-    /* Tabela */
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: #f8f9fa; }
-    tr:hover { background: #f1f1f1; }
-    .status-ativo { color: green; font-weight: bold; }
-    .status-inativo { color: red; font-weight: bold; }
+    body { font-family: 'Roboto', sans-serif; margin: 0; display: flex; }
+    .sidebar { width: 220px; background: #2c3e50; color: #fff; min-height: 100vh; padding: 20px; }
+    .sidebar h2 { font-size: 20px; margin-bottom: 20px; }
+    .sidebar a { display: block; color: #fff; text-decoration: none; padding: 10px 0; }
+    .content { flex: 1; padding: 20px; background: #f5f6fa; }
+
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .header input, .header select { padding: 8px; margin-right: 10px; }
+
+    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; cursor: pointer; }
+    th { background: #ecf0f1; }
+
+    .status-btn { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
+    .ativo { background: #2ecc71; color: #fff; }
+    .inativo { background: #e74c3c; color: #fff; }
+
     /* Modal */
-    .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-    .modal-content { background: white; padding:20px; border-radius:8px; width: 500px; max-width: 95%; }
-    .modal-header { display:flex; justify-content: space-between; align-items:center; }
-    .close { cursor:pointer; font-size: 20px; }
-    .form-group { margin-bottom: 10px; }
-    .form-group label { display:block; margin-bottom: 5px; }
-    .form-group input, .form-group select { width: 100%; padding:8px; border-radius:5px; border:1px solid #ccc; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+    .modal-content { background: #fff; padding: 20px; border-radius: 8px; width: 600px; max-height: 80vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; }
+    .close { cursor: pointer; font-size: 20px; }
+    .modal-content h3 { margin-top: 0; }
+    .modal-content label { display: block; margin-top: 10px; font-weight: 500; }
+    .modal-content input, .modal-content textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; }
+    .modal-content img { width: 100px; margin: 5px 0; }
+    .btn-edit { background: #3498db; color: #fff; border: none; padding: 10px 15px; border-radius: 5px; margin-top: 15px; cursor: pointer; }
   </style>
 </head>
 <body>
-
-  <!-- Sidebar -->
+  <!-- Menu lateral -->
   <div class="sidebar">
-    <h2>Colaborador</h2>
-    <a href="index.html">📦 Pedidos</a>
-    <a href="clientes.html">👥 Clientes</a>
-    <a href="parceiros.html">🤝 Parceiros</a>
-    <a href="produtos.html" class="active">🛒 Produtos</a>
-    <a href="agenda.html">📅 Agenda</a>
-    <a href="marketing.html">📢 Marketing</a>
-    <a href="kpi.html">📊 KPI’s</a>
+    <h2>Admin Pet</h2>
+    <a href="#">Dashboard</a>
+    <a href="#">Parceiros</a>
+    <a href="#">Funcionários</a>
+    <a href="#" class="active">Produtos</a>
+    <a href="#">Agendamentos</a>
   </div>
 
-  <!-- Conteúdo -->
+  <!-- Conteúdo principal -->
   <div class="content">
-    <h1>Produtos</h1>
-    <button onclick="abrirModal()">+ Cadastrar Produto</button>
+    <div class="header">
+      <div>
+        <input type="text" id="searchInput" placeholder="Buscar por nome, marca ou categoria...">
+        <select id="statusFilter">
+          <option value="">Todos os Status</option>
+          <option value="ativo">Ativo</option>
+          <option value="inativo">Inativo</option>
+        </select>
+        <select id="fornecedorFilter">
+          <option value="">Todos os Fornecedores</option>
+          <option value="Fornecedor A">Fornecedor A</option>
+          <option value="Fornecedor B">Fornecedor B</option>
+        </select>
+      </div>
+    </div>
 
-    <table>
+    <table id="productTable">
       <thead>
         <tr>
           <th>Nome</th>
           <th>Categoria</th>
           <th>Marca</th>
-          <th>Pet</th>
-          <th>Peso</th>
           <th>Preço</th>
+          <th>Validade</th>
+          <th>Estoque</th>
           <th>Status</th>
-          <th>Prazo</th>
-          <th>Ações</th>
         </tr>
       </thead>
-      <tbody id="tabelaProdutos"></tbody>
+      <tbody>
+        <tr onclick="openModal(1)">
+          <td>Ração Premium 10kg</td>
+          <td>Ração</td>
+          <td>Special Dog</td>
+          <td>R$ 199,90</td>
+          <td>12/2025</td>
+          <td>25</td>
+          <td><button class="status-btn ativo">Ativo</button></td>
+        </tr>
+        <tr onclick="openModal(2)">
+          <td>Shampoo Pet 500ml</td>
+          <td>Higiene</td>
+          <td>PetClean</td>
+          <td>R$ 29,90</td>
+          <td>08/2026</td>
+          <td>50</td>
+          <td><button class="status-btn inativo">Inativo</button></td>
+        </tr>
+      </tbody>
     </table>
   </div>
 
   <!-- Modal -->
-  <div class="modal" id="modalProduto">
+  <div class="modal" id="productModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 id="tituloModal">Cadastrar Produto</h2>
-        <span class="close" onclick="fecharModal()">&times;</span>
+        <h3 id="modalTitle">Detalhes do Produto</h3>
+        <span class="close" onclick="closeModal()">&times;</span>
       </div>
-      <div class="form-group">
-        <label>Nome</label>
-        <input type="text" id="nomeProduto">
+      <div id="modalBody">
+        <label>Peso/Volume:</label>
+        <input type="text" value="10kg" readonly>
+        
+        <label>Fornecedor:</label>
+        <input type="text" value="Fornecedor A" readonly>
+        
+        <label>Data de Validade:</label>
+        <input type="text" value="12/2025" readonly>
+        
+        <label>Código SKU:</label>
+        <input type="text" value="SKU12345" readonly>
+        
+        <label>Descrição:</label>
+        <textarea readonly>Ração premium para cães adultos.</textarea>
+        
+        <label>Imagens:</label>
+        <img src="https://via.placeholder.com/100" alt="Produto">
+        
+        <label>Observações Internas:</label>
+        <textarea readonly>Estoque alto, boa saída.</textarea>
+        
+        <button class="btn-edit">Editar Produto</button>
       </div>
-      <div class="form-group">
-        <label>Categoria</label>
-        <input type="text" id="categoriaProduto">
-      </div>
-      <div class="form-group">
-        <label>Marca</label>
-        <input type="text" id="marcaProduto">
-      </div>
-      <div class="form-group">
-        <label>Pet</label>
-        <select id="petProduto">
-          <option value="Cão">Cão</option>
-          <option value="Gato">Gato</option>
-          <option value="Roedor">Roedor</option>
-          <option value="Pássaro">Pássaro</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Peso (kg, g, L, mL)</label>
-        <input type="text" id="pesoProduto">
-      </div>
-      <div class="form-group">
-        <label>Preço</label>
-        <input type="number" id="precoProduto" step="0.01">
-      </div>
-      <div class="form-group">
-        <label>Prazo de entrega</label>
-        <input type="text" id="prazoProduto" placeholder="Ex: 5 a 10 dias">
-      </div>
-      <button onclick="salvarProduto()">Salvar</button>
     </div>
   </div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script>
-    const firebaseConfig = {
-  apiKey: "AIzaSyCLBni8BY6zjHGMuoybZ06SBK4U9c1BhyE",
-  authDomain: "petdudis-db2b2.firebaseapp.com",
-  projectId: "petdudis-db2b2",
-  storageBucket: "petdudis-db2b2.firebasestorage.app",
-  messagingSenderId: "410321083813",
-  appId: "1:410321083813:web:eaf0082878a8281eab5c4c"
-};
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    const tabela = document.getElementById("tabelaProdutos");
-    const modal = document.getElementById("modalProduto");
-    const tituloModal = document.getElementById("tituloModal");
-
-    let idEdicao = null;
-
-    function abrirModal(produto = null, id = null) {
-      modal.style.display = "flex";
-      if (produto) {
-        tituloModal.textContent = "Editar Produto";
-        document.getElementById("nomeProduto").value = produto.nome;
-        document.getElementById("categoriaProduto").value = produto.categoria;
-        document.getElementById("marcaProduto").value = produto.marca;
-        document.getElementById("petProduto").value = produto.pet;
-        document.getElementById("pesoProduto").value = produto.peso;
-        document.getElementById("precoProduto").value = produto.preco;
-        document.getElementById("prazoProduto").value = produto.prazo;
-        idEdicao = id;
-      } else {
-        tituloModal.textContent = "Cadastrar Produto";
-        document.getElementById("nomeProduto").value = "";
-        document.getElementById("categoriaProduto").value = "";
-        document.getElementById("marcaProduto").value = "";
-        document.getElementById("petProduto").value = "Cão";
-        document.getElementById("pesoProduto").value = "";
-        document.getElementById("precoProduto").value = "";
-        document.getElementById("prazoProduto").value = "";
-        idEdicao = null;
-      }
+    function openModal(id) {
+      document.getElementById("productModal").style.display = "flex";
+      document.getElementById("modalTitle").innerText = "Produto ID " + id;
     }
 
-    function fecharModal() {
-      modal.style.display = "none";
+    function closeModal() {
+      document.getElementById("productModal").style.display = "none";
     }
-
-    function salvarProduto() {
-      const produto = {
-        nome: document.getElementById("nomeProduto").value,
-        categoria: document.getElementById("categoriaProduto").value,
-        marca: document.getElementById("marcaProduto").value,
-        pet: document.getElementById("petProduto").value,
-        peso: document.getElementById("pesoProduto").value,
-        preco: parseFloat(document.getElementById("precoProduto").value),
-        prazo: document.getElementById("prazoProduto").value,
-        status: "ativo"
-      };
-
-      if (!produto.nome || !produto.categoria || !produto.marca || !produto.pet || !produto.peso || !produto.preco || !produto.prazo) {
-        alert("Preencha todos os campos!");
-        return;
-      }
-
-      if (idEdicao) {
-        db.collection("produtos").doc(idEdicao).update(produto)
-          .then(() => fecharModal());
-      } else {
-        db.collection("produtos").add(produto)
-          .then(() => fecharModal());
-      }
-    }
-
-    function inativarProduto(id) {
-      db.collection("produtos").doc(id).update({ status: "inativo" });
-    }
-
-    db.collection("produtos").onSnapshot(snapshot => {
-      tabela.innerHTML = "";
-      snapshot.forEach(doc => {
-        const p = doc.data();
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${p.nome}</td>
-          <td>${p.categoria}</td>
-          <td>${p.marca}</td>
-          <td>${p.pet}</td>
-          <td>${p.peso}</td>
-          <td>R$ ${p.preco.toFixed(2)}</td>
-          <td class="${p.status === "ativo" ? "status-ativo" : "status-inativo"}">${p.status}</td>
-          <td>${p.prazo}</td>
-          <td>
-            <button onclick='abrirModal(${JSON.stringify(p)}, "${doc.id}")'>Editar</button>
-            <button onclick='inativarProduto("${doc.id}")'>Inativar</button>
-          </td>
-        `;
-        tabela.appendChild(tr);
-      });
-    });
   </script>
-
 </body>
 </html>
