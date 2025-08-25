@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -125,6 +125,7 @@
   </style>
 </head>
 <body>
+
   <!-- Sidebar -->
   <div class="sidebar">
     <h2>Colaborador</h2>
@@ -136,6 +137,7 @@
     <a href="marketing.html">📢 Marketing</a>
     <a href="kpi.html">📊 KPI’s</a>
   </div>
+
 
   <div class="content">
     <h1>Produtos</h1>
@@ -150,10 +152,6 @@
         <h3>Produtos Inativos</h3>
         <p id="produtosInativos">0</p>
       </div>
-      <div class="card">
-        <h3>Validade &lt; 30 dias</h3>
-        <p id="validadeCurta">0</p>
-      </div>
     </div>
 
     <button onclick="openModal()">Cadastrar Produto</button>
@@ -166,7 +164,6 @@
           <th>Categoria</th>
           <th>Marca</th>
           <th>Preço</th>
-          <th>Validade</th>
           <th>Estoque</th>
           <th>Status</th>
         </tr>
@@ -185,7 +182,6 @@
         <div class="form-group"><label>Marca</label><input type="text" name="marca"></div>
         <div class="form-group"><label>Preço de venda</label><input type="number" step="0.01" name="preco" required></div>
         <div class="form-group"><label>Estoque</label><input type="number" name="estoque" required></div>
-        <div class="form-group"><label>Data de validade</label><input type="date" name="validade"></div>
         <div class="form-group"><label>Peso/Volume</label><input type="text" name="peso"></div>
         <div class="form-group"><label>Fornecedor</label><input type="text" name="fornecedor"></div>
         <div class="form-group"><label>Código SKU</label><input type="text" name="sku"></div>
@@ -234,26 +230,17 @@
       const tbody = document.getElementById("produtosTable");
       tbody.innerHTML = "";
 
-      let total = 0, inativos = 0, validadeCurta = 0;
-      const hoje = new Date();
-
       snapshot.forEach(doc => {
         const p = doc.data();
         total++;
         if (p.status === "inativo") inativos++;
-        if (p.validade) {
-          const dataVal = new Date(p.validade);
-          const diff = (dataVal - hoje) / (1000 * 60 * 60 * 24);
-          if (diff <= 30) validadeCurta++;
-        }
-
+        
         tbody.innerHTML += `
           <tr>
             <td>${p.nome || ""}</td>
             <td>${p.categoria || ""}</td>
             <td>${p.marca || ""}</td>
             <td>R$ ${p.preco || ""}</td>
-            <td>${p.validade || ""}</td>
             <td>${p.estoque || ""}</td>
             <td><button class="status-btn ${p.status === "ativo" ? "ativo" : "inativo"}">${p.status || ""}</button></td>
           </tr>
@@ -262,8 +249,7 @@
 
       document.getElementById("totalProdutos").textContent = total;
       document.getElementById("produtosInativos").textContent = inativos;
-      document.getElementById("validadeCurta").textContent = validadeCurta;
-    }
+      }
 
     carregarProdutos();
   </script>
