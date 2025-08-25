@@ -1,815 +1,338 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pet Dudis - Início</title>
-
-  <!-- Estilos globais existentes -->
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Pet - Parceiros</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    /* ---------- Ajustes visuais do cabeçalho e dropdown ---------- */
-    .acoes-usuario {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      font-size: 0.95rem;
-    }
-    .acoes-usuario a, .acoes-usuario span {
-      color: #333;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .acoes-usuario a:hover, .acoes-usuario span:hover {
-      color: #5e2ca5;
-    }
-    .usuario-logado {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-    }
-    .usuario-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border: 1px solid #e5e5e5;
-      border-radius: 999px;
-      background: #fff;
-      transition: box-shadow .2s ease, transform .05s ease;
-      user-select: none;
-    }
-    .usuario-chip:hover {
-      box-shadow: 0 6px 18px rgba(0,0,0,.08);
-    }
-    .usuario-iniciais {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      background: #5e2ca5; color: #fff; font-weight: 700; font-size: 0.9rem;
-    }
-    .usuario-nome {
-      font-weight: 700;
-    }
-    .usuario-seta {
-      margin-left: 2px;
-      transform: rotate(0deg);
-      transition: transform .2s ease;
-      font-size: 0.9rem; color: #777;
-    }
-    .usuario-chip[aria-expanded="true"] .usuario-seta {
-      transform: rotate(180deg);
+    /* ====== ESTILO BASE ====== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
     }
 
-    /* ---------- Painel lateral (“faixa do cliente”) ---------- */
-    .painel-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.45);
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity .2s ease, visibility .2s ease;
-      z-index: 1000;
-    }
-    .painel-overlay.ativo {
-      opacity: 1;
-      visibility: visible;
-    }
-    .painel-cliente {
-      position: fixed;
-      top: 0;
-      right: 0;
+    body {
+      display: flex;
+      background-color: #f4f6f9;
       height: 100vh;
-      width: min(92vw, 360px);
-      background: #fff;
-      box-shadow: -10px 0 30px rgba(0,0,0,.15);
-      transform: translateX(100%);
-      transition: transform .25s ease;
-      z-index: 1001;
-      display: flex;
-      flex-direction: column;
-    }
-    .painel-cliente.ativo {
-      transform: translateX(0);
-    }
-    .painel-topo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 18px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .painel-topo .foto {
-      width: 40px; height: 40px; border-radius: 50%;
-      display:flex; align-items:center; justify-content:center;
-      background: #5e2ca5; color:#fff; font-weight:700;
-    }
-    .painel-topo .info {
-      flex: 1;
-    }
-    .painel-topo .info .nome {
-      font-weight: 800; color:#333; line-height: 1.15;
-    }
-    .painel-topo .info .email {
-      font-size: .85rem; color:#777;
-    }
-    .painel-fechar {
-      background: transparent;
-      border: none;
-      font-size: 1.1rem;
-      cursor: pointer;
-      color: #666;
-    }
-
-    .painel-lista {
-      padding: 10px 10px 18px;
-      overflow-y: auto;
-      flex: 1;
-    }
-    .secao {
-      margin-top: 12px;
-      border: 1px solid #efefef;
-      border-radius: 12px;
       overflow: hidden;
     }
-    .secao-titulo {
-      padding: 10px 12px;
-      font-size: .85rem;
-      letter-spacing: .02em;
-      font-weight: 800;
-      color: #5e2ca5;
-      background: #faf8ff;
-      border-bottom: 1px solid #efefef;
-    }
-    .link-item {
+
+    /* ====== SIDEBAR ====== */
+    .sidebar {
+      width: 250px;
+      background-color: #2c3e50;
+      color: white;
       display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 14px;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .sidebar a {
+      color: white;
       text-decoration: none;
-      color: #333;
-      border-bottom: 1px solid #f5f5f5;
+      padding: 12px;
+      margin: 5px 0;
+      display: block;
+      border-radius: 6px;
+      transition: background 0.3s;
     }
-    .link-item:last-child { border-bottom: 0; }
-    .link-item:hover { background: #f9f9ff; }
-    .link-item i {
-      width: 22px; text-align: center; color: #5e2ca5;
+
+    .sidebar a:hover {
+      background-color: #34495e;
     }
-    .chip-role {
-      margin-left: auto;
-      font-size: .75rem;
-      padding: 3px 8px;
-      background: #eef3ff;
-      color: #3556d1;
-      border-radius: 999px;
-      border: 1px solid #dbe4ff;
-      font-weight: 700;
+
+    /* ====== CONTEÚDO ====== */
+    .content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
     }
-    .painel-rodape {
-      padding: 10px 12px 16px;
-      border-top: 1px solid #f0f0f0;
-      display: flex; gap: 8px; flex-wrap: wrap;
-    }
-    .btn-sair, .btn-ir-area {
-      display: inline-flex; align-items:center; gap:8px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #eee;
+
+    header {
       background: #fff;
-      cursor: pointer;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    header h1 {
+      font-size: 24px;
       font-weight: 700;
-      color:#333;
     }
-    .btn-ir-area {
-      background:#5e2ca5; color:#fff; border-color:#5e2ca5;
+
+    .acoes-usuario a {
+      text-decoration: none;
+      background: #2c3e50;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: background 0.3s;
     }
-    .btn-sair:hover { background:#f9f9f9; }
-    .btn-ir-area:hover { filter: brightness(0.97); }
 
-    /* ---------- Modal Login/Cadastro (mantido) ---------- */
-    .modal-login { display:none; position:fixed; z-index:1100; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.6);}
-    .modal-login-content { background:#fff; margin:8% auto; padding:20px; border-radius:12px; width:90%; max-width:420px; position:relative; box-shadow:0 18px 50px rgba(0,0,0,.25);}
-    .modal-login-content h2 { text-align:center; margin-bottom:20px; }
-    .modal-login-content input { width:100%; padding:12px; margin:6px 0; border:1px solid #ddd; border-radius:8px; }
-    .modal-login-content button { width:100%; padding:12px; margin:10px 0; background:#5e2ca5; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:800; }
-    .modal-login-content .fechar { position:absolute; top:10px; right:15px; font-size:24px; cursor:pointer; }
-    .tab-login { display:flex; justify-content:space-around; margin-bottom:15px; cursor:pointer; }
-    .tab-login div { padding:10px 20px; border-bottom:2px solid transparent; }
-    .tab-login .ativo { border-bottom:2px solid #5e2ca5; font-weight:800; color:#5e2ca5; }
+    .acoes-usuario a:hover {
+      background: #34495e;
+    }
 
-    /* Acessibilidade mínima para foco */
-    .usuario-chip:focus, .link-item:focus, .btn-sair:focus, .btn-ir-area:focus, .painel-fechar:focus {
-      outline: 2px solid #5e2ca5;
-      outline-offset: 2px;
+    /* ====== CARDS ====== */
+    .cards {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      flex: 1;
+      min-width: 200px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .card p {
+      font-size: 22px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    /* ====== TABELA ====== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    table th {
+      background: #2c3e50;
+      color: white;
+      font-weight: 600;
+    }
+
+    table tr:hover {
+      background: #f9f9f9;
+    }
+
+    /* ====== MODAL LOGIN ====== */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      width: 350px;
+      text-align: center;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 15px;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .modal-content button {
+      background: #2c3e50;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .modal-content button:hover {
+      background: #34495e;
     }
   </style>
 </head>
 <body>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>Admin Pet</h2>
+    <a href="#">Dashboard</a>
+    <a href="#">Parceiros</a>
+    <a href="#">Clientes</a>
+    <a href="#">Produtos</a>
+    <a href="#">Relatórios</a>
+  </div>
 
-<!-- CABEÇALHO -->
-<header class="cabecalho">
-  <div class="cabecalho-conteudo">
-    <!-- Logo -->
-    <div class="logo-container">
-      <img src="img/logo.png" alt="Pet Dudis" class="logo"/>
-    </div>
-
-    <!-- CEP + Busca -->
-    <div class="cep-busca">
-      <div class="cep-input-wrapper">
-        <span>📍</span>
-        <input type="text" placeholder="Informar CEP" class="cep-input">
+  <!-- CONTEÚDO -->
+  <div class="content">
+    <header>
+      <h1>Painel do Parceiro</h1>
+      <div class="acoes-usuario">
+        <a href="#" id="link-entrar">Entrar | Cadastrar</a>
       </div>
-      <div class="busca-input-wrapper">
-        <span>🔍</span>
-        <input type="text" placeholder="O que seu pet precisa?" class="busca-input">
-        <button class="btn-busca">🔍</button>
+    </header>
+
+    <!-- CARDS -->
+    <div class="cards">
+      <div class="card">
+        <h3>Total de Parceiros</h3>
+        <p>12</p>
       </div>
-    </div>
-
-    <!-- Ações usuário -->
-    <div class="acoes-usuario">
-      <a href="#"><i class="fas fa-sync-alt"></i> Recorrência</a>
-      <a href="#"><i class="fas fa-box"></i> Pedidos</a>
-
-      <!-- Botão para abrir modal login/cadastro -->
-      <span id="botao-login"><i class="fas fa-user"></i> Entrar | Cadastrar</span>
-
-      <!-- Chip com nome do usuário -->
-      <div class="usuario-logado" id="usuario-logado">
-        <button id="usuario-chip" class="usuario-chip" aria-expanded="false" aria-controls="painel-cliente">
-          <span class="usuario-iniciais" id="usuario-iniciais">U</span>
-          <span class="usuario-nome" id="nome-usuario">Usuário</span>
-          <i class="fa-solid fa-chevron-down usuario-seta"></i>
-        </button>
+      <div class="card">
+        <h3>Total de Clientes</h3>
+        <p>320</p>
+      </div>
+      <div class="card">
+        <h3>Produtos Ativos</h3>
+        <p>58</p>
       </div>
     </div>
-  </div>
-</header>
 
-<!-- CATEGORIAS -->
-<nav class="faixa-categorias">
-  <ul>
-    <li><a href="cachorro.html">Cachorro</a></li>
-    <li><a href="gato.html">Gato</a></li>
-    <li><a href="outros.html">Outros Pets</a></li>
-    <li class="dropdown">
-      <a href="servicos.html">Serviços <i class="fas fa-caret-down"></i></a>
-      <ul class="submenu">
-        <li><a href="banho.html">Banho e Tosa</a></li>
-        <li><a href="creche.html">Creche</a></li>
-        <li><a href="hospedagem.html#hospedagem">Hospedagem</a></li>
-        <li><a href="consultaveterinario.html#consulta">Consulta Veterinária</a></li>
-        <li><a href="dogwalker.html#dogwalker">Dog Walker</a></li>
-        <li><a href="petsitter.html#petsitter">Pet Sitter</a></li>
-        <li><a href="adestramento.html#adestramento">Adestramento</a></li>
-      </ul>
-    </li>
-  </ul>
-</nav>
-
-<!-- BANNERS -->
-<div class="swiper banner-swiper">
-  <div class="swiper-wrapper">
-    <div class="swiper-slide"><img src="img/banner1.png" alt="Banner 1"/></div>
-    <div class="swiper-slide"><img src="img/banner2.png" alt="Banner 2"/></div>
-    <div class="swiper-slide"><img src="img/banner3.png" alt="Banner 3"/></div>
-  </div>
-  <div class="swiper-button-next"></div>
-  <div class="swiper-button-prev"></div>
-  <div class="swiper-pagination"></div>
-</div>
-
-<!-- BENEFÍCIOS -->
-<section class="beneficios">
-  <h2>Benefícios pra você</h2>
-  <div class="beneficios-container">
-    <div class="card-beneficio" onclick="abrirModal('modal-entregas')">
-      <img src="img/entrega.svg" alt="Entregas" class="icone-beneficio"/>
-      <p><strong>Nossas<br>entregas</strong></p>
-    </div>
-    <div class="card-beneficio" onclick="abrirModal('modal-parceiros')">
-      <img src="img/parceiros.svg" alt="Parcerias" class="icone-beneficio"/>
-      <p><strong>Parcerias com<br>serviços locais</strong></p>
-    </div>
-    <div class="card-beneficio" onclick="abrirModal('modal-descontos')">
-      <img src="img/desconto.svg" alt="Descontos" class="icone-beneficio"/>
-      <p><strong>Descontos<br>especiais</strong></p>
-    </div>
-    <div class="card-beneficio" onclick="abrirModal('modal-indique')">
-      <img src="img/indique.svg" alt="Indique" class="icone-beneficio"/>
-      <p><strong>Indicou<br>ganhou</strong></p>
-    </div>
-    <div class="card-beneficio" onclick="abrirModal('modal-recompra')">
-      <img src="img/recompra.svg" alt="Recompra" class="icone-beneficio"/>
-      <p><strong>Recompra<br>recorrente</strong></p>
-    </div>
-  </div>
-</section>
-
-<!-- MODAIS DE BENEFÍCIOS -->
-<div class="modal" id="modal-entregas">
-  <div class="modal-conteudo">
-    <span class="fechar" onclick="fecharModal('modal-entregas')">&times;</span>
-    <h3>Entregas</h3>
-    <p>Entregamos em até 24h para regiões selecionadas. Consulte prazos e disponibilidade no seu CEP.</p>
-  </div>
-</div>
-
-<div class="modal" id="modal-parceiros">
-  <div class="modal-conteudo">
-    <span class="fechar" onclick="fecharModal('modal-parceiros')">&times;</span>
-    <h3>Conectando você aos melhores serviços do bairro!</h3>
-    <p>Fortalecemos laços com parceiros locais para oferecer praticidade, confiança e benefícios exclusivos para você e seu pet.</p>
-  </div>
-</div>
-
-<div class="modal" id="modal-descontos">
-  <div class="modal-conteudo">
-    <span class="fechar" onclick="fecharModal('modal-descontos')">&times;</span>
-    <h3>Descontos Especiais</h3>
-    <p>Comprando via <strong>Pix</strong> você ganha <strong>5% de desconto</strong>. Retirando em nossa loja ou com um parceiro próximo, ganha <strong>mais 5%</strong>. Descontos válidos para todos os clientes!</p>
-  </div>
-</div>
-
-<div class="modal" id="modal-indique">
-  <div class="modal-conteudo">
-    <span class="fechar" onclick="fecharModal('modal-indique')">&times;</span>
-    <h3>Indique e Ganhe</h3>
-    <p>Indique amigos e ganhe bônus. Seu amigo recebe desconto na primeira compra e você ganha um brinde ou crédito.</p>
-  </div>
-</div>
-
-<div class="modal" id="modal-recompra">
-  <div class="modal-conteudo">
-    <span class="fechar" onclick="fecharModal('modal-recompra')">&times;</span>
-    <h3>Recompra Recorrente</h3>
-    <p>Assine produtos para entrega automática com desconto e comodidade. Cancele quando quiser.</p>
-  </div>
-</div>
-
-<!-- SERVIÇOS -->
-<section class="servicos-agendamento">
-  <div class="servico">
-    <h3>Banho & Tosa</h3>
-    <p>Ambiente seguro e profissionais experientes para o cuidado do seu pet.</p>
-    <a href="banho.html" class="btn-agendar">Comprar agora</a>
-  </div>
-  <div class="servico">
-    <h3>Creche Pet</h3>
-    <p>Ideal para quem trabalha o dia todo: diversão e cuidado garantidos.</p>
-    <a href="creche.html" class="btn-agendar">Agendar agora</a>
-  </div>
-  <div class="servico">
-    <h3>Hospedagem</h3>
-    <p>Finais de semana ou viagens? Seu pet fica em um lugar aconchegante.</p>
-    <a href="hospedagem.html#hospedagem" class="btn-agendar">Agendar agora</a>
-  </div>
-  <div class="servico">
-    <h3>Consultas Veterinárias</h3>
-    <p>Profissionais confiáveis para acompanhar a saúde do seu pet.</p>
-    <a href="consultaveterinario.html#consulta" class="btn-agendar">Agendar agora</a>
-  </div>
-</section>
-
-<!-- PROMOÇÕES -->
-<section class="promocoes">
-  <h2>Promoções da Semana</h2>
-  <div class="produtos-destaque">
-    <div class="produto">
-      <img src="https://via.placeholder.com/150" alt="Snack Natural Dog"/>
-      <h3>Snack Natural Dog 500g</h3>
-      <p>De R$ 39,90 por</p>
-      <span class="preco-promocao">R$ 29,90</span>
-    </div>
-    <div class="produto">
-      <img src="https://via.placeholder.com/150" alt="Shampoo Neutro"/>
-      <h3>Shampoo Neutro 500ml</h3>
-      <p>Leve 2 e pague 1</p>
-      <span class="preco-promocao">R$ 18,90</span>
-    </div>
-    <div class="produto">
-      <img src="https://via.placeholder.com/150" alt="Coleira Antipulgas"/>
-      <h3>Coleira Antipulgas</h3>
-      <p>Desconto especial no Pix + Retirada</p>
-      <span class="preco-promocao">R$ 64,90</span>
-    </div>
-  </div>
-</section>
-
-<!-- MAIS VENDIDOS -->
-<section class="mais-vendidos">
-  <h2>Mais Vendidos</h2>
-  <div class="produtos-destaque">
-    <div class="produto">
-      <img src="produto1.jpg" alt="">
-      <h3>Produto 1</h3>
-      <p>Descrição breve</p>
-      <div class="preco">R$ 49,90</div>
-    </div>
-    <div class="produto">
-      <img src="produto2.jpg" alt="">
-      <h3>Produto 2</h3>
-      <p>Descrição breve</p>
-      <div class="preco-promocao">R$ 29,90</div>
-    </div>
-  </div>
-</section>
-
-<!-- MARCAS -->
-<section class="marcas">
-  <h2>Trabalhamos com as melhores marcas</h2>
-  <div class="marcas-container">
-    <img src="marcas/specialdog.png" alt="Special Dog"/>
-    <img src="marcas/premierpet.png" alt="Premier Pet"/>
-    <img src="marcas/nexgard.png" alt="Nexgard"/>
-    <img src="marcas/royalcanin.png" alt="Royal Canin"/>
-    <img src="marcas/buddytoys.png" alt="Buddy Toys"/>
-  </div>
-</section>
-
-<!-- RODAPÉ -->
-<footer class="rodape-completo">
-  <div class="rodape-conteudo">
-    <div class="coluna">
-      <h4>Sobre Nós</h4>
-      <ul>
-        <li><a href="#">Sobre Nós</a></li>
-        <li><a href="#">Política de Privacidade</a></li>
-        <li><a href="#">Política de Compra</a></li>
-        <li><a href="#">Política de Entrega</a></li>
-        <li><a href="#">Trocas e Devoluções</a></li>
-      </ul>
-    </div>
-    <div class="coluna">
-      <h4>Atendimento ao Cliente</h4>
-      <ul>
-        <li><a href="#">Contato</a></li>
-        <li><a href="#">Devoluções</a></li>
-        <li><a href="#">Mapa do Site</a></li>
-        <li><a href="#">Marcas</a></li>
-      </ul>
-    </div>
-    <div class="coluna">
-      <h4>Minha conta</h4>
-      <ul>
-        <li><a href="#">Minha conta</a></li>
-        <li><a href="#">Histórico de pedidos</a></li>
-      </ul>
-    </div>
-    <div class="coluna newsletter">
-      <h4>Receber Notícias</h4>
-      <p>Mantenha-se atualizado com as novidades e promoções:</p>
-      <form>
-        <input type="tel" placeholder="Seu Telefone" required/>
-        <button type="submit"><i class="fas fa-envelope"></i> Enviar</button>
-      </form>
-      <h5>Imagem antispam</h5>
-      <label>Digite o código no campo abaixo <span style="color:red">*</span></label>
-      <div class="recaptcha-fake">
-        <div class="caixa"></div>
-        <span><i class="far fa-square"></i> Não sou um robô</span>
-        <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA"/>
-      </div>
-      <label><input type="checkbox" required/> Eu li e concordo com o contrato de <a href="#">Segurança e Privacidade</a></label>
-    </div>
+    <!-- TABELA -->
+    <h2>Lista de Parceiros</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Categoria</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Banho & Tosa Feliz</td>
+          <td>Banho e Tosa</td>
+          <td>Ativo</td>
+          <td><a href="#">Ver Detalhes</a></td>
+        </tr>
+        <tr>
+          <td>Clínica Vet Saúde</td>
+          <td>Clínica Veterinária</td>
+          <td>Ativo</td>
+          <td><a href="#">Ver Detalhes</a></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <div class="rodape-inferior">
-    <div class="pagamentos">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa"/>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="MasterCard"/>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo_%282018%29.svg" alt="Amex"/>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/8/88/Elo_card_logo.svg" alt="Elo"/>
-      <img src="https://logodownload.org/wp-content/uploads/2019/09/hipercard-logo-2.png" alt="Hipercard" style="height:28px;"/>
-    </div>
-    <div class="selos">
-      <img src="https://www.certisign.com.br/assets/images/selos/selo_site_seguro.png" alt="Site Seguro"/>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/3/34/Google_Safe_Browsing_logo.svg" alt="Google Safe" style="height:28px;"/>
-    </div>
-  </div>
-</footer>
+  <!-- FIREBASE + SCRIPT -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Config Firebase (substituir pelos seus dados)
+      const firebaseConfig = {
+        apiKey: "SUA_API_KEY",
+        authDomain: "SEU_AUTH_DOMAIN",
+        projectId: "SEU_PROJECT_ID",
+        storageBucket: "SEU_STORAGE_BUCKET",
+        messagingSenderId: "SEU_MSG_SENDER_ID",
+        appId: "SEU_APP_ID"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
 
-<!-- Painel lateral + overlay -->
-<div id="painel-overlay" class="painel-overlay" aria-hidden="true"></div>
-<aside id="painel-cliente" class="painel-cliente" role="dialog" aria-modal="true" aria-labelledby="painel-titulo">
-  <div class="painel-topo">
-    <div class="foto" id="painel-iniciais">U</div>
-    <div class="info">
-      <div class="nome" id="painel-nome">Usuário</div>
-      <div class="email" id="painel-email">email@dominio.com</div>
-    </div>
-    <button class="painel-fechar" id="painel-fechar" aria-label="Fechar painel">
-      <i class="fa-solid fa-xmark"></i>
-    </button>
-  </div>
+      // Referência ao botão/link de login
+      const acoesUsuario = document.querySelector(".acoes-usuario");
+      const linkEntrar = document.getElementById("link-entrar");
 
-  <div class="painel-lista" id="painel-lista">
-    <!-- Seção Cliente (sempre para role cliente) -->
-    <div class="secao" id="secao-cliente" hidden>
-      <div class="secao-titulo">Minha conta <span class="chip-role" id="chip-role-cliente">cliente</span></div>
-      <a class="link-item" href="areadocliente.html#perfil"><i class="fa-solid fa-id-card"></i> Perfil</a>
-      <a class="link-item" href="areadocliente.html#agendamentos"><i class="fa-regular fa-calendar-check"></i> Agendamentos</a>
-      <a class="link-item" href="areadocliente.html#pedidos"><i class="fa-solid fa-box-open"></i> Produtos & Pedidos</a>
-      <a class="link-item" href="areadocliente.html#historico"><i class="fa-regular fa-clock"></i> Histórico</a>
-      <a class="link-item" href="areadocliente.html#pets"><i class="fa-solid fa-paw"></i> Meus Pets</a>
-      <a class="link-item" href="areadocliente.html#vantagens"><i class="fa-solid fa-gift"></i> Vantagens</a>
-    </div>
+      // Cria modal de login
+      function criarModalLogin() {
+        const modal = document.createElement("div");
+        modal.classList.add("modal");
+        modal.innerHTML = `
+          <div class="modal-content">
+            <h2>Login</h2>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="senha" placeholder="Senha" required>
+            <button id="btn-login">Entrar</button>
+            <p id="msg-erro" style="color:red; margin-top:10px;"></p>
+          </div>`;
+        document.body.appendChild(modal);
+        return modal;
+      }
+      const modalLogin = criarModalLogin();
 
-    <!-- Seção Parceiro -->
-    <div class="secao" id="secao-parceiro" hidden>
-      <div class="secao-titulo">Parceiro <span class="chip-role">parceiro</span></div>
-      <a class="link-item" href="painel-parceiro.html#agenda"><i class="fa-regular fa-calendar"></i> Agenda de Serviços</a>
-      <a class="link-item" href="painel-parceiro.html#pedidos"><i class="fa-solid fa-truck"></i> Pedidos Recebidos</a>
-      <a class="link-item" href="painel-parceiro.html#perfil"><i class="fa-solid fa-user-gear"></i> Perfil do Parceiro</a>
-    </div>
-
-    <!-- Seção Funcionário -->
-    <div class="secao" id="secao-funcionario" hidden>
-      <div class="secao-titulo">Funcionário <span class="chip-role">funcionário</span></div>
-      <a class="link-item" href="painel-funcionario.html#criar-parceiro"><i class="fa-solid fa-user-plus"></i> Criar Parceiro</a>
-      <a class="link-item" href="painel-funcionario.html#pedidos"><i class="fa-solid fa-clipboard-list"></i> Gerenciar Pedidos</a>
-      <a class="link-item" href="painel-funcionario.html#agenda"><i class="fa-regular fa-calendar-days"></i> Agenda Geral</a>
-    </div>
-
-    <!-- Seção Admin -->
-    <div class="secao" id="secao-admin" hidden>
-      <div class="secao-titulo">Admin <span class="chip-role">admin</span></div>
-      <a class="link-item" href="painel-admin.html#dashboard"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
-      <a class="link-item" href="painel-admin.html#usuarios"><i class="fa-solid fa-users-gear"></i> Gerenciar Usuários</a>
-      <a class="link-item" href="painel-admin.html#criar-funcionario"><i class="fa-solid fa-user-tie"></i> Criar Funcionário</a>
-      <a class="link-item" href="painel-admin.html#config"><i class="fa-solid fa-sliders"></i> Configurações</a>
-    </div>
-  </div>
-
-  <div class="painel-rodape">
-    <button class="btn-ir-area" id="btn-ir-area"><i class="fa-regular fa-window-maximize"></i> Ir para Área do Cliente</button>
-    <button class="btn-sair" id="btn-sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
-  </div>
-</aside>
-
-<!-- Modal Login/Cadastro -->
-<div class="modal-login" id="modal-login">
-  <div class="modal-login-content">
-    <span class="fechar" id="fechar-modal">&times;</span>
-    <div class="tab-login">
-      <div id="tab-entrar" class="ativo">Entrar</div>
-      <div id="tab-cadastrar">Cadastrar</div>
-    </div>
-
-    <!-- Form Entrar -->
-    <div id="form-entrar">
-      <input type="email" id="email-login" placeholder="Email"/>
-      <input type="password" id="senha-login" placeholder="Senha"/>
-      <button id="btn-login">Entrar</button>
-    </div>
-
-    <!-- Form Cadastrar -->
-    <div id="form-cadastrar" style="display:none;">
-      <input type="text" id="nome-cadastro" placeholder="Nome completo"/>
-      <input type="tel" id="telefone-cadastro" placeholder="Telefone"/>
-      <input type="email" id="email-cadastro" placeholder="Email"/>
-      <input type="password" id="senha-cadastro" placeholder="Senha"/>
-      <button id="btn-cadastrar">Cadastrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Swiper JS -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
-<!-- Firebase SDKs (compat) -->
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
-
-<script>
-  // ======= Inicialização do Swiper =======
-  const swiper = new Swiper('.banner-swiper', {
-    loop: true,
-    slidesPerView: 1,
-    spaceBetween: 20,
-    pagination: { el: '.swiper-pagination', clickable: true },
-    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-    autoplay: { delay: 4000, disableOnInteraction: false }
-  });
-
-  // ======= Modais de benefícios =======
-  function abrirModal(id){ document.getElementById(id).style.display='block'; }
-  function fecharModal(id){ document.getElementById(id).style.display='none'; }
-  window.addEventListener('click', (e) => {
-    document.querySelectorAll('.modal').forEach(m => { if(e.target === m) m.style.display='none'; });
-  });
-
-  // ======= Firebase (troque pelas suas credenciais) =======
-  const firebaseConfig = {
-  apiKey: "AIzaSyDVr6OOQRt2rB0kByInjqjdyoQCpnMAt7I",
-  authDomain: "site-f6495.firebaseapp.com",
-  projectId: "site-f6495",
-  storageBucket: "site-f6495.firebasestorage.app",
-  messagingSenderId: "230161402024",
-  appId: "1:230161402024:web:462a911919ebf8a0809a9d",
-  measurementId: "G-51G8XF6JH0"
-};
-  firebase.initializeApp(firebaseConfig);
-  firebase.analytics();
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  // ======= Elementos de UI =======
-  const botaoLogin = document.getElementById('botao-login');
-  const modalLogin = document.getElementById('modal-login');
-  const fecharModalBtn = document.getElementById('fechar-modal');
-
-  const usuarioLogadoWrap = document.getElementById('usuario-logado');
-  const usuarioChip = document.getElementById('usuario-chip');
-  const nomeUsuarioSpan = document.getElementById('nome-usuario');
-  const iniciaisSpan = document.getElementById('usuario-iniciais');
-
-  const painel = document.getElementById('painel-cliente');
-  const painelOverlay = document.getElementById('painel-overlay');
-  const painelFechar = document.getElementById('painel-fechar');
-  const painelNome = document.getElementById('painel-nome');
-  const painelEmail = document.getElementById('painel-email');
-  const painelIniciais = document.getElementById('painel-iniciais');
-  const btnIrArea = document.getElementById('btn-ir-area');
-  const btnSair = document.getElementById('btn-sair');
-
-  const secaoCliente = document.getElementById('secao-cliente');
-  const secaoParceiro = document.getElementById('secao-parceiro');
-  const secaoFuncionario = document.getElementById('secao-funcionario');
-  const secaoAdmin = document.getElementById('secao-admin');
-
-  // ======= Modal Login =======
-  botaoLogin.addEventListener('click', () => { modalLogin.style.display='block'; });
-  fecharModalBtn.addEventListener('click', () => { modalLogin.style.display='none'; });
-  window.addEventListener('click', (e) => { if(e.target === modalLogin){ modalLogin.style.display='none'; } });
-
-  // Tabs do modal
-  const tabEntrar = document.getElementById('tab-entrar');
-  const tabCadastrar = document.getElementById('tab-cadastrar');
-  const formEntrar = document.getElementById('form-entrar');
-  const formCadastrar = document.getElementById('form-cadastrar');
-
-  tabEntrar.addEventListener('click', () => {
-    formEntrar.style.display = 'block';
-    formCadastrar.style.display = 'none';
-    tabEntrar.classList.add('ativo'); tabCadastrar.classList.remove('ativo');
-  });
-  tabCadastrar.addEventListener('click', () => {
-    formEntrar.style.display = 'none';
-    formCadastrar.style.display = 'block';
-    tabCadastrar.classList.add('ativo'); tabEntrar.classList.remove('ativo');
-  });
-
-  // ======= Helpers =======
-  function getIniciais(nome='') {
-    const partes = nome.trim().split(' ').filter(Boolean);
-    if(!partes.length) return 'U';
-    const a = partes[0][0] || '';
-    const b = (partes.length > 1 ? partes[partes.length - 1][0] : '') || '';
-    return (a + b).toUpperCase();
-  }
-
-  async function getPerfil(uid){
-    // Tenta em 'usuarios' primeiro; se não houver, tenta 'clientes' (legado)
-    const docUser = await db.collection('usuarios').doc(uid).get();
-    if(docUser.exists) return { id: uid, ...docUser.data() };
-
-    const docCli = await db.collection('clientes').doc(uid).get();
-    if(docCli.exists) {
-      // se vier de clientes, injeta role padrão cliente
-      return { id: uid, role: 'cliente', ...docCli.data() };
-    }
-    // fallback mínimo, só com email do auth
-    const user = auth.currentUser;
-    return { id: uid, role: 'cliente', nome: user?.displayName || 'Cliente', email: user?.email || '' };
-  }
-
-  function preencherChipENome(perfil){
-    const primeiroNome = (perfil.nome || 'Cliente').split(' ')[0];
-    nomeUsuarioSpan.textContent = primeiroNome;
-    iniciaisSpan.textContent = getIniciais(perfil.nome || primeiroNome);
-  }
-
-  function preencherPainel(perfil){
-    painelNome.textContent = perfil.nome || 'Cliente';
-    painelEmail.textContent = perfil.email || (auth.currentUser?.email || '');
-    painelIniciais.textContent = getIniciais(perfil.nome || painelNome.textContent);
-
-    // Reseta seções
-    secaoCliente.hidden = true;
-    secaoParceiro.hidden = true;
-    secaoFuncionario.hidden = true;
-    secaoAdmin.hidden = true;
-
-    // Exibe seção conforme role
-    const role = (perfil.role || 'cliente').toLowerCase();
-    if(role === 'cliente') secaoCliente.hidden = false;
-    if(role === 'parceiro') secaoParceiro.hidden = false;
-    if(role === 'funcionario') secaoFuncionario.hidden = false;
-    if(role === 'admin') secaoAdmin.hidden = false;
-
-    // Botão "Ir para Área do Cliente" manda para sua página
-    btnIrArea.onclick = () => { window.location.href = 'areadocliente.html'; };
-  }
-
-  // Abrir/fechar painel
-  function abrirPainel(){
-    painel.classList.add('ativo');
-    painelOverlay.classList.add('ativo');
-    usuarioChip.setAttribute('aria-expanded', 'true');
-  }
-  function fecharPainel(){
-    painel.classList.remove('ativo');
-    painelOverlay.classList.remove('ativo');
-    usuarioChip.setAttribute('aria-expanded', 'false');
-  }
-  usuarioChip.addEventListener('click', async (e) => {
-    e.stopPropagation();
-    // Garante que dados estão OK antes de abrir
-    const user = auth.currentUser;
-    if(!user) return; // sem usuário logado, não abre
-    const perfil = await getPerfil(user.uid);
-    preencherPainel(perfil);
-    abrirPainel();
-  });
-  painelFechar.addEventListener('click', fecharPainel);
-  painelOverlay.addEventListener('click', fecharPainel);
-  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') fecharPainel(); });
-
-  // ======= Cadastro/Login =======
-  document.getElementById('btn-cadastrar').addEventListener('click', async () => {
-    const nome = document.getElementById('nome-cadastro').value.trim();
-    const telefone = document.getElementById('telefone-cadastro').value.trim();
-    const email = document.getElementById('email-cadastro').value.trim();
-    const senha = document.getElementById('senha-cadastro').value;
-
-    if(!nome || !telefone || !email || !senha){ alert('Preencha todos os campos'); return; }
-
-    try {
-      const cred = await auth.createUserWithEmailAndPassword(email, senha);
-      await db.collection('usuarios').doc(cred.user.uid).set({
-        nome, telefone, email, role: 'cliente', criadoEm: new Date()
+      // Ação do botão login
+      linkEntrar.addEventListener("click", (e) => {
+        e.preventDefault();
+        modalLogin.style.display = "flex";
       });
-      alert('Cadastro realizado!');
-      modalLogin.style.display = 'none';
-    } catch (err) {
-      alert(err.message);
-    }
-  });
 
-  document.getElementById('btn-login').addEventListener('click', async () => {
-    const email = document.getElementById('email-login').value.trim();
-    const senha = document.getElementById('senha-login').value;
+      // Fechar modal ao clicar fora
+      window.addEventListener("click", (e) => {
+        if (e.target === modalLogin) modalLogin.style.display = "none";
+      });
 
-    if(!email || !senha){ alert('Preencha todos os campos'); return; }
+      // Login
+      modalLogin.querySelector("#btn-login").addEventListener("click", async () => {
+        const email = modalLogin.querySelector("#email").value;
+        const senha = modalLogin.querySelector("#senha").value;
+        try {
+          await auth.signInWithEmailAndPassword(email, senha);
+          modalLogin.style.display = "none";
+        } catch (error) {
+          modalLogin.querySelector("#msg-erro").textContent = "Erro: " + error.message;
+        }
+      });
 
-    try {
-      const cred = await auth.signInWithEmailAndPassword(email, senha);
-      const perfil = await getPerfil(cred.user.uid);
-      preencherChipENome(perfil);
-      botaoLogin.style.display = 'none';
-      usuarioLogadoWrap.style.display = 'flex';
-      modalLogin.style.display = 'none';
-    } catch (err) {
-      alert(err.message);
-    }
-  });
-
-  // ======= Persistência de login (onAuthStateChanged) =======
-  auth.onAuthStateChanged(async (user) => {
-    if(user){
-      const perfil = await getPerfil(user.uid);
-      preencherChipENome(perfil);
-      botaoLogin.style.display = 'none';
-      usuarioLogadoWrap.style.display = 'flex';
-    } else {
-      botaoLogin.style.display = 'inline-block';
-      usuarioLogadoWrap.style.display = 'none';
-      fecharPainel();
-    }
-  });
-
-  // ======= Logout =======
-  btnSair.addEventListener('click', async () => {
-    try {
-      await auth.signOut();
-      fecharPainel();
-    } catch (e) {
-      alert('Erro ao sair. Tente novamente.');
-    }
-  });
-</script>
-
-<!-- Seu main.js (se existir) -->
-<!-- <script src="main.js"></script> -->
+      // Atualiza interface conforme login/logout
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          acoesUsuario.innerHTML = `<a href="#" id="btn-logout">Sair</a>`;
+          document.getElementById("btn-logout").addEventListener("click", async (e) => {
+            e.preventDefault();
+            await auth.signOut();
+          });
+        } else {
+          acoesUsuario.innerHTML = `<a href="#" id="link-entrar">Entrar | Cadastrar</a>`;
+          document.getElementById("link-entrar").addEventListener("click", (e) => {
+            e.preventDefault();
+            modalLogin.style.display = "flex";
+          });
+        }
+      });
+    });
+  </script>
 </body>
 </html>
-
