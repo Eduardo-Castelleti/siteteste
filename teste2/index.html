@@ -9,241 +9,230 @@
     body {
       margin: 0;
       font-family: 'Roboto', sans-serif;
+      display<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Pet - Parceiros</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f8;
       display: flex;
-      background: #f4f6f9;
     }
     .sidebar {
       width: 250px;
-      background: #2c3e50;
+      background-color: #2c3e50;
       color: #fff;
       height: 100vh;
       position: fixed;
-      display: flex;
-      flex-direction: column;
       padding-top: 20px;
     }
     .sidebar h2 {
       text-align: center;
-      margin-bottom: 20px;
-      font-size: 18px;
+      margin-bottom: 30px;
+      font-weight: 500;
     }
     .sidebar a {
-      padding: 15px;
-      text-decoration: none;
-      color: #fff;
       display: block;
-      transition: 0.3s;
+      color: #fff;
+      padding: 15px 20px;
+      text-decoration: none;
+      transition: background 0.3s;
     }
-    .sidebar a:hover, .sidebar a.active {
-      background: #1abc9c;
+    .sidebar a:hover {
+      background-color: #34495e;
     }
-    .content {
+    .main-content {
       margin-left: 250px;
       padding: 20px;
-      width: 100%;
+      width: calc(100% - 250px);
     }
-    .page {
-      display: none;
-    }
-    .page.active {
-      display: block;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #fff;
+      padding: 10px 20px;
       margin-bottom: 20px;
-    }
-    .card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    header h1 {
+      font-size: 24px;
+      font-weight: 500;
+    }
+    .btn {
+      padding: 10px 15px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background-color: #2980b9;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     table th, table td {
-      padding: 10px;
-      border: 1px solid #ddd;
+      padding: 12px;
       text-align: left;
+      border-bottom: 1px solid #ddd;
     }
     table th {
-      background: #f1f1f1;
-    }
-    .btn {
-      background: #1abc9c;
+      background-color: #3498db;
       color: #fff;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 5px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .modal-content h2 {
+      margin-top: 0;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
       cursor: pointer;
+    }
+    .close:hover {
+      color: #000;
+    }
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
+
   <div class="sidebar">
-    <h2>Parceiros</h2>
-    <a href="#" class="menu-link active" data-page="dashboard">Dashboard</a>
-    <a href="#" class="menu-link" data-page="catalogo">Catálogo</a>
-    <a href="#" class="menu-link" data-page="agenda">Agenda</a>
-    <a href="#" class="menu-link" data-page="servicos">Serviços</a>
-    <a href="#" class="menu-link" data-page="album">Álbum</a>
-    <a href="#" class="menu-link" data-page="materiais">Materiais</a>
-    <a href="#" class="menu-link" data-page="suporte">Suporte</a>
-    <a href="#" class="menu-link" data-page="perfil">Perfil</a>
+    <h2>Admin Pet</h2>
+    <a href="#">Dashboard</a>
+    <a href="#">Clientes</a>
+    <a href="#">Parceiros</a>
+    <a href="#">Agendamentos</a>
+    <a href="#">Produtos</a>
   </div>
 
-  <div class="content">
-    <!-- Dashboard -->
-    <div class="page active" id="dashboard">
-      <h1>Dashboard</h1>
-      <div class="cards">
-        <div class="card">
-          <h3>Total de Pedidos</h3>
-          <p>0</p>
-        </div>
-        <div class="card">
-          <h3>Serviços Agendados</h3>
-          <p>0</p>
-        </div>
-        <div class="card">
-          <h3>Produtos Ativos</h3>
-          <p>0</p>
-        </div>
-      </div>
-    </div>
+  <div class="main-content">
+    <header>
+      <h1>Painel de Parceiros</h1>
+      <button class="btn" id="openModalBtn">Adicionar Parceiro</button>
+    </header>
 
-    <!-- Catálogo -->
-    <div class="page" id="catalogo">
-      <h1>Catálogo</h1>
-      <button class="btn">+ Adicionar Produto</button>
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Categoria</th>
-            <th>Preço</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Exemplo Produto</td>
-            <td>Ração</td>
-            <td>R$ 100,00</td>
-            <td>Ativo</td>
-            <td><button class="btn">Inativar</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Telefone</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Petshop Amigo</td>
+          <td>contato@petshopamigo.com</td>
+          <td>(51) 99999-9999</td>
+          <td>Ativo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Agenda -->
-    <div class="page" id="agenda">
-      <h1>Agenda</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Cliente</th>
-            <th>Serviço</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>20/08/2025</td>
-            <td>Maria</td>
-            <td>Banho e Tosa</td>
-            <td>Pendente</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Serviços -->
-    <div class="page" id="servicos">
-      <h1>Serviços</h1>
-      <button class="btn">+ Adicionar Serviço</button>
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Preço</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Banho</td>
-            <td>R$ 65,00</td>
-            <td>Ativo</td>
-            <td><button class="btn">Inativar</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Álbum -->
-    <div class="page" id="album">
-      <h1>Álbum</h1>
-      <button class="btn">+ Adicionar Foto</button>
-      <div class="cards">
-        <div class="card">
-          <p>Foto exemplo</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Materiais -->
-    <div class="page" id="materiais">
-      <h1>Materiais</h1>
-      <button class="btn">+ Upload Arquivo</button>
-      <ul>
-        <li>Arquivo Exemplo.pdf</li>
-      </ul>
-    </div>
-
-    <!-- Suporte -->
-    <div class="page" id="suporte">
-      <h1>Suporte</h1>
-      <p>Precisa de ajuda? Entre em contato pelo WhatsApp ou envie sua dúvida aqui.</p>
-      <button class="btn">Abrir Chamado</button>
-    </div>
-
-    <!-- Perfil -->
-    <div class="page" id="perfil">
-      <h1>Perfil</h1>
-      <form>
-        <label>Nome do Parceiro</label><br>
-        <input type="text" placeholder="Digite o nome"><br><br>
-        <label>Email</label><br>
-        <input type="email" placeholder="Digite o email"><br><br>
-        <label>Telefone</label><br>
-        <input type="text" placeholder="Digite o telefone"><br><br>
-        <button class="btn">Salvar</button>
+  <!-- Modal -->
+  <div id="partnerModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeModalBtn">&times;</span>
+      <h2>Adicionar Novo Parceiro</h2>
+      <form id="partnerForm">
+        <input type="text" id="partnerName" placeholder="Nome do Parceiro" required>
+        <input type="email" id="partnerEmail" placeholder="Email do Parceiro" required>
+        <input type="text" id="partnerPhone" placeholder="Telefone do Parceiro" required>
+        <button type="submit" class="btn">Salvar</button>
       </form>
     </div>
   </div>
 
   <script>
-    const links = document.querySelectorAll('.menu-link');
-    const pages = document.querySelectorAll('.page');
+    // Pega os elementos
+    const modal = document.getElementById("partnerModal");
+    const openModalBtn = document.getElementById("openModalBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const partnerForm = document.getElementById("partnerForm");
 
-    links.forEach(link => {
-      link.addEventListener('click', () => {
-        links.forEach(l => l.classList.remove('active'));
-        link.classList.add('active');
+    // Abrir modal
+    openModalBtn.addEventListener("click", () => {
+      modal.style.display = "block";
+    });
 
-        pages.forEach(p => p.classList.remove('active'));
-        document.getElementById(link.dataset.page).classList.add('active');
-      });
+    // Fechar modal (botão X)
+    closeModalBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+
+    // Fechar modal clicando fora do conteúdo
+    window.addEventListener("click", (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+
+    // Salvar novo parceiro (exemplo local)
+    partnerForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const name = document.getElementById("partnerName").value;
+      const email = document.getElementById("partnerEmail").value;
+      const phone = document.getElementById("partnerPhone").value;
+
+      const table = document.querySelector("table tbody");
+      const newRow = table.insertRow();
+
+      newRow.innerHTML = `
+        <td>${name}</td>
+        <td>${email}</td>
+        <td>${phone}</td>
+        <td>Ativo</td>
+      `;
+
+      // Fecha modal e limpa formulário
+      modal.style.display = "none";
+      partnerForm.reset();
     });
   </script>
+
 </body>
 </html>
