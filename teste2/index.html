@@ -1,173 +1,193 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pet Shop</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-<style>
-  body { margin:0; font-family: 'Roboto', sans-serif; display:flex; height:100vh; }
-  nav { width:220px; background:#6a1b9a; color:#fff; padding:20px; display:flex; flex-direction:column; }
-  nav a { color:#fff; text-decoration:none; margin:8px 0; font-weight:500; display:flex; align-items:center; }
-  nav a i { margin-right:8px; }
-  main { flex:1; padding:20px; overflow-y:auto; }
-  .acoes-usuario { margin-bottom:20px; }
-  .mais-vendidos, .marcas { margin-top:20px; }
-  .produtos-destaque, .marcas-container { display:flex; flex-wrap:wrap; gap:12px; }
-  .produto { border:1px solid #ccc; border-radius:6px; padding:10px; width:150px; text-align:center; }
-  .produto img { width:100%; border-radius:6px; }
-  .marcas-container img { width:120px; height:50px; object-fit:contain; border:1px solid #ccc; border-radius:6px; padding:5px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetShop - Página Inicial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <style>
+    body { font-family: 'Roboto', sans-serif; margin:0; padding:0; background:#f9f9f9; }
+    header { background:#6a1b9a; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; }
+    header h1 { margin:0; font-size:24px; }
+    .acoes-usuario a { color:#fff; margin-left:15px; text-decoration:none; font-weight:500; }
+    .mais-vendidos, .marcas { padding:30px 20px; }
+    .mais-vendidos h2, .marcas h2 { margin-bottom:20px; color:#4a148c; }
+    .produtos-destaque, .marcas-container { display:flex; flex-wrap:wrap; gap:20px; }
+    .produto, .marcas-container img { background:#fff; border-radius:8px; padding:10px; text-align:center; flex:1 1 150px; max-width:180px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .produto img { max-width:100%; border-radius:6px; }
+    .produto h3 { font-size:16px; margin:10px 0 5px; }
+    .produto p { font-size:14px; color:#555; margin:0 0 5px; }
+    .preco { font-weight:bold; color:#6a1b9a; }
+    footer { background:#4a148c; color:#fff; text-align:center; padding:20px; margin-top:30px; }
+    /* Modal Login */
+    #modal-login { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:9999; }
+    #modal-login div { background:#fff; padding:20px; border-radius:10px; max-width:320px; width:90%; box-shadow:0 5px 15px rgba(0,0,0,0.3); position:relative; }
+    #modal-login h2 { margin-top:0; color:#4a148c; }
+    #modal-login input { padding:10px; border:1px solid #ccc; border-radius:6px; width:100%; margin-bottom:10px; }
+    #modal-login button { background:#6a1b9a; color:#fff; border:none; padding:10px; border-radius:6px; cursor:pointer; width:100%; font-weight:bold; }
+    #modal-fechar { position:absolute; top:8px; right:12px; font-size:24px; cursor:pointer; color:#666; }
+    #login-erro { color:#d32f2f; font-size:14px; display:none; margin-top:5px; }
+  </style>
 </head>
 <body>
 
-<!-- MENU LATERAL -->
-<nav>
-  <div class="acoes-usuario">
-    <a href="#" id="link-entrar"><i class="fas fa-user"></i> Entrar | Cadastrar</a>
+  <!-- Header -->
+  <header>
+    <h1>PetShop</h1>
+    <div class="acoes-usuario">
+      <a href="#" id="link-entrar"><i class="fas fa-user"></i> Entrar | Cadastrar</a>
+    </div>
+  </header>
+
+  <!-- Mais Vendidos -->
+  <section class="mais-vendidos">
+    <h2>Mais Vendidos</h2>
+    <div class="produtos-destaque">
+      <!-- Produtos serão carregados via JS -->
+    </div>
+  </section>
+
+  <!-- Marcas -->
+  <section class="marcas">
+    <h2>Nossas Marcas</h2>
+    <div class="marcas-container">
+      <!-- Marcas serão carregadas via JS -->
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 PetShop. Todos os direitos reservados.
+  </footer>
+
+  <!-- Modal Login -->
+  <div id="modal-login">
+    <div>
+      <span id="modal-fechar">&times;</span>
+      <h2>Entrar</h2>
+      <form id="form-login">
+        <input type="email" id="login-email" placeholder="E-mail" required />
+        <input type="password" id="login-senha" placeholder="Senha" required />
+        <button type="submit">Entrar</button>
+        <div id="login-erro"></div>
+      </form>
+    </div>
   </div>
-  <a href="#"><i class="fas fa-home"></i> Início</a>
-  <a href="#"><i class="fas fa-box"></i> Produtos</a>
-  <a href="#"><i class="fas fa-sync-alt"></i> Recorrência</a>
-  <a href="#"><i class="fas fa-shopping-cart"></i> Pedidos</a>
-</nav>
 
-<!-- CONTEÚDO PRINCIPAL -->
-<main>
-  <h1>Mais Vendidos</h1>
-  <div class="mais-vendidos">
-    <div class="produtos-destaque"></div>
-  </div>
+  <!-- Firebase Config & JS -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "SEU_API_KEY",
+      authDomain: "SEU_AUTH_DOMAIN",
+      projectId: "SEU_PROJECT_ID",
+    };
+    firebase.initializeApp(firebaseConfig);
 
-  <h1>Marcas</h1>
-  <div class="marcas">
-    <div class="marcas-container"></div>
-  </div>
-</main>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-<!-- SCRIPT -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  // Firebase config (coloque seu config real aqui)
-  const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
-    authDomain: "SEU_AUTH_DOMAIN",
-    projectId: "SEU_PROJECT_ID",
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+    const acoesUsuario = document.querySelector('.acoes-usuario');
+    const linkEntrar = document.getElementById('link-entrar');
+    const modalLogin = document.getElementById('modal-login');
+    const formLogin = document.getElementById('form-login');
+    const loginErro = document.getElementById('login-erro');
+    const modalFechar = document.getElementById('modal-fechar');
 
-  const acoesUsuario = document.querySelector('.acoes-usuario');
-
-  // --- MODAL LOGIN ---
-  function criarModalLogin() {
-    if (document.getElementById('modal-login')) return;
-    const modal = document.createElement('div');
-    modal.id = 'modal-login';
-    modal.style.cssText = "display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:9999;";
-    modal.innerHTML = `
-      <div style="background:#fff; padding:20px; border-radius:10px; max-width:320px; width:90%; box-shadow:0 5px 15px rgba(0,0,0,0.3); position:relative;">
-        <span id="modal-fechar" style="position:absolute; top:8px; right:12px; font-size:24px; cursor:pointer; color:#666;">&times;</span>
-        <h2 style="margin-top:0; color:#4a148c;">Entrar</h2>
-        <form id="form-login" style="display:flex; flex-direction:column; gap:12px;">
-          <input type="email" id="login-email" placeholder="E-mail" required style="padding:10px; border:1px solid #ccc; border-radius:6px;" />
-          <input type="password" id="login-senha" placeholder="Senha" required style="padding:10px; border:1px solid #ccc; border-radius:6px;" />
-          <button type="submit" style="background:#6a1b9a; color:#fff; border:none; padding:10px; border-radius:6px; cursor:pointer; font-weight:bold;">Entrar</button>
-          <div id="login-erro" style="color:#d32f2f; font-size:14px; display:none;"></div>
-        </form>
-      </div>
-    `;
-    document.body.appendChild(modal);
-
-    modal.querySelector('#modal-fechar').onclick = () => { modal.style.display = 'none'; };
-    modal.onclick = (e) => { if(e.target===modal) modal.style.display='none'; };
-
-    modal.querySelector('#form-login').addEventListener('submit', async (e) => {
+    // Abrir modal
+    linkEntrar?.addEventListener('click', e => {
       e.preventDefault();
-      const email = e.target['login-email'].value.trim();
-      const senha = e.target['login-senha'].value.trim();
-      const erroDiv = modal.querySelector('#login-erro');
-      erroDiv.style.display='none';
+      modalLogin.style.display = 'flex';
+    });
+
+    // Fechar modal
+    modalFechar.addEventListener('click', () => modalLogin.style.display = 'none');
+    window.addEventListener('click', e => { if(e.target === modalLogin) modalLogin.style.display='none'; });
+
+    // Login
+    formLogin.addEventListener('submit', async e => {
+      e.preventDefault();
+      loginErro.style.display = 'none';
+      const email = formLogin['login-email'].value.trim();
+      const senha = formLogin['login-senha'].value.trim();
       try {
         await auth.signInWithEmailAndPassword(email, senha);
-        modal.style.display = 'none';
+        modalLogin.style.display = 'none';
       } catch(err) {
-        erroDiv.textContent = err.message;
-        erroDiv.style.display='block';
+        loginErro.textContent = err.message;
+        loginErro.style.display = 'block';
       }
     });
-  }
-  criarModalLogin();
 
-  const linkEntrar = document.getElementById('link-entrar');
-  if(linkEntrar) {
-    linkEntrar.addEventListener('click', e => {
-      e.preventDefault();
-      document.getElementById('modal-login').style.display='flex';
+    // Estado de login
+    auth.onAuthStateChanged(user => {
+      if(user) {
+        const nome = user.displayName || user.email.split('@')[0] || 'Cliente';
+        acoesUsuario.innerHTML = `<span style="color:#fff; font-weight:700; margin-right:12px;">Olá, ${nome}</span>
+          <a href="#" id="btn-logout" style="color:#ff5252; font-weight:700;">Sair</a>`;
+        document.getElementById('btn-logout').addEventListener('click', async e => {
+          e.preventDefault();
+          await auth.signOut();
+          location.reload();
+        });
+      } else {
+        acoesUsuario.innerHTML = `<a href="#" id="link-entrar"><i class="fas fa-user"></i> Entrar | Cadastrar</a>`;
+        document.getElementById('link-entrar')?.addEventListener('click', e => {
+          e.preventDefault();
+          modalLogin.style.display='flex';
+        });
+      }
     });
-  }
 
-  // --- AUTENTICAÇÃO ---
-  auth.onAuthStateChanged(user => {
-    if(user){
-      const nome = user.displayName || user.email.split('@')[0] || 'Cliente';
-      acoesUsuario.innerHTML = `<span style="color:#fff; font-weight:700; margin-right:12px;">Olá, ${nome}</span>
-                                <a href="#" id="btn-logout" style="color:#f88; font-weight:700;">Sair</a>`;
-      document.getElementById('btn-logout').onclick = async (e) => { e.preventDefault(); await auth.signOut(); location.reload(); };
-    } else {
-      acoesUsuario.innerHTML = `<a href="#" id="link-entrar"><i class="fas fa-user"></i> Entrar | Cadastrar</a>`;
-      document.getElementById('link-entrar').onclick = e => { e.preventDefault(); document.getElementById('modal-login').style.display='flex'; };
+    // Carregar Mais Vendidos
+    async function carregarMaisVendidos() {
+      const container = document.querySelector('.produtos-destaque');
+      if(!container) return;
+      container.innerHTML = 'Carregando...';
+      try {
+        const snapshot = await db.collection('mais_vendidos').orderBy('ordem','asc').limit(10).get();
+        if(snapshot.empty) { container.innerHTML='<p>Nenhum item disponível.</p>'; return; }
+        container.innerHTML = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const div = document.createElement('div');
+          div.className = 'produto';
+          div.innerHTML = `
+            <img src="${data.imagem || 'https://via.placeholder.com/150'}" alt="${data.nome||''}" />
+            <h3>${data.nome||''}</h3>
+            <p>${data.descricao||''}</p>
+            <span class="preco">${data.preco||''}</span>
+          `;
+          container.appendChild(div);
+        });
+      } catch(err) { container.innerHTML = `<p style="color:#d32f2f;">Erro: ${err.message}</p>`; }
     }
-  });
 
-  // --- MAIS VENDIDOS ---
-  const containerMaisVendidos = document.querySelector('.mais-vendidos .produtos-destaque');
-  async function carregarMaisVendidos() {
-    if(!containerMaisVendidos) return;
-    containerMaisVendidos.innerHTML = 'Carregando...';
-    try {
-      const snapshot = await db.collection('mais_vendidos').orderBy('ordem','asc').limit(10).get();
-      if(snapshot.empty){ containerMaisVendidos.innerHTML='<p>Nenhum item disponível.</p>'; return; }
-      containerMaisVendidos.innerHTML='';
-      snapshot.forEach(doc=>{
-        const data = doc.data();
-        const div = document.createElement('div');
-        div.className='produto';
-        div.innerHTML = `<img src="${data.imagem||'https://via.placeholder.com/150'}" alt="${data.nome||''}">
-                         <h3>${data.nome||''}</h3>
-                         <p>${data.descricao||''}</p>
-                         <span>${data.preco||''}</span>`;
-        containerMaisVendidos.appendChild(div);
-      });
-    } catch(err){ containerMaisVendidos.innerHTML = `<p style="color:red;">Erro: ${err.message}</p>`; }
-  }
-  carregarMaisVendidos();
+    // Carregar Marcas
+    async function carregarMarcas() {
+      const container = document.querySelector('.marcas-container');
+      if(!container) return;
+      container.innerHTML = 'Carregando...';
+      try {
+        const snapshot = await db.collection('marcas').orderBy('ordem','asc').limit(20).get();
+        if(snapshot.empty){ container.innerHTML='<p>Nenhuma marca cadastrada.</p>'; return; }
+        container.innerHTML = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const img = document.createElement('img');
+          img.src = data.logoUrl || 'https://via.placeholder.com/120x50?text=Marca';
+          img.alt = data.nome || 'Marca';
+          container.appendChild(img);
+        });
+      } catch(err){ container.innerHTML = `<p style="color:#d32f2f;">Erro: ${err.message}</p>`; }
+    }
 
-  // --- MARCAS ---
-  const containerMarcas = document.querySelector('.marcas-container');
-  async function carregarMarcas() {
-    if(!containerMarcas) return;
-    containerMarcas.innerHTML = 'Carregando...';
-    try {
-      const snapshot = await db.collection('marcas').orderBy('ordem','asc').limit(20).get();
-      if(snapshot.empty){ containerMarcas.innerHTML='<p>Nenhuma marca cadastrada.</p>'; return; }
-      containerMarcas.innerHTML='';
-      snapshot.forEach(doc=>{
-        const data = doc.data();
-        const img = document.createElement('img');
-        img.src = data.logoUrl||'https://via.placeholder.com/120x50?text=Marca';
-        img.alt = data.nome||'Marca';
-        containerMarcas.appendChild(img);
-      });
-    } catch(err){ containerMarcas.innerHTML = `<p style="color:red;">Erro: ${err.message}</p>`; }
-  }
-  carregarMarcas();
-});
-</script>
+    carregarMaisVendidos();
+    carregarMarcas();
+  </script>
+
 </body>
 </html>
