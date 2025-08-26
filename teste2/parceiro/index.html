@@ -194,6 +194,51 @@ document.querySelectorAll('.menu button').forEach(btn=>{
     showSection(btn.dataset.section);
   });
 });
+
+    ...
+  <!-- aqui terminam suas seções, tabelas, etc. -->
+
+  <!-- Modal Novo Agendamento -->
+  <div id="novoAgendamentoModal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg p-6">
+      <h2 class="text-xl font-bold mb-4">Novo Agendamento</h2>
+      <form id="formAgendamento" class="space-y-4">
+        <div>
+          <label for="cliente" class="block text-sm font-medium text-gray-700">Cliente</label>
+          <input type="text" id="cliente" name="cliente" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+        </div>
+        <div>
+          <label for="servico" class="block text-sm font-medium text-gray-700">Serviço</label>
+          <input type="text" id="servico" name="servico" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+        </div>
+        <div>
+          <label for="data" class="block text-sm font-medium text-gray-700">Data</label>
+          <input type="date" id="data" name="data" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+        </div>
+        <div>
+          <label for="hora" class="block text-sm font-medium text-gray-700">Hora</label>
+          <input type="time" id="hora" name="hora" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button type="button" onclick="fecharModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Cancelar</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function abrirModal() {
+      document.getElementById('novoAgendamentoModal').classList.remove('hidden');
+    }
+
+    function fecharModal() {
+      document.getElementById('novoAgendamentoModal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
+
 </script>
 
 </body>
