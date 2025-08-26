@@ -198,34 +198,40 @@ document.querySelectorAll('.menu button').forEach(btn=>{
 </script>
   
   <!-- Modal Novo Agendamento -->
-  <div id="novoAgendamentoModal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg p-6">
-      <h2 class="text-xl font-bold mb-4">Novo Agendamento</h2>
-      <form id="formAgendamento" class="space-y-4">
-        <div>
-          <label for="cliente" class="block text-sm font-medium text-gray-700">Cliente</label>
-          <input type="text" id="cliente" name="cliente" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-        </div>
-        <div>
-          <label for="servico" class="block text-sm font-medium text-gray-700">Serviço</label>
-          <input type="text" id="servico" name="servico" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-        </div>
-        <div>
-          <label for="data" class="block text-sm font-medium text-gray-700">Data</label>
-          <input type="date" id="data" name="data" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-        </div>
-        <div>
-          <label for="hora" class="block text-sm font-medium text-gray-700">Hora</label>
-          <input type="time" id="hora" name="hora" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-        </div>
-        <div class="flex justify-end space-x-2">
-          <button type="button" onclick="fecharModal()" class="px-4 py-2 bg-gray-300 rounded-lg">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Salvar</button>
-        </div>
-      </form>
-    </div>
-  </div>
+<div id="novoAgendamentoModal" style="
+  position:fixed; inset:0; background:rgba(0,0,0,.5);
+  display:none; align-items:center; justify-content:center; z-index:2000;">
+  <div style="background:#fff; border-radius:10px; width:100%; max-width:520px; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.2)">
+    <h2 style="margin:0 0 12px; font-size:18px;">Novo Agendamento</h2>
 
+    <form onsubmit="event.preventDefault(); /* TODO: salvar */ fecharModal();" style="display:grid; gap:10px">
+      <div>
+        <label>Cliente</label>
+        <input id="ag_cliente" required />
+      </div>
+      <div>
+        <label>Serviço</label>
+        <input id="ag_servico" required />
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div>
+          <label>Data</label>
+          <input id="ag_data" type="date" required />
+        </div>
+        <div>
+          <label>Hora</label>
+          <input id="ag_hora" type="time" required />
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px">
+        <button type="button" class="btn ghost" onclick="fecharModal()">Cancelar</button>
+        <button type="submit" class="btn">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+  
   <script>
     function abrirModal() {
       document.getElementById('novoAgendamentoModal').classList.remove('hidden');
