@@ -149,7 +149,7 @@
     <section id="agenda" class="card section">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <h2>Agenda de Serviços</h2>
-        <div><button class="btn" onclick="openNewBookingFromService()">Novo agendamento</button></div>
+        <div><button class="btn" onclick="abrirModal()">Novo agendamento</button></div>
       </div>
       <div id="calendar" style="margin-top:12px"></div>
     </section>
@@ -195,9 +195,8 @@ document.querySelectorAll('.menu button').forEach(btn=>{
   });
 });
 
-    ...
-  <!-- aqui terminam suas seções, tabelas, etc. -->
-
+</script>
+  
   <!-- Modal Novo Agendamento -->
   <div id="novoAgendamentoModal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg p-6">
@@ -236,10 +235,5 @@ document.querySelectorAll('.menu button').forEach(btn=>{
       document.getElementById('novoAgendamentoModal').classList.add('hidden');
     }
   </script>
-</body>
-</html>
-
-</script>
-
 </body>
 </html>
