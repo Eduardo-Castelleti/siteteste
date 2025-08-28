@@ -3,209 +3,129 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pet Dudis - Início</title>
+  <title>Pet Dudis - Produtos para Cachorro</title>
 
-  <!-- Estilos globais existentes -->
+  <!-- Estilos globais -->
   <link rel="stylesheet" href="style.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 
   <style>
-    /* ---------- Ajustes visuais do cabeçalho e dropdown ---------- */
-    .acoes-usuario {
-      position: relative;
+    /* ---------- ESTILOS DO CATÁLOGO (do layout da imagem) ---------- */
+    .container {
       display: flex;
-      align-items: center;
-      gap: 18px;
-      font-size: 0.95rem;
+      max-width: 1400px;
+      margin: 20px auto;
+      padding: 20px;
     }
-    .acoes-usuario a, .acoes-usuario span {
-      color: #333;
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      padding-right: 20px;
+    }
+
+    .sidebar h3 {
+      margin-top: 20px;
+      font-size: 16px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+
+    .sidebar a {
+      display: block;
+      margin: 6px 0;
       text-decoration: none;
-      cursor: pointer;
-    }
-    .acoes-usuario a:hover, .acoes-usuario span:hover {
-      color: #5e2ca5;
-    }
-    .usuario-logado {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-    }
-    .usuario-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border: 1px solid #e5e5e5;
-      border-radius: 999px;
-      background: #fff;
-      transition: box-shadow .2s ease, transform .05s ease;
-      user-select: none;
-    }
-    .usuario-chip:hover {
-      box-shadow: 0 6px 18px rgba(0,0,0,.08);
-    }
-    .usuario-iniciais {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      background: #5e2ca5; color: #fff; font-weight: 700; font-size: 0.9rem;
-    }
-    .usuario-nome {
-      font-weight: 700;
-    }
-    .usuario-seta {
-      margin-left: 2px;
-      transform: rotate(0deg);
-      transition: transform .2s ease;
-      font-size: 0.9rem; color: #777;
-    }
-    .usuario-chip[aria-expanded="true"] .usuario-seta {
-      transform: rotate(180deg);
+      color: #4a3f35;
+      font-size: 14px;
     }
 
-    /* ---------- Painel lateral (“faixa do cliente”) ---------- */
-    .painel-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.45);
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity .2s ease, visibility .2s ease;
-      z-index: 1000;
-    }
-    .painel-overlay.ativo {
-      opacity: 1;
-      visibility: visible;
-    }
-    .painel-cliente {
-      position: fixed;
-      top: 0;
-      right: 0;
-      height: 100vh;
-      width: min(92vw, 360px);
-      background: #fff;
-      box-shadow: -10px 0 30px rgba(0,0,0,.15);
-      transform: translateX(100%);
-      transition: transform .25s ease;
-      z-index: 1001;
-      display: flex;
-      flex-direction: column;
-    }
-    .painel-cliente.ativo {
-      transform: translateX(0);
-    }
-    .painel-topo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 18px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .painel-topo .foto {
-      width: 40px; height: 40px; border-radius: 50%;
-      display:flex; align-items:center; justify-content:center;
-      background: #5e2ca5; color:#fff; font-weight:700;
-    }
-    .painel-topo .info {
+    /* Conteúdo */
+    .content {
       flex: 1;
-    }
-    .painel-topo .info .nome {
-      font-weight: 800; color:#333; line-height: 1.15;
-    }
-    .painel-topo .info .email {
-      font-size: .85rem; color:#777;
-    }
-    .painel-fechar {
-      background: transparent;
-      border: none;
-      font-size: 1.1rem;
-      cursor: pointer;
-      color: #666;
     }
 
-    .painel-lista {
-      padding: 10px 10px 18px;
-      overflow-y: auto;
-      flex: 1;
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
     }
-    .secao {
-      margin-top: 12px;
-      border: 1px solid #efefef;
+
+    .content-header h2 {
+      font-size: 20px;
+    }
+
+    .dropdown {
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    /* Grid produtos */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #fff;
       border-radius: 12px;
-      overflow: hidden;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      text-align: center;
     }
-    .secao-titulo {
-      padding: 10px 12px;
-      font-size: .85rem;
-      letter-spacing: .02em;
-      font-weight: 800;
-      color: #5e2ca5;
-      background: #faf8ff;
-      border-bottom: 1px solid #efefef;
-    }
-    .link-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 14px;
-      text-decoration: none;
-      color: #333;
-      border-bottom: 1px solid #f5f5f5;
-    }
-    .link-item:last-child { border-bottom: 0; }
-    .link-item:hover { background: #f9f9ff; }
-    .link-item i {
-      width: 22px; text-align: center; color: #5e2ca5;
-    }
-    .chip-role {
-      margin-left: auto;
-      font-size: .75rem;
-      padding: 3px 8px;
-      background: #eef3ff;
-      color: #3556d1;
-      border-radius: 999px;
-      border: 1px solid #dbe4ff;
-      font-weight: 700;
-    }
-    .painel-rodape {
-      padding: 10px 12px 16px;
-      border-top: 1px solid #f0f0f0;
-      display: flex; gap: 8px; flex-wrap: wrap;
-    }
-    .btn-sair, .btn-ir-area {
-      display: inline-flex; align-items:center; gap:8px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #eee;
-      background: #fff;
-      cursor: pointer;
-      font-weight: 700;
-      color:#333;
-    }
-    .btn-ir-area {
-      background:#5e2ca5; color:#fff; border-color:#5e2ca5;
-    }
-    .btn-sair:hover { background:#f9f9f9; }
-    .btn-ir-area:hover { filter: brightness(0.97); }
 
-    /* ---------- Modal Login/Cadastro (mantido) ---------- */
-    .modal-login { display:none; position:fixed; z-index:1100; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.6);}
-    .modal-login-content { background:#fff; margin:8% auto; padding:20px; border-radius:12px; width:90%; max-width:420px; position:relative; box-shadow:0 18px 50px rgba(0,0,0,.25);}
-    .modal-login-content h2 { text-align:center; margin-bottom:20px; }
-    .modal-login-content input { width:100%; padding:12px; margin:6px 0; border:1px solid #ddd; border-radius:8px; }
-    .modal-login-content button { width:100%; padding:12px; margin:10px 0; background:#5e2ca5; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:800; }
-    .modal-login-content .fechar { position:absolute; top:10px; right:15px; font-size:24px; cursor:pointer; }
-    .tab-login { display:flex; justify-content:space-around; margin-bottom:15px; cursor:pointer; }
-    .tab-login div { padding:10px 20px; border-bottom:2px solid transparent; }
-    .tab-login .ativo { border-bottom:2px solid #5e2ca5; font-weight:800; color:#5e2ca5; }
+    .card img {
+      max-width: 100%;
+      height: 220px;
+      object-fit: contain;
+      margin-bottom: 12px;
+    }
 
-    /* Acessibilidade mínima para foco */
-    .usuario-chip:focus, .link-item:focus, .btn-sair:focus, .btn-ir-area:focus, .painel-fechar:focus {
-      outline: 2px solid #5e2ca5;
-      outline-offset: 2px;
+    .rating {
+      display: inline-block;
+      background: #fff3e0;
+      color: #8d5a00;
+      font-size: 14px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .card h4 {
+      font-size: 15px;
+      margin: 10px 0;
+      min-height: 40px;
+    }
+
+    .price {
+      font-size: 18px;
+      font-weight: bold;
+      color: #4a3f35;
+    }
+
+    .old-price {
+      font-size: 14px;
+      text-decoration: line-through;
+      color: #888;
+    }
+
+    .discount {
+      display: inline-block;
+      background: #6b3df1;
+      color: #fff;
+      font-size: 13px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      margin-left: 6px;
+    }
+
+    .club {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #6b3df1;
     }
   </style>
 </head>
@@ -236,11 +156,7 @@
     <div class="acoes-usuario">
       <a href="#"><i class="fas fa-sync-alt"></i> Recorrência</a>
       <a href="#"><i class="fas fa-box"></i> Pedidos</a>
-
-      <!-- Botão para abrir modal login/cadastro -->
       <span id="botao-login"><i class="fas fa-user"></i> Entrar | Cadastrar</span>
-
-      <!-- Chip com nome do usuário -->
       <div class="usuario-logado" id="usuario-logado">
         <button id="usuario-chip" class="usuario-chip" aria-expanded="false" aria-controls="painel-cliente">
           <span class="usuario-iniciais" id="usuario-iniciais">U</span>
@@ -273,6 +189,84 @@
   </ul>
 </nav>
 
+<!-- CONTEÚDO PRINCIPAL - CATÁLOGO -->
+<div class="container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <input type="text" placeholder="Informe seu CEP" style="width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;">
+    
+    <h3>Rações</h3>
+    <a href="#">Ração Seca</a>
+    <a href="#">Ração Natural</a>
+    <a href="#">Ração Úmida</a>
+    <a href="#">Ração Medicamentosa</a>
+
+    <h3>Alimentação Natural</h3>
+    <a href="#">Alimentação Natural Fresca</a>
+
+    <h3>Petiscos e Ossos</h3>
+    <a href="#">Cuidado Oral</a>
+    <a href="#">Petisco Natural</a>
+    <a href="#">Bifinhos</a>
+    <a href="#">Biscoitos e Snacks</a>
+    <a href="#">Ossos e Mordedores</a>
+  </aside>
+
+  <!-- Conteúdo -->
+  <main class="content">
+    <div class="content-header">
+      <h2>Todos os produtos para Cachorro <span style="color:#888;">(12919 produtos)</span></h2>
+      <select class="dropdown">
+        <option>Relevância</option>
+        <option>Menor preço</option>
+        <option>Maior preço</option>
+        <option>Mais vendidos</option>
+      </select>
+    </div>
+
+    <div class="grid">
+      <!-- Card 1 -->
+      <div class="card">
+        <div class="rating">⭐ 4,6</div>
+        <img src="https://static.petz.com.br/fotos/1645510581022.jpg" alt="Ração Nutrilus Pro+">
+        <h4>Ração Nutrilus Pro+ Frango & Carne para Cães Adultos - 20Kg</h4>
+        <div class="old-price">R$ 215,90</div>
+        <div class="price">R$ 183,52 <span class="discount">-25%</span></div>
+        <div class="club">R$ 161,91 só com o Clube</div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="card">
+        <div class="rating">⭐ 4,8</div>
+        <img src="https://static.petz.com.br/fotos/1654603899255.jpg" alt="Tapete Higiênico Meau">
+        <h4>Tapete Higiênico Meau Cheirinho Cítrico Slim para Cães - 30 Unidades</h4>
+        <div class="old-price">R$ 91,90</div>
+        <div class="price">R$ 68,93 <span class="discount">-27%</span></div>
+        <div class="club">R$ 67,08 só com o Clube</div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="card">
+        <div class="rating">⭐ 4,6</div>
+        <img src="https://static.petz.com.br/fotos/1596817328081.jpg" alt="Golden Special">
+        <h4>Ração Seca PremieR Pet Golden Special Cães Adultos Frango e Carne - 20Kg</h4>
+        <div class="old-price">R$ 204,90</div>
+        <div class="price">R$ 174,17 <span class="discount">-15%</span></div>
+        <div class="club">só com o Clube</div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="card">
+        <div class="rating">⭐ 4,7</div>
+        <img src="https://static.petz.com.br/fotos/1617918333202.jpg" alt="Royal Canin Mini">
+        <h4>Kit Ração Royal Canin Sachê Size Health Nutrition Wet para Cães Adultos Raças Pequenas - 12 Unidades</h4>
+        <div class="old-price">R$ 117,99</div>
+        <div class="price">R$ 100,30 <span class="discount">-15%</span></div>
+        <div class="club">só com o Clube</div>
+      </div>
+    </div>
+  </main>
+</div>
 
 <!-- RODAPÉ -->
 <footer class="rodape-completo">
@@ -310,28 +304,6 @@
         <input type="tel" placeholder="Seu Telefone" required/>
         <button type="submit"><i class="fas fa-envelope"></i> Enviar</button>
       </form>
-      <h5>Imagem antispam</h5>
-      <label>Digite o código no campo abaixo <span style="color:red">*</span></label>
-      <div class="recaptcha-fake">
-        <div class="caixa"></div>
-        <span><i class="far fa-square"></i> Não sou um robô</span>
-        <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA"/>
-      </div>
-      <label><input type="checkbox" required/> Eu li e concordo com o contrato de <a href="#">Segurança e Privacidade</a></label>
-    </div>
-  </div>
-
-  <div class="rodape-inferior">
-    <div class="pagamentos">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa"/>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="MasterCard"/>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo_%282018%29.svg" alt="Amex"/>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/8/88/Elo_card_logo.svg" alt="Elo"/>
-      <img src="https://logodownload.org/wp-content/uploads/2019/09/hipercard-logo-2.png" alt="Hipercard" style="height:28px;"/>
-    </div>
-    <div class="selos">
-      <img src="https://www.certisign.com.br/assets/images/selos/selo_site_seguro.png" alt="Site Seguro"/>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/3/34/Google_Safe_Browsing_logo.svg" alt="Google Safe" style="height:28px;"/>
     </div>
   </div>
 </footer>
