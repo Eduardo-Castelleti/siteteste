@@ -112,6 +112,48 @@
       color: #333;
       border: 1px solid #ccc;
     }
+
+    /* ---- Abas ---- */
+    .tabs-container {
+      max-width: 1200px;
+      margin: 40px auto;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 500;
+      color: #555;
+      transition: all 0.2s ease;
+    }
+
+    .tab.active {
+      border-color: #6b3df1;
+      color: #6b3df1;
+      background: #f9f5ff;
+    }
+
+    .tab-content {
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .tab-content.hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -215,6 +257,48 @@
   </div>
 </div>
 
+<!-- FAIXA DE ABAS -->
+<div class="tabs-container">
+  <div class="tabs">
+    <div class="tab active" data-tab="info">📄 Informações</div>
+    <div class="tab" data-tab="dicas">💡 Dicas</div>
+    <div class="tab" data-tab="especificacoes">📑 Especificações</div>
+    <div class="tab" data-tab="comparar">📋 Comparar</div>
+    <div class="tab" data-tab="avaliacoes">⭐ Avaliações</div>
+    <div class="tab" data-tab="perguntas">💬 Perguntas</div>
+  </div>
+
+  <div id="info" class="tab-content">
+    <h3>📄 Informações</h3>
+    <p>A Ração Three Dogs Original Frango, Carne e Arroz para Cães Adultos Raças Médias e Grandes é um alimento seguro e moderno, sem aromatizantes e corantes artificiais, com ótimo custo-benefício.</p>
+  </div>
+
+  <div id="dicas" class="tab-content hidden">
+    <h3>💡 Dicas</h3>
+    <p>Sempre ofereça água fresca e limpa junto com a ração. Guarde o saco bem fechado em local fresco e arejado.</p>
+  </div>
+
+  <div id="especificacoes" class="tab-content hidden">
+    <h3>📑 Especificações</h3>
+    <p>Pacote: 15kg <br> Sabor: Frango, Carne e Arroz <br> Indicação: Cães adultos de médio e grande porte.</p>
+  </div>
+
+  <div id="comparar" class="tab-content hidden">
+    <h3>📋 Comparar</h3>
+    <p>Compare com outras marcas e veja o melhor custo-benefício para seu pet.</p>
+  </div>
+
+  <div id="avaliacoes" class="tab-content hidden">
+    <h3>⭐ Avaliações</h3>
+    <p>⭐ 4.5 (27 avaliações) <br> “Meu cachorro adorou, recomendo!”</p>
+  </div>
+
+  <div id="perguntas" class="tab-content hidden">
+    <h3>💬 Perguntas</h3>
+    <p>Tire suas dúvidas sobre este produto.</p>
+  </div>
+</div>
+
 <script>
   function mudarImagem(el) {
     const imgPrincipal = document.getElementById("img-principal");
@@ -223,6 +307,19 @@
     thumbs.forEach(t => t.classList.remove("ativo"));
     el.classList.add("ativo");
   }
+
+  // Tabs
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.add('hidden'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.remove('hidden');
+    });
+  });
 </script>
 
   <!-- RODAPÉ -->
