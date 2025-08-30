@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detalhe do Produto - Pet Dudis</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    .produto-container {
+      display: flex;
+      max-width: 1200px;
+      margin: 40px auto;
+      gap: 40px;
+    }
+
+    /* Galeria */
+    .galeria {
+      flex: 1;
+    }
+
+    .galeria-principal img {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .galeria-thumbs {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .galeria-thumbs img {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .galeria-thumbs img.ativo {
+      border-color: #6b3df1;
+    }
+
+    /* Informações */
+    .produto-info {
+      flex: 1.2;
+    }
+
+    .produto-info h1 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .avaliacoes {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .avaliacoes i {
+      color: #ffb400;
+    }
+
+    .resumo {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .status-indisponivel {
+      background: #fff3f3;
+      border: 1px solid #f5bebe;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      color: #a33;
+      font-weight: 500;
+    }
+
+    .acoes-produto {
+      display: flex;
+      gap: 15px;
+    }
+
+    .acoes-produto button {
+      flex: 1;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .btn-aviso {
+      background: #6b3df1;
+      color: #fff;
+    }
+
+    .btn-estoque {
+      background: #eee;
+      color: #333;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<div class="produto-container">
+  <!-- Galeria -->
+  <div class="galeria">
+    <div class="galeria-principal">
+      <img src="https://static.petz.com.br/fotos/1645510581022.jpg" alt="Produto principal" id="img-principal">
+    </div>
+    <div class="galeria-thumbs">
+      <img src="https://static.petz.com.br/fotos/1645510581022.jpg" class="ativo" onclick="mudarImagem(this)">
+      <img src="https://static.petz.com.br/fotos/1654603899255.jpg" onclick="mudarImagem(this)">
+      <img src="https://static.petz.com.br/fotos/1596817328081.jpg" onclick="mudarImagem(this)">
+    </div>
+  </div>
+
+  <!-- Informações -->
+  <div class="produto-info">
+    <div class="avaliacoes">
+      <i class="fas fa-star"></i> 4.4 | 27 avaliações | 7 comentários
+    </div>
+    <h1>Ração Three Dogs Original Frango, Carne e Arroz para Cães Adultos Raças Médias e Grandes</h1>
+
+    <div class="resumo">
+      <p><strong>Resumo:</strong></p>
+      <ul>
+        <li>Fácil mastigação;</li>
+        <li>Baixo teor de sódio;</li>
+        <li>Saúde oral beneficiada;</li>
+        <li>Produto de rendimento elevado;</li>
+      </ul>
+    </div>
+
+    <div class="status-indisponivel">
+      😢 Produto indisponível no momento. Podemos avisar quando ele voltar ao estoque.
+    </div>
+
+    <div class="acoes-produto">
+      <button class="btn-aviso"><i class="fas fa-bell"></i> Avise-me quando chegar</button>
+      <button class="btn-estoque"><i class="fas fa-store"></i> Consultar estoque em loja</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function mudarImagem(el) {
+    const imgPrincipal = document.getElementById("img-principal");
+    const thumbs = document.querySelectorAll(".galeria-thumbs img");
+    imgPrincipal.src = el.src;
+    thumbs.forEach(t => t.classList.remove("ativo"));
+    el.classList.add("ativo");
+  }
+</script>
+
+</body>
+</html>
