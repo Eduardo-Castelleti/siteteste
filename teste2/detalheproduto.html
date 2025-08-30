@@ -154,7 +154,74 @@
     .tab-content.hidden {
       display: none;
     }
-  </style>
+
+      font-family: Arial, sans-serif;
+}
+
+.carousel-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 20px 0;
+}
+
+.product-card {
+  min-width: 180px;
+  max-width: 180px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px;
+  margin-right: 15px;
+  text-align: center;
+  background-color: #fff;
+  flex-shrink: 0;
+}
+
+.product-card img {
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.product-card .price {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.product-card .discount {
+  background-color: #6b5dd3;
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 5px;
+  font-size: 12px;
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.button-carousel {
+  background-color: #6b5dd3;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.button-left {
+  left: 0;
+}
+
+.button-right {
+  right: 0;
+}
+
+.carousel-wrapper {
+  position: relative;
+}
+</style>
 </head>
 <body>
 
@@ -299,6 +366,28 @@
   </div>
 </div>
 
+  <h2>Outros tutores de pet também viram</h2>
+
+<div class="carousel-wrapper">
+  <button class="button-carousel button-left" onclick="scrollCarousel(-200)">&#8592;</button>
+  <div class="carousel-container" id="carousel">
+    <div class="product-card">
+      <img src="https://via.placeholder.com/150" alt="Produto 1">
+      <p>Biscoito PremieR Cookie para Cães</p>
+      <span class="quantity">250 g</span>
+      <div class="price">R$ 16,90 <br> <span class="discount">R$ 14,37 -15%</span></div>
+    </div>
+    <div class="product-card">
+      <img src="https://via.placeholder.com/150" alt="Produto 2">
+      <p>Banho Seco dog. For Cat's Espuma para Gatos</p>
+      <span class="quantity">150 mL</span>
+      <div class="price">R$ 132,89 <br> <span class="discount">R$ 112,96 -15%</span></div>
+    </div>
+    <!-- Repita para os outros produtos -->
+  </div>
+  <button class="button-carousel button-right" onclick="scrollCarousel(200)">&#8594;</button>
+</div>
+
 <script>
   function mudarImagem(el) {
     const imgPrincipal = document.getElementById("img-principal");
@@ -320,6 +409,11 @@
       document.getElementById(tab.dataset.tab).classList.remove('hidden');
     });
   });
+
+  function scrollCarousel(value) {
+  const container = document.getElementById('carousel');
+  container.scrollBy({ left: value, behavior: 'smooth' });
+}
 </script>
 
   <!-- RODAPÉ -->
