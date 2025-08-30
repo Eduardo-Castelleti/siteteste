@@ -116,6 +116,64 @@
 </head>
 <body>
 
+  <!-- CABEÇALHO -->
+<header class="cabecalho">
+  <div class="cabecalho-conteudo">
+    <!-- Logo -->
+    <div class="logo-container">
+      <img src="img/logo.png" alt="Pet Dudis" class="logo"/>
+    </div>
+
+    <!-- CEP + Busca -->
+    <div class="cep-busca">
+      <div class="cep-input-wrapper">
+        <span>📍</span>
+        <input type="text" placeholder="Informar CEP" class="cep-input">
+      </div>
+      <div class="busca-input-wrapper">
+        <span>🔍</span>
+        <input type="text" placeholder="O que seu pet precisa?" class="busca-input">
+        <button class="btn-busca">🔍</button>
+      </div>
+    </div>
+
+    <!-- Ações usuário -->
+    <div class="acoes-usuario">
+      <a href="#"><i class="fas fa-sync-alt"></i> Recorrência</a>
+      <a href="#"><i class="fas fa-box"></i> Pedidos</a>
+      <span id="botao-login"><i class="fas fa-user"></i> Entrar | Cadastrar</span>
+      <div class="usuario-logado" id="usuario-logado">
+        <button id="usuario-chip" class="usuario-chip" aria-expanded="false" aria-controls="painel-cliente">
+          <span class="usuario-iniciais" id="usuario-iniciais">U</span>
+          <span class="usuario-nome" id="nome-usuario">Usuário</span>
+          <i class="fa-solid fa-chevron-down usuario-seta"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- CATEGORIAS -->
+<nav class="faixa-categorias">
+  <ul>
+    <li><a href="cachorro.html">Cachorro</a></li>
+    <li><a href="gato.html">Gato</a></li>
+    <li><a href="outros.html">Outros Pets</a></li>
+    <li class="dropdown">
+      <a href="servicos.html">Serviços <i class="fas fa-caret-down"></i></a>
+      <ul class="submenu">
+        <li><a href="banho.html">Banho e Tosa</a></li>
+        <li><a href="creche.html">Creche</a></li>
+        <li><a href="hospedagem.html#hospedagem">Hospedagem</a></li>
+        <li><a href="consultaveterinario.html#consulta">Consulta Veterinária</a></li>
+        <li><a href="dogwalker.html#dogwalker">Dog Walker</a></li>
+        <li><a href="petsitter.html#petsitter">Pet Sitter</a></li>
+        <li><a href="adestramento.html#adestramento">Adestramento</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  
 <div class="produto-container">
   <!-- Galeria -->
   <div class="galeria">
